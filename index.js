@@ -4,7 +4,7 @@
 
 const express = require('express');
 const path = require('path');
-const twilio = require('twilio');
+const axios = require('axios');
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
@@ -12,10 +12,10 @@ const { getAuth } = require('firebase-admin/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Twilio
-const accountSid = 'ACc822f779612efd213858a85b7346e941';
-const authToken = '7e1580cc3a94e99178b011983c4ac20a';
-const cliente = new twilio(accountSid, authToken);
+// Meta WhatsApp Cloud API
+const META_WA_ACCESS_TOKEN = process.env.META_WA_ACCESS_TOKEN || '';
+const META_WA_PHONE_NUMBER_ID = process.env.META_WA_PHONE_NUMBER_ID || '';
+const META_WEBHOOK_VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN || 'mediclock_secure_token_123';
 
 // Firebase: dos apps
 // 1. Firestore → proyecto GCP original
@@ -440,70 +440,112 @@ app.get('/api/grupos/:grupoId/export/ics', authMiddleware, async (req, res) => {
 });
 
 // ===========================================
-// WEBHOOK TWILIO (sin auth, viene de Twilio)
+// WEBHOOK META WHATSAPP CLOUD API
 // ===========================================
 
-app.post('/api/twilio-callback', async (req, res) => {
-    const texto = (req.body.Body || '').trim().toLowerCase();
-    const numero = req.body.From.replace('whatsapp:', '');
-    const mediaUrl = req.body.MediaUrl0;
-    const mediaType = req.body.MediaContentType0 || '';
-    const esVoz = mediaType.startsWith('audio');
-    const esFoto = mediaType.startsWith('image');
+// 1. Verificación del Webhook (GET)
+app.get('/api/meta-webhook', (req, res) => {
+    const mode = req.query['hub.mode'];
+    const token = req.query['hub.verify_token'];
+    const challenge = req.query['hub.challenge'];
 
-    console.log(`[Webhook] De ${numero}: "${texto}"`);
+    if (mode && token) {
+        if (mode === 'subscribe' && token === META_WEBHOOK_VERIFY_TOKEN) {
+            console.log('WEBHOOK_VERIFIED');
+            res.status(200).send(challenge);
+        } else {
+            res.sendStatus(403);
+        }
+    } else {
+        res.sendStatus(400);
+    }
+});
 
-    // Buscar en todos los grupos
-    const gruposSnap = await db.collection('grupos').get();
-    let medConfirmado = null;
-    let grupoConfirmado = null;
+// 2. Recepción de mensajes (POST)
+app.post('/api/meta-webhook', async (req, res) => {
+    const body = req.body;
 
-    for (const grupoDoc of gruposSnap.docs) {
-        const medsSnap = await grupoDoc.ref.collection('medicamentos').get();
-        const meds = medsSnap.docs.map(d => ({ id: d.id, ...d.data(), _ref: d.ref }));
+    if (body.object === 'whatsapp_business_account') {
+        const entry = body.entry?.[0];
+        const changes = entry?.changes?.[0];
+        const value = changes?.value;
+        const messages = value?.messages;
 
-        for (const med of meds) {
-            if (med.telefono === numero && med.estado === 'pendiente') {
-                const esOk = texto.includes('tome') || texto.includes('ok') ||
-                    texto.includes('si') || texto.includes('sí') ||
-                    texto.includes('listo') || texto.includes('ya') ||
-                    esFoto || esVoz;
+        if (messages && messages[0]) {
+            const message = messages[0];
+            const numero = message.from; // Número con código de país, sin el '+'
+            const messageType = message.type;
+            
+            let texto = '';
+            let mediaUrl = null;
+            let esVoz = false;
+            let esFoto = false;
 
-                if (esOk) {
-                    const extras = {};
-                    if (esFoto) extras.fotoConfirmacion = mediaUrl;
-                    if (esVoz) extras.vozConfirmacion = mediaUrl;
+            if (messageType === 'text') {
+                texto = message.text.body.trim().toLowerCase();
+            } else if (messageType === 'audio') {
+                esVoz = true;
+                mediaUrl = message.audio.id; // En Meta, los adjuntos se descargan vía un ID
+            } else if (messageType === 'image') {
+                esFoto = true;
+                mediaUrl = message.image.id;
+            }
 
-                    await med._ref.update({ estado: 'tomada', confirmadoEn: new Date().toISOString(), ...extras });
-                    await grupoDoc.ref.collection('historial').add({
-                        medicamentoId: med.id,
-                        familiar: med.familiar,
-                        nombre: med.nombre,
-                        dosis: med.dosis || '',
-                        horaProgram: med.hora,
-                        estado: 'tomada',
-                        timestamp: new Date().toISOString(),
-                        ...extras
-                    });
-                    medConfirmado = med;
-                    grupoConfirmado = grupoDoc.id;
-                    break;
+            console.log(`[Webhook Meta] De ${numero}: "${texto}" (Tipo: ${messageType})`);
+
+            // Buscar en todos los grupos
+            const gruposSnap = await db.collection('grupos').get();
+            let medConfirmado = null;
+
+            for (const grupoDoc of gruposSnap.docs) {
+                const medsSnap = await grupoDoc.ref.collection('medicamentos').get();
+                const meds = medsSnap.docs.map(d => ({ id: d.id, ...d.data(), _ref: d.ref }));
+
+                for (const med of meds) {
+                    // Limpiar el teléfono de la DB para compararlo con el formato de Meta
+                    const telDB = (med.telefono || '').replace(/\D/g, ''); 
+                    
+                    if (telDB === numero && med.estado === 'pendiente') {
+                        const esOk = texto.includes('tome') || texto.includes('ok') ||
+                            texto.includes('si') || texto.includes('sí') ||
+                            texto.includes('listo') || texto.includes('ya') ||
+                            esFoto || esVoz;
+
+                        if (esOk) {
+                            const extras = {};
+                            if (esFoto) extras.fotoConfirmacion = mediaUrl;
+                            if (esVoz) extras.vozConfirmacion = mediaUrl;
+
+                            await med._ref.update({ estado: 'tomada', confirmadoEn: new Date().toISOString(), ...extras });
+                            await grupoDoc.ref.collection('historial').add({
+                                medicamentoId: med.id,
+                                familiar: med.familiar,
+                                nombre: med.nombre,
+                                dosis: med.dosis || '',
+                                horaProgram: med.hora,
+                                estado: 'tomada',
+                                timestamp: new Date().toISOString(),
+                                ...extras
+                            });
+                            medConfirmado = med;
+                            break;
+                        }
+                    }
                 }
+                if (medConfirmado) break;
+            }
+
+            if (medConfirmado) {
+                const extra = esVoz ? ' Escuché tu nota de voz.' : esFoto ? ' Vi la foto que enviaste.' : '';
+                await enviarWA(numero, medConfirmado.familiar, `✅ ¡Perfecto!${extra} Registré que tomaste tu *${medConfirmado.nombre}*. ¡Salud! 💪`);
+            } else {
+                await enviarWA(numero, 'Usuario', `Responde *"Listo"*, *"Ok"*, o envía una 📷 foto o 🎤 nota de voz para confirmar tu medicamento.`);
             }
         }
-        if (medConfirmado) break;
-    }
-
-    const twiml = new twilio.twiml.MessagingResponse();
-    if (medConfirmado) {
-        const extra = esVoz ? ' Escuché tu nota de voz.' : esFoto ? ' Vi la foto que enviaste.' : '';
-        twiml.message(`✅ ¡Perfecto!${extra} Registré que tomaste tu *${medConfirmado.nombre}*. ¡Salud! 💪`);
+        res.sendStatus(200);
     } else {
-        twiml.message(`Responde *"Listo"*, *"Ok"*, o envía una 📷 foto o 🎤 nota de voz para confirmar tu medicamento.`);
+        res.sendStatus(404);
     }
-
-    res.writeHead(200, { 'Content-Type': 'text/xml' });
-    res.end(twiml.toString());
 });
 
 // Ruta de invitación (SPA)
@@ -541,9 +583,30 @@ function minutosDesde(horaStr) {
 }
 
 async function enviarWA(telefono, familiar, mensaje) {
-    return cliente.messages.create({ body: mensaje, to: `whatsapp:${telefono}`, from: 'whatsapp:+14155238886' })
-        .then(m => console.log(`[OK] WA → ${familiar}. ${m.sid}`))
-        .catch(e => console.error(`[ERROR] WA:`, e.message));
+    if (!META_WA_ACCESS_TOKEN) {
+        console.log(`[SIMULADO WA Meta] Para ${familiar} (${telefono}): ${mensaje}`);
+        return;
+    }
+
+    const telLimpio = (telefono || '').replace(/\D/g, ''); // Limpiar '+' o espacios
+    const url = `https://graph.facebook.com/v20.0/${META_WA_PHONE_NUMBER_ID}/messages`;
+    
+    try {
+        const response = await axios.post(url, {
+            messaging_product: 'whatsapp',
+            to: telLimpio,
+            type: 'text',
+            text: { body: mensaje }
+        }, {
+            headers: {
+                'Authorization': `Bearer ${META_WA_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log(`[OK] WA Meta → ${familiar} (${telLimpio}). MsgID: ${response.data.messages[0].id}`);
+    } catch (e) {
+        console.error(`[ERROR] WA Meta:`, e.response?.data || e.message);
+    }
 }
 
 async function verificarReloj() {
