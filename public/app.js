@@ -913,6 +913,9 @@ function renderPacientes() {
                     <div class="paciente-nombre">${p.nombre}</div>
                     <div class="paciente-meta">${p.telefono ? '📞 ' + p.telefono : 'Sin teléfono'}</div>
                     ${p.condicion ? `<div class="paciente-meta">⚕️ ${p.condicion}</div>` : ''}
+                    ${p.alergias ? `<div class="paciente-meta" style="color:var(--c-red); font-weight: 600;">⚠️ Alergias: ${p.alergias}</div>` : ''}
+                    ${p.peso ? `<div class="paciente-meta">⚖️ Peso: ${p.peso}</div>` : ''}
+                    ${p.medico ? `<div class="paciente-meta">👨‍⚕️ Médico: ${p.medico}</div>` : ''}
                 </div>
             </div>
         `).join('');
@@ -934,7 +937,19 @@ window.abrirModalNuevoPaciente = function(id = null) {
         </div>
         <div class="form-group">
             <label>Condición Médica (Opcional)</label>
-            <input type="text" id="p-cond" class="form-input" placeholder="Ej: Hipertensin" value="${p.condicion || ''}">
+            <input type="text" id="p-cond" class="form-input" placeholder="Ej: Hipertensión" value="${p.condicion || ''}">
+        </div>
+        <div class="form-group">
+            <label>Alergias (Importante)</label>
+            <input type="text" id="p-alergias" class="form-input" placeholder="Ej: Penicilina" value="${p.alergias || ''}">
+        </div>
+        <div class="form-group">
+            <label>Peso (Opcional)</label>
+            <input type="text" id="p-peso" class="form-input" placeholder="Ej: 65kg" value="${p.peso || ''}">
+        </div>
+        <div class="form-group">
+            <label>Médico Tratante (Opcional)</label>
+            <input type="text" id="p-medico" class="form-input" placeholder="Nombre o teléfono" value="${p.medico || ''}">
         </div>
         <div class="modal-btn-row">
             <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
@@ -948,9 +963,12 @@ window.guardarPaciente = async function() {
     const nombre = document.getElementById('p-nombre').value.trim();
     const telefono = document.getElementById('p-tel').value.trim();
     const condicion = document.getElementById('p-cond').value.trim();
+    const alergias = document.getElementById('p-alergias').value.trim();
+    const peso = document.getElementById('p-peso').value.trim();
+    const medico = document.getElementById('p-medico').value.trim();
     if (!nombre) return toast('Ingresa el nombre', 'error');
     
-    const datos = { nombre, telefono, condicion };
+    const datos = { nombre, telefono, condicion, alergias, peso, medico };
     try {
         if (state.editingPacienteId) {
             await api('PUT', `/api/grupos/${state.activeGrupoId}/pacientes/${state.editingPacienteId}`, datos);

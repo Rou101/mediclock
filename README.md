@@ -38,6 +38,8 @@ El problema original que aborda MediClock es el "síndrome del cuidador principa
 ---
 
 ### Futuros Pasos (Backlog)
+- [ ] **La opción Moderna: React Native o Flutter:** Reescribir la capa visual (Frontend) utilizando un framework cruzado para obtener el máximo rendimiento nativo y empaquetar aplicaciones reales para las tiendas (App Store y Google Play).
+- [ ] **Adaptación Nativa de Interfaz (OS-Aware UI):** Detectar si la PWA corre en iOS o Android y adaptar dinámicamente iconos, colores y elementos de interfaz (Ej: Tabs de Cupertino vs Material Design) para que se sienta 100% intuitiva según el sistema operativo del usuario.
 - [ ] **Control de Existencias (Inventario Math):** Restar la dosis del stock cada vez que se marca "Tomada" y alertar cuando queden pocas pastillas.
 - [ ] **Mensajes y Multimedia:** Grabar audios o subir fotos del remedio por parte del médico o familiar, para que se reproduzcan en parlantes inteligentes.
 - [ ] **Integración B2B (Monetización):** Escaneo de recetas médicas y convenios de comisión directa con farmacias locales al solicitar refill automático.
