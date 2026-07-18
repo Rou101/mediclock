@@ -392,7 +392,7 @@ function diasAbrev(dias) {
     return dias.map(d => n[d]).join('');
 }
 function estadoLabel(estado) {
-    const m = { tomada: '⭐ Tomada', pendiente: '⏳ Pendiente', olvidada: '⭐ Olvidada' };
+    const m = { tomada: '✅ Tomada', pendiente: '⏳ Pendiente', olvidada: '❌ Olvidada' };
     return m[estado] || 'Programado';
 }
 function statusClass(estado) {
@@ -459,8 +459,8 @@ function renderHistorial() {
     const olvidadas = lista.filter(h => h.estado === 'olvidada').length;
 
     document.getElementById('historial-stats').innerHTML = `
-        <span class="stat-pill">⭐ ${tomadas} tomadas</span>
-        <span class="stat-pill miss">⭐ ${olvidadas} olvidadas</span>
+        <span class="stat-pill">✅ ${tomadas} tomadas</span>
+        <span class="stat-pill miss">❌ ${olvidadas} olvidadas</span>
     `;
 
     const container = document.getElementById('historial-lista');
