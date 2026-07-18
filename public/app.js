@@ -144,7 +144,7 @@ function mostrarSelectorGrupos() {
             ${state.grupos.map(g => `
                 <div class="grupos-card ${g.id === state.activeGrupoId ? 'active' : ''}" style="background:var(--c-navy-light); padding:16px; border-radius:12px; cursor:pointer; display:flex; justify-content:space-between; align-items:center;" onclick="seleccionarGrupoDesdeModal('${g.id}')">
                     <div>
-                        <span style="font-weight:600; display:block; font-size:16px;">x▾${g.nombre}</span>
+                        <span style="font-weight:600; display:block; font-size:16px;">👤 ${g.nombre}</span>
                         <span style="font-size:12px; color:var(--c-gray);">${g.miembros} miembro(s)</span>
                     </div>
                     ${g.id === state.activeGrupoId ? '<span style="color:var(--c-green)">⭐</span>' : '<span>⚪</span>'}
@@ -367,13 +367,13 @@ function renderHoy() {
 
     lista.innerHTML = Object.entries(grupos).map(([familiar, meds]) => `
         <div class="familiar-group">
-            <div class="familiar-label">x▾${familiar}</div>
+            <div class="familiar-label">👤 ${familiar}</div>
             ${meds.map(m => `
                 <div class="med-card ${m.estado || ''}" onclick="abrirModalEditar('${m.id}')">
                     <div class="med-time">${m.hora}<small>${frecLabel(m)}</small></div>
                     <div class="med-info">
                         <div class="med-name">💊 ${m.nombre}</div>
-                        <div class="med-dose">${m.dosis}</div>
+                        <div class="med-dose">${m.dosis || ''}</div>
                     </div>
                     <span class="med-status ${statusClass(m.estado)}">${estadoLabel(m.estado)}</span>
                 </div>
