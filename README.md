@@ -46,7 +46,8 @@ El problema original que aborda MediClock es el "síndrome del cuidador principa
 - [ ] **Pasarelas de Pago (Stripe/MercadoPago):** Integración completa para el cobro automatizado de suscripciones (SaaS), gestión de tarjetas y facturación para clientes institucionales y particulares.
 - [ ] **Roles y Jerarquías Institucionales (RBAC):** Expansión del sistema de permisos para incluir roles corporativos: Directores Médicos, Jefes de Enfermería, Enfermeras, Cuidadores, y Encargados de Bodega/Inventario.
 - [ ] **Comunicaciones Automatizadas:** Motor de envíos para correos de verificación, bienvenida, y alertas multicanal (WhatsApp/Email/SMS) segmentadas según el rol (ej: alertas de poco stock directo a bodega).
-- [ ] **Integración B2B (Monetización):** Escaneo de recetas médicas y convenios de comisión directa con farmacias locales al solicitar refill automático.
+- [ ] **Marketplace B2B de Proveedores:** Portal para que farmacias y laboratorios suban su catálogo de medicamentos directamente a la plataforma.
+- [ ] **Motor de Precios Dinámicos (Ofertas Inteligentes):** Algoritmo de descuentos cruzados según la suscripción del usuario (SaaS) y reglas de negocio (ej: "Lunes de Farmacia X", descuentos mayores por planes anuales), para optimizar el costo del *refill* automático.
 - [ ] **Importación/Exportación Masiva (B2B):** Descarga y carga de planillas (CSV/Excel) para poblar masivamente pacientes y medicamentos, diseñado para clínicas, colegios y residencias de ancianos.
 
 ## 💰 Valoración del Producto y Monetización
