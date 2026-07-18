@@ -174,7 +174,7 @@ window.crearNuevoGrupo = async function() {
     }
     try {
         const nuevo = await api('POST', '/api/grupos', { nombre });
-        toast(`Familia "${nombre}" creada ⭐`, 'success');
+        toast(`Familia "${nombre}" creada ✅`, 'success');
         state.grupos.push(nuevo);
         cerrarModal();
         await seleccionarGrupo(nuevo.id);
@@ -491,7 +491,7 @@ function renderHistorial() {
                 const mediaHtml = h.fotoConfirmacion
                     ? `<div class="timeline-media"><img src="${h.fotoConfirmacion}" alt="Foto confirmación"></div>`
                     : h.vozConfirmacion
-                    ? `<div class="timeline-media"><span style="font-size:11px;color:var(--c-green)">▶️▾Audio confirmado</span></div>`
+                    ? `<div class="timeline-media"><span style="font-size:11px;color:var(--c-green)">▶️ Audio confirmado</span></div>`
                     : '';
                 return `
                     <div class="timeline-item">
@@ -519,7 +519,7 @@ function renderRemedios() {
             <div class="remedio-icon">${r.icono || '📅'}</div>
             <div class="remedio-name">${r.nombre}</div>
             <div class="remedio-desc">${r.dosis || ''} ${r.indicaciones ? '· ' + r.indicaciones : ''}</div>
-            <button class="remedio-del" onclick="event.stopPropagation(); eliminarRemedio('${r.id}')">⭐"</button>
+            <button class="remedio-del" onclick="event.stopPropagation(); eliminarRemedio('${r.id}')">🗑️</button>
         </div>
     `).join('');
 
@@ -899,15 +899,15 @@ window.addEventListener('DOMContentLoaded', () => {
 function renderPacientes() {
     const lista = document.getElementById('pacientes-lista');
     if (!state.pacientes || state.pacientes.length === 0) {
-        lista.innerHTML = `<div class="empty-state"><div class="empty-icon">👤</div><h3>No hay pacientes</h3><p>Agrega a los miembros de la familia que tomarómedicamentos.</p></div>`;
+        lista.innerHTML = `<div class="empty-state"><div class="empty-icon">👤</div><h3>No hay pacientes</h3><p>Agrega a los miembros de la familia que tomarán medicamentos.</p></div>`;
     } else {
         lista.innerHTML = state.pacientes.map(p => `
             <div class="paciente-card" onclick="abrirModalNuevoPaciente('${p.id}')">
                 <div class="paciente-avatar">${p.nombre.charAt(0).toUpperCase()}</div>
                 <div class="paciente-info">
                     <div class="paciente-nombre">${p.nombre}</div>
-                    <div class="paciente-meta">${p.telefono ? '=▾' + p.telefono : 'Sin telfono'}</div>
-                    ${p.condicion ? `<div class="paciente-meta"><▾${p.condicion}</div>` : ''}
+                    <div class="paciente-meta">${p.telefono ? '📞 ' + p.telefono : 'Sin teléfono'}</div>
+                    ${p.condicion ? `<div class="paciente-meta">⚕️ ${p.condicion}</div>` : ''}
                 </div>
             </div>
         `).join('');
@@ -928,7 +928,7 @@ window.abrirModalNuevoPaciente = function(id = null) {
             <input type="tel" id="p-tel" class="form-input" placeholder="+56912345678" value="${p.telefono || ''}">
         </div>
         <div class="form-group">
-            <label>CondicióMdica (Opcional)</label>
+            <label>Condición Médica (Opcional)</label>
             <input type="text" id="p-cond" class="form-input" placeholder="Ej: Hipertensin" value="${p.condicion || ''}">
         </div>
         <div class="modal-btn-row">
@@ -964,7 +964,7 @@ window.guardarPaciente = async function() {
 };
 
 window.eliminarPaciente = async function(id) {
-    if (!confirm('⭐eguro que quieres eliminarlo?')) return;
+    if (!confirm('¿Seguro que quieres eliminarlo?')) return;
     try {
         await api('DELETE', `/api/grupos/${state.activeGrupoId}/pacientes/${id}`);
         state.pacientes = state.pacientes.filter(x => x.id !== id);

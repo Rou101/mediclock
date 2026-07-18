@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -12,7 +12,7 @@
     <meta name="apple-mobile-web-app-title" content="MediClock">
     <link rel="apple-touch-icon" href="/icon-512.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=13">
+    <link rel="stylesheet" href="style.css?v=16">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
@@ -24,7 +24,7 @@
 
 <!-- PANTALLA LOGIN CON GOOGLE -->
 <div id="login-screen" class="pin-screen">
-    <div class="pin-logo">â°</div>
+    <div class="pin-logo">⏰</div>
     <h1 class="pin-title">MediClock</h1>
     <p class="pin-subtitle" style="margin-bottom: 24px;">Gestiona los medicamentos familiares de forma colaborativa</p>
     
@@ -44,39 +44,39 @@
     <!-- HEADER -->
     <header class="app-header">
         <div class="header-brand" id="btn-switch-group" style="cursor:pointer;" title="Cambiar de grupo">
-            <span class="header-logo">â°</span>
+            <span class="header-logo">⏰</span>
             <div>
                 <span class="header-title" style="display:block; line-height:1.2;">MediClock</span>
-                <span id="active-group-name" style="font-size:11px; color:var(--c-green); font-weight:600;">Cargando... </span>
+                <span id="active-group-name" style="font-size:11px; color:var(--c-green); font-weight:600;">Cargando... ⏳</span>
             </div>
         </div>
         <div class="header-actions">
             <button class="btn-icon" id="btn-export" title="Exportar a Google Calendar">
-                <span>x&</span>
+                <span>📅</span>
             </button>
             <button class="btn-icon" id="btn-refresh" title="Sincronizar">
-                <span>x</span>
+                <span>🔄</span>
             </button>
         </div>
     </header>
 
     <!-- CONTENIDO PRINCIPAL -->
     <main class="main-content">
-        <!-- PESTAA: HOY -->
+        <!-- PESTAÑA: HOY -->
         <section id="panel-hoy" class="tab-panel active">
             <div class="panel-header">
                 <div>
                     <h2 id="hoy-fecha">Hoy</h2>
-                    <p id="hoy-resumen" class="subtitle">ConfirmaciÃ³n de recordatorios</p>
+                    <p id="hoy-resumen" class="subtitle">Confirmación de recordatorios</p>
                 </div>
                 <button class="btn-primary btn-sm" id="btn-add-hoy">+ Nuevo</button>
             </div>
             <div class="med-list" id="hoy-lista">
-                <!-- Se llena dinÃ¡micamente -->
+                <!-- Se llena dinámicamente -->
             </div>
         </section>
 
-        <!-- PESTAA: CALENDARIO SEMANAL -->
+        <!-- PESTAÑA: CALENDARIO SEMANAL -->
         <section id="panel-calendario" class="tab-panel">
             <div class="panel-header">
                 <div>
@@ -86,44 +86,44 @@
             </div>
             
             <div class="calendar-nav">
-                <button class="cal-nav-btn" id="cal-prev"></button>
+                <button class="cal-nav-btn" id="cal-prev">◀</button>
                 <h3 id="cal-titulo">...</h3>
-                <button class="cal-nav-btn" id="cal-next"></button>
+                <button class="cal-nav-btn" id="cal-next">▶</button>
             </div>
 
             <div class="calendar-grid" id="calendario-grid">
-                <!-- Grid de 7 dÃ­as -->
+                <!-- Grid de 7 días -->
             </div>
         </section>
 
-        <!-- PESTAA: HISTORIAL -->
+        <!-- PESTAÑA: HISTORIAL -->
         <section id="panel-historial" class="tab-panel">
             <div class="panel-header">
                 <div>
                     <h2>Historial</h2>
-                    <p class="subtitle" id="historial-stats">Cargando estadÃ­sticas...</p>
+                    <p class="subtitle" id="historial-stats">Cargando estadísticas...</p>
                 </div>
             </div>
             <div class="timeline" id="historial-lista">
-                <!-- Se llena dinÃ¡micamente -->
+                <!-- Se llena dinámicamente -->
             </div>
         </section>
 
-        <!-- PESTAA: BIBLIOTECA (REMEDIOS) -->
+        <!-- PESTAÑA: BIBLIOTECA (REMEDIOS) -->
         <section id="panel-remedios" class="tab-panel">
             <div class="panel-header">
                 <div>
                     <h2>Biblioteca</h2>
-                    <p class="subtitle">Remedios guardados para programar rÃ¡pido</p>
+                    <p class="subtitle">Remedios guardados para programar rápido</p>
                 </div>
                 <button class="btn-primary btn-sm" id="btn-add-remedio">+ Remedio</button>
             </div>
             <div class="remedios-grid" id="remedios-grid">
-                <!-- Se llena dinÃ¡micamente -->
+                <!-- Se llena dinámicamente -->
             </div>
         </section>
 
-        <!-- PESTAA: PACIENTES -->
+        <!-- PESTAÑA: PACIENTES -->
         <section id="panel-pacientes" class="tab-panel">
             <div class="panel-header">
                 <div>
@@ -132,25 +132,25 @@
                 </div>
             </div>
             <div class="pacientes-lista" id="pacientes-lista">
-                <!-- Se llena dinÃ¡micamente -->
+                <!-- Se llena dinámicamente -->
             </div>
         </section>
 
-        <!-- PESTAA: CONFIGURACION -->
+        <!-- PESTAÑA: CONFIGURACION -->
         <section id="panel-config" class="tab-panel">
             <div class="panel-header">
                 <div>
-                    <h2>ConfiguraciÃ³n</h2>
+                    <h2>Configuración</h2>
                     <p class="subtitle">Ajustes globales y de alertas</p>
                 </div>
             </div>
 
             <div class="config-section">
-                <h3>x Miembros de la Familia</h3>
+                <h3>👥 Miembros de la Familia</h3>
                 <div id="miembros-lista" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
                     <!-- Se llena con JS -->
                 </div>
-                <button id="btn-invitar-miembro" class="btn-ghost" style="width:100%; border:1px dashed var(--c-green); color:var(--c-green);">~" Generar Link de InvitaciÃ³n</button>
+                <button id="btn-invitar-miembro" class="btn-ghost" style="width:100%; border:1px dashed var(--c-green); color:var(--c-green);">➕ Generar Link de Invitación</button>
                 <div id="invite-box" class="hidden" style="margin-top:10px; background:var(--c-navy-light); padding:10px; border-radius:8px;">
                     <p style="font-size:11px; margin-bottom:6px;">Comparte este link por WhatsApp (Expira en 24h):</p>
                     <input type="text" id="invite-url" class="form-input" readonly style="font-size:12px; margin-bottom:8px;">
@@ -159,7 +159,7 @@
             </div>
 
             <div class="config-section">
-                <h3>x Reglas de Alertas</h3>
+                <h3>🔔 Reglas de Alertas</h3>
                 <div class="form-group">
                     <label>WhatsApp del Administrador (Recibe alertas de olvidos)</label>
                     <input type="tel" id="cfg-admin-phone" class="form-input" placeholder="Ej: +56957838682">
@@ -178,14 +178,14 @@
             </div>
 
             <div class="config-section">
-                <h3>ï¸ Sandbox de Twilio</h3>
+                <h3>🤖 Sandbox de Twilio</h3>
                 <p class="config-info">
-                    Para que el bot envÃ­e mensajes de WhatsApp gratis durante pruebas, los telÃ©fonos destino deben enviar el texto <strong>join identity-eager</strong> al nÃºmero <strong>+1 415 523 8886</strong> por WhatsApp.
+                    Para que el bot envíe mensajes de WhatsApp gratis durante pruebas, los teléfonos destino deben enviar el texto <strong>join identity-eager</strong> al número <strong>+1 415 523 8886</strong> por WhatsApp.
                 </p>
             </div>
 
             <button class="btn-ghost btn-danger" id="btn-logout" style="width: 100%; margin-top: 20px;">
-                Cerrar SesiÃ³n Google
+                Cerrar Sesión Google
             </button>
         </section>
     </main>
@@ -223,16 +223,15 @@
 <div class="modal-overlay hidden" id="modal-overlay">
     <div class="modal">
         <div class="modal-header">
-            <h3 id="modal-title">TÃ­tulo</h3>
-            <button class="modal-close" id="modal-close">S"</button>
+            <h3 id="modal-title">Título</h3>
+            <button class="modal-close" id="modal-close">✖</button>
         </div>
         <div class="modal-body" id="modal-body">
-            <!-- Formulario dinÃ¡mico -->
+            <!-- Formulario dinámico -->
         </div>
     </div>
 </div>
     <!-- Scripts -->
-    <script src="app.js?v=12"></script>
+    <script src="app.js?v=16"></script>
 </body>
 </html>
-
