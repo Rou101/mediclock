@@ -42,6 +42,10 @@ El problema original que aborda MediClock es el "síndrome del cuidador principa
 - [ ] **Adaptación Nativa de Interfaz (OS-Aware UI):** Detectar si la PWA corre en iOS o Android y adaptar dinámicamente iconos, colores y elementos de interfaz (Ej: Tabs de Cupertino vs Material Design) para que se sienta 100% intuitiva según el sistema operativo del usuario.
 - [ ] **Control de Existencias (Inventario Math):** Restar la dosis del stock cada vez que se marca "Tomada" y alertar cuando queden pocas pastillas.
 - [ ] **Mensajes y Multimedia:** Grabar audios o subir fotos del remedio por parte del médico o familiar, para que se reproduzcan en parlantes inteligentes.
+- [ ] **SaaS Super Admin Dashboard:** Panel de control global (Backoffice) para gestionar suscripciones, on-boarding de clientes (particulares vs. empresas/clínicas), facturación y métricas de uso.
+- [ ] **Pasarelas de Pago (Stripe/MercadoPago):** Integración completa para el cobro automatizado de suscripciones (SaaS), gestión de tarjetas y facturación para clientes institucionales y particulares.
+- [ ] **Roles y Jerarquías Institucionales (RBAC):** Expansión del sistema de permisos para incluir roles corporativos: Directores Médicos, Jefes de Enfermería, Enfermeras, Cuidadores, y Encargados de Bodega/Inventario.
+- [ ] **Comunicaciones Automatizadas:** Motor de envíos para correos de verificación, bienvenida, y alertas multicanal (WhatsApp/Email/SMS) segmentadas según el rol (ej: alertas de poco stock directo a bodega).
 - [ ] **Integración B2B (Monetización):** Escaneo de recetas médicas y convenios de comisión directa con farmacias locales al solicitar refill automático.
 - [ ] **Importación/Exportación Masiva (B2B):** Descarga y carga de planillas (CSV/Excel) para poblar masivamente pacientes y medicamentos, diseñado para clínicas, colegios y residencias de ancianos.
 
