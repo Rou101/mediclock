@@ -43,6 +43,7 @@ El problema original que aborda MediClock es el "síndrome del cuidador principa
 - [ ] **Control de Existencias (Inventario Math):** Restar la dosis del stock cada vez que se marca "Tomada" y alertar cuando queden pocas pastillas.
 - [ ] **Mensajes y Multimedia:** Grabar audios o subir fotos del remedio por parte del médico o familiar, para que se reproduzcan en parlantes inteligentes.
 - [ ] **Integración B2B (Monetización):** Escaneo de recetas médicas y convenios de comisión directa con farmacias locales al solicitar refill automático.
+- [ ] **Importación/Exportación Masiva (B2B):** Descarga y carga de planillas (CSV/Excel) para poblar masivamente pacientes y medicamentos, diseñado para clínicas, colegios y residencias de ancianos.
 
 ## 💰 Valoración del Producto y Monetización
 - **Valor del desarrollo actual (MVP):** Estructura Cloud, Base de datos en tiempo real, Auth, Twilio Bot y Arquitectura UI. Equivalente a **~$2,500 - $3,500 USD** de trabajo en el mercado freelance.
