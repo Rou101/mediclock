@@ -889,6 +889,11 @@ setInterval(async () => {
 }, 30000);
 
 window.addEventListener('DOMContentLoaded', () => {
+    // Detectar iOS para adaptar la interfaz (OS-Aware UI)
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS) {
+        document.body.classList.add('ios-theme');
+    }
     initApp();
 });
 

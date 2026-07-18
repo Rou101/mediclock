@@ -439,7 +439,7 @@ input, select, textarea { font-family: var(--font); }
 .remedio-add-card:hover { border-color: var(--c-green); color: var(--c-green); }
 
 /* ========================================
-   CONFIGURACIÓN
+   CONFIGURACIÃ“N
    ======================================== */
 .config-section { margin-bottom: 24px; }
 .config-section-title { font-size: 13px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--c-green); margin-bottom: 12px; }
@@ -647,7 +647,7 @@ select.form-input { appearance: none; -webkit-appearance: none; cursor: pointer;
 .toast.error { border-color: var(--c-red); color: var(--c-red); }
 
 /* ========================================
-   RESPONSIVE: DESKTOP (Reglas de Composición Visual)
+   RESPONSIVE: DESKTOP (Reglas de ComposiciÃ³n Visual)
    ======================================== */
 @media (min-width: 768px) {
     body {
@@ -750,19 +750,94 @@ select.form-input { appearance: none; -webkit-appearance: none; cursor: pointer;
     }
 }
 
- / *   = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = 
-       P A C I E N T E S   &   A D M I N 
-       = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = = =   * / 
- . p a c i e n t e - c a r d   {   b a c k g r o u n d :   v a r ( - - c - s u r f a c e 2 ) ;   b o r d e r :   1 p x   s o l i d   v a r ( - - c - b o r d e r ) ;   b o r d e r - r a d i u s :   2 0 p x ;   p a d d i n g :   2 0 p x ;   m a r g i n - b o t t o m :   1 6 p x ;   d i s p l a y :   f l e x ;   a l i g n - i t e m s :   c e n t e r ;   g a p :   1 6 p x ;   t r a n s i t i o n :   a l l   0 . 3 s ;   c u r s o r :   p o i n t e r ;   } 
- . p a c i e n t e - c a r d : h o v e r   {   t r a n s f o r m :   t r a n s l a t e Y ( - 2 p x ) ;   b o x - s h a d o w :   v a r ( - - s h a d o w ) ;   b o r d e r - c o l o r :   v a r ( - - c - p r i m a r y ) ;   } 
- . p a c i e n t e - a v a t a r   {   w i d t h :   5 6 p x ;   h e i g h t :   5 6 p x ;   b o r d e r - r a d i u s :   5 0 % ;   b a c k g r o u n d :   l i n e a r - g r a d i e n t ( 1 3 5 d e g ,   v a r ( - - c - p r i m a r y ) ,   # 6 3 6 6 f 1 ) ;   c o l o r :   w h i t e ;   d i s p l a y :   f l e x ;   a l i g n - i t e m s :   c e n t e r ;   j u s t i f y - c o n t e n t :   c e n t e r ;   f o n t - s i z e :   2 4 p x ;   f o n t - w e i g h t :   7 0 0 ;   } 
- . p a c i e n t e - i n f o   {   f l e x :   1 ;   } 
- . p a c i e n t e - n o m b r e   {   f o n t - s i z e :   1 8 p x ;   f o n t - w e i g h t :   6 0 0 ;   c o l o r :   v a r ( - - c - t e x t ) ;   m a r g i n - b o t t o m :   4 p x ;   } 
- . p a c i e n t e - m e t a   {   f o n t - s i z e :   1 3 p x ;   c o l o r :   v a r ( - - c - g r a y ) ;   } 
- . a d m i n - c a r d   {   b a c k g r o u n d :   v a r ( - - c - s u r f a c e 2 ) ;   b o r d e r :   1 p x   s o l i d   v a r ( - - c - b o r d e r ) ;   b o r d e r - r a d i u s :   1 6 p x ;   p a d d i n g :   1 6 p x ;   m a r g i n - b o t t o m :   1 2 p x ;   d i s p l a y :   f l e x ;   a l i g n - i t e m s :   c e n t e r ;   j u s t i f y - c o n t e n t :   s p a c e - b e t w e e n ;   } 
- . a d m i n - i n f o   {   d i s p l a y :   f l e x ;   f l e x - d i r e c t i o n :   c o l u m n ;   g a p :   4 p x ;   } 
- . a d m i n - n a m e   {   f o n t - w e i g h t :   6 0 0 ;   f o n t - s i z e :   1 5 p x ;   c o l o r :   v a r ( - - c - t e x t ) ;   } 
- . a d m i n - r o l e   {   f o n t - s i z e :   1 2 p x ;   f o n t - w e i g h t :   6 0 0 ;   p a d d i n g :   4 p x   8 p x ;   b o r d e r - r a d i u s :   8 p x ;   d i s p l a y :   i n l i n e - b l o c k ;   } 
- . a d m i n - r o l e . a d m i n   {   b a c k g r o u n d :   r g b a ( 9 9 , 1 0 2 , 2 4 1 , 0 . 1 ) ;   c o l o r :   # 6 3 6 6 f 1 ;   } 
- . a d m i n - r o l e . m e m b e r   {   b a c k g r o u n d :   r g b a ( 1 0 7 , 1 1 4 , 1 2 8 , 0 . 1 ) ;   c o l o r :   v a r ( - - c - g r a y ) ;   }  
- 
+/* ============================================================
+   PACIENTES & ADMIN
+   ============================================================ */
+.paciente-card {
+    background: var(--c-surface2);
+    border: 1px solid var(--c-border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s cubic-bezier(0.25, 1, 0.5, 1);
+    cursor: pointer;
+}
+.paciente-card:active { transform: scale(0.97); }
+.paciente-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--c-green), #34d399);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.paciente-info { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+.paciente-nombre { font-size: 16px; font-weight: 600; color: var(--c-text); }
+.paciente-meta { font-size: 13px; color: var(--c-text-2); display: flex; align-items: center; gap: 4px; }
+
+.admin-card {
+    background: var(--c-surface2);
+    border: 1px solid var(--c-border);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.admin-info { display: flex; flex-direction: column; gap: 4px; }
+.admin-name { font-weight: 600; font-size: 15px; color: var(--c-text); }
+.admin-role { font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 8px; display: inline-block; letter-spacing: 0.5px; }
+.admin-role.admin { background: var(--c-green-dim); color: var(--c-green); }
+.admin-role.member { background: rgba(148, 163, 184, 0.15); color: var(--c-text-2); }
+
+/* ============================================================
+   TEMA iOS (OS-AWARE UI)
+   ============================================================ */
+body.ios-theme {
+    /* Tipografía nativa de Apple */
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    --c-green: #34C759; /* Verde sistema iOS */
+    --c-green-dim: rgba(52, 199, 89, 0.15);
+    --c-surface: #000000;
+    --c-surface2: #1c1c1e; /* Tarjetas iOS Dark Mode */
+    --c-bg: #000000; /* Fondo iOS puro */
+    --c-border: rgba(255, 255, 255, 0.1);
+}
+
+body.ios-theme .app-header {
+    background: rgba(28, 28, 30, 0.7);
+    -webkit-backdrop-filter: blur(25px) saturate(200%);
+    backdrop-filter: blur(25px) saturate(200%);
+    border-bottom: 0.5px solid rgba(255, 255, 255, 0.15);
+}
+
+body.ios-theme .bottom-nav {
+    background: rgba(28, 28, 30, 0.85);
+    -webkit-backdrop-filter: blur(25px) saturate(200%);
+    backdrop-filter: blur(25px) saturate(200%);
+    border-top: 0.5px solid rgba(255, 255, 255, 0.15);
+}
+
+body.ios-theme .paciente-card,
+body.ios-theme .admin-card,
+body.ios-theme .med-card,
+body.ios-theme .remedio-card {
+    background: var(--c-surface2);
+    border: none;
+    border-radius: 10px; /* Radio típico de iOS */
+}
+
+body.ios-theme .btn-primary {
+    border-radius: 10px;
+    font-weight: 600;
+}
+
