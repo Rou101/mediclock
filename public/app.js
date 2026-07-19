@@ -60,6 +60,7 @@ function logout() {
         document.getElementById('group-screen').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
     });
+}
 // --- GLOBAL DIAGNOSTICS ---
 window.addEventListener('error', (event) => {
     console.error("Global Error:", event.error);
@@ -932,6 +933,7 @@ function cerrarModal() {
     overlay.classList.remove('visible');
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
+}
 function buildMedForm(data = {}) {
     const familiarOptions = (state.pacientes || []).map(p => `
         <option value="${p.nombre}" ${data.familiar === p.nombre ? 'selected' : ''}>${p.nombre}</option>
