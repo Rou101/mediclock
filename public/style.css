@@ -179,26 +179,111 @@ input, select, textarea { font-family: var(--font); }
 .hidden { display: none !important; }
 
 /* ========================================
-   PIN SCREEN
+   PIN / LOGIN SCREEN (Grafito Minimalista)
    ======================================== */
 .pin-screen {
     width: 100%;
     max-width: 480px;
     height: 100vh;
+    height: 100dvh;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    background: var(--c-bg);
+    background: #111113 !important;
     z-index: 1000;
-    padding: 20px;
+    padding: 24px;
     text-align: center;
     position: relative;
-    box-shadow: 0 0 40px rgba(0,0,0,0.5);
+    overflow: hidden;
 }
-.pin-logo { font-size: 64px; margin-bottom: 12px; filter: drop-shadow(0 0 20px var(--c-green)); }
-.pin-title { font-size: 28px; font-weight: 700; color: var(--c-text); }
-.pin-subtitle { font-size: 14px; color: var(--c-text-2); margin-top: 4px; margin-bottom: 32px; }
+
+.pin-screen-orb-top {
+    position: absolute;
+    width: 450px;
+    height: 450px;
+    border-radius: 50%;
+    background: rgba(100, 130, 175, 0.12);
+    filter: blur(100px);
+    top: -150px;
+    right: -120px;
+    pointer-events: none;
+}
+.pin-screen-orb-bottom {
+    position: absolute;
+    width: 500px;
+    height: 500px;
+    border-radius: 50%;
+    background: rgba(80, 95, 120, 0.10);
+    filter: blur(120px);
+    bottom: -200px;
+    left: -150px;
+    pointer-events: none;
+}
+
+.pin-logo-box {
+    width: 88px;
+    height: 88px;
+    background: #1c1c1e;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 26px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+    z-index: 2;
+}
+
+.pin-title {
+    font-size: 32px;
+    font-weight: 600;
+    color: #ffffff !important;
+    letter-spacing: -0.02em;
+    z-index: 2;
+}
+
+.pin-subtitle {
+    font-size: 14px;
+    color: rgba(235, 235, 245, 0.55) !important;
+    margin-top: 8px;
+    margin-bottom: 36px;
+    max-width: 280px;
+    line-height: 1.5;
+    z-index: 2;
+}
+
+.login-btn-google {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    width: 220px;
+    padding: 14px 24px;
+    background: #ffffff !important;
+    color: #111113 !important;
+    font-weight: 600;
+    font-size: 15px;
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    z-index: 2;
+}
+.login-btn-google:active {
+    transform: scale(0.97);
+}
+
+.login-version-tag {
+    position: absolute;
+    bottom: 24px;
+    font-size: 11px;
+    color: rgba(255, 255, 255, 0.22) !important;
+    letter-spacing: 0.05em;
+    font-family: monospace;
+    z-index: 2;
+}
 .pin-dots { display: flex; gap: 16px; margin-bottom: 16px; }
 .pin-dots span {
     width: 14px; height: 14px; border-radius: 50%;
