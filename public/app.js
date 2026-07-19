@@ -232,7 +232,7 @@ async function seleccionarGrupo(grupoId) {
     renderCurrentTab();
 }
 
-document.getElementById('btn-switch-group').addEventListener('click', () => {
+document.getElementById('btn-switch-group')?.addEventListener('click', () => {
     mostrarSelectorGrupos();
 });
 
@@ -311,10 +311,10 @@ function initApp() {
     document.getElementById('btn-add-remedio').addEventListener('click', () => abrirModalNuevoRemedio());
 
     // Config
-    document.getElementById('btn-guardar-config').addEventListener('click', guardarConfig);
-    document.getElementById('btn-logout').addEventListener('click', logout);
-    document.getElementById('btn-invitar-miembro').addEventListener('click', generarInvitacion);
-    document.getElementById('btn-copy-invite').addEventListener('click', copiarLinkInvitacion);
+    document.getElementById('btn-guardar-config')?.addEventListener('click', guardarConfig);
+    document.getElementById('btn-logout')?.addEventListener('click', logout);
+    document.getElementById('btn-invitar-miembro')?.addEventListener('click', generarInvitacion);
+    document.getElementById('btn-copy-invite')?.addEventListener('click', copiarLinkInvitacion);
 
     // PWA Install
     const btnInstall = document.getElementById('btn-install-app');
@@ -1350,7 +1350,7 @@ window.addEventListener('DOMContentLoaded', () => {
     // Theme logic
     const savedTheme = localStorage.getItem('mc_theme') || 'auto';
     applyTheme(savedTheme);
-    document.getElementById('cfg-theme').addEventListener('change', (e) => {
+    document.getElementById('cfg-theme')?.addEventListener('change', (e) => {
         applyTheme(e.target.value);
     });
 

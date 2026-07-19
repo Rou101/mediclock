@@ -1,5 +1,5 @@
 // Service Worker para MediClock PWA
-const CACHE_NAME = 'mediclock-v4';
+const CACHE_NAME = 'mediclock-v6';
 const urlsToCache = [
     '/',
     '/style.css',
