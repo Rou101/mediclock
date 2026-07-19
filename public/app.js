@@ -97,10 +97,19 @@ document.getElementById('btn-google-login').addEventListener('click', async () =
     toast('Iniciando sesión con Google...', 'info');
     const provider = new firebase.auth.GoogleAuthProvider();
     try {
-        await firebase.auth().signInWithRedirect(provider);
+        // Use popup instead of redirect to avoid Chrome Bounce Tracking Mitigation
+        // which blocks the firebaseapp.com intermediate redirect domain
+        const result = await firebase.auth().signInWithPopup(provider);
+        console.log('[AUTH] Popup login successful:', result.user.email);
     } catch (error) {
         console.error("Auth Error:", error);
-        toast('Error de login: ' + error.message, 'error');
+        if (error.code === 'auth/popup-blocked') {
+            toast('El navegador bloqueó el popup. Habilita popups para este sitio e intenta de nuevo.', 'error');
+        } else if (error.code === 'auth/popup-closed-by-user') {
+            toast('Ventana de login cerrada. Intenta de nuevo.', 'error');
+        } else {
+            toast('Error de login: ' + error.message, 'error');
+        }
     }
 });
 
@@ -142,18 +151,8 @@ firebase.auth().onAuthStateChanged(async (user) => {
     }
 });
 
-// Process the result from the Google redirect — this must run BEFORE
-// onAuthStateChanged fires so the token is available immediately.
-firebase.auth().getRedirectResult().then((result) => {
-    if (result && result.user) {
-        console.log('Redirect login successful:', result.user.email);
-    }
-}).catch((error) => {
-    console.error("Redirect Auth Error:", error);
-    if (error.code && error.code !== 'auth/credential-already-in-use') {
-        toast('Error de login: ' + error.message, 'error');
-    }
-});
+// Note: getRedirectResult() removed — using signInWithPopup which handles
+// auth result synchronously without needing a redirect result listener.
 
 // ============================================================
 // INVITATION FLOW
