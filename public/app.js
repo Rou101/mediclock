@@ -240,7 +240,7 @@ window.seleccionarGrupoDesdeModal = async function(id) {
 
 window.crearNuevoGrupo = async function() {
     const input = document.getElementById('nuevo-grupo-nombre');
-    const nombre = input.value.trim();
+    const nombre = input?.value.trim();
     if (!nombre) {
         toast('Ingresa un nombre para el grupo', 'error');
         return;
@@ -251,6 +251,7 @@ window.crearNuevoGrupo = async function() {
         state.grupos.push(nuevo);
         cerrarModal();
         await seleccionarGrupo(nuevo.id);
+        renderCurrentTab();
     } catch {
         toast('Error al crear grupo', 'error');
     }
@@ -430,11 +431,17 @@ function renderCurrentTab() {
 
 function renderLockState() {
     const container = document.getElementById(`panel-${state.activeTab}`);
+    if (!container) return;
     container.innerHTML = `
-        <div class="lock-state">
-            <div class="lock-icon">x</div>
-            <h3 class="lock-text">Crea tu grupo familiar primero</h3>
-            <p style="color:var(--c-gray); font-size:14px; margin-top:8px;">Ve a la pestaña "Hoy" para comenzar.</p>
+        <div class="lock-state" style="text-align:center; padding: 48px 24px;">
+            <div class="lock-icon" style="font-size:36px; margin-bottom:12px;">📌</div>
+            <h3 class="lock-text" style="font-size:18px; font-weight:600; color:var(--c-text);">Guía paso a paso</h3>
+            <p style="color:var(--c-text-2); font-size:14px; margin-top:8px; margin-bottom:24px; max-width:320px; margin-left:auto; margin-right:auto; line-height:1.5;">
+                Completa el paso a paso en la pestaña "Hoy" para activar tu grupo y habilitar todos los módulos de tu familia.
+            </p>
+            <button class="btn-primary" style="padding: 12px 24px; width:auto; margin:0 auto;" onclick="switchTab('hoy')">
+                Ir al Paso a Paso en "Hoy"
+            </button>
         </div>
     `;
 }
@@ -531,11 +538,28 @@ function renderHoy() {
         total > 0 ? `${tomadas} de ${total} confirmadas hoy` : 'Sin medicamentos programados para hoy';
 
     if (medHoy.length === 0) {
-        lista.innerHTML = `<div class="empty-state">
-            <div class="empty-state-icon">📅</div>
-            <h3>Sin recordatorios hoy</h3>
-            <p>Toca "+ Nuevo" para programar un medicamento.</p>
-        </div>`;
+        const noPac = !state.pacientes || state.pacientes.length === 0;
+        lista.innerHTML = `
+            <div class="premium-onboarding" style="padding:24px; text-align:left; background:var(--c-surface3); border-radius:16px; border:1px solid var(--c-border); margin-bottom:20px;">
+                <h3 style="font-size:17px; font-weight:600; color:var(--c-text); margin-bottom:12px;">Paso a Paso de tu cuenta:</h3>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <span style="background:var(--c-green-dim); color:var(--c-green); font-weight:700; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">✓</span>
+                    <span style="font-size:14px; color:var(--c-text);">Familia activa: <strong>${state.activeGrupoNombre || 'Mi Familia'}</strong></span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:10px;">
+                    <span style="background:${noPac ? 'var(--c-blue-dim)' : 'var(--c-green-dim)'}; color:${noPac ? 'var(--c-blue)' : 'var(--c-green)'}; font-weight:700; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">${noPac ? '2' : '✓'}</span>
+                    <span style="font-size:14px; color:var(--c-text);">${noPac ? 'Agrega a un familiar o a ti mismo' : 'Familiares registrados (' + state.pacientes.length + ')'}</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+                    <span style="background:var(--c-surface2); color:var(--c-text-2); font-weight:700; width:24px; height:24px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:12px;">3</span>
+                    <span style="font-size:14px; color:var(--c-text-2);">Programa el primer medicamento</span>
+                </div>
+                <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                    ${noPac ? `<button class="btn-primary btn-sm" onclick="abrirModalNuevoPaciente()">+ 1. Registrar Familiar</button>` : ''}
+                    <button class="btn-primary btn-sm" onclick="abrirModalNuevo()">+ Programar Medicamento</button>
+                </div>
+            </div>
+        `;
         return;
     }
 
@@ -1014,9 +1038,12 @@ function cerrarModal() {
     overlay.style.pointerEvents = 'none';
 }
 function buildMedForm(data = {}) {
-    const familiarOptions = (state.pacientes || []).map(p => `
-        <option value="${p.nombre}" ${data.familiar === p.nombre ? 'selected' : ''}>${p.nombre}</option>
-    `).join('') || `<option value="">Sin pacientes registrados</option>`;
+    let familiarOptions = (state.pacientes || []).map(p => `
+        <option value="${p.nombre}" ${data.familiar === p.nombre ? 'selected' : ''}>👤 ${p.nombre}</option>
+    `).join('');
+
+    const noPacientes = !state.pacientes || state.pacientes.length === 0;
+    familiarOptions += `<option value="__NUEVO__" ${noPacientes || !data.familiar ? 'selected' : ''}>➕ Crear nuevo paciente / familiar...</option>`;
 
     const diasMap = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
     const diasButtons = Array.from({ length: 7 }, (_, i) => {
@@ -1041,17 +1068,20 @@ function buildMedForm(data = {}) {
     return `
         <div class="ios-section-title">Paciente y Medicamento</div>
         <div class="ios-list">
-            <div class="ios-row">
-                <div class="ios-row-left">
+            <div class="ios-row vertical">
+                <div class="ios-row-left" style="width:100%;">
                     <div class="ios-row-icon" style="background:#007AFF; display:flex; align-items:center; justify-content:center;">
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                     </div>
-                    <span>Paciente</span>
+                    <span>Paciente / Familiar</span>
                 </div>
-                <div class="ios-input-wrapper">
-                    <select id="f-familiar" class="form-input">
+                <div class="ios-input-wrapper" style="width:100%;">
+                    <select id="f-familiar" class="form-input" onchange="toggleInlinePaciente(this.value)">
                         ${familiarOptions}
                     </select>
+                    <div id="inline-paciente-container" style="${noPacientes || data.familiar === '__NUEVO__' ? 'display:block;' : 'display:none;'} margin-top:8px;">
+                        <input type="text" id="f-nuevo-paciente" class="form-input" placeholder="Nombre del paciente (ej: Papá, Yo, Mamá)" style="border-color:var(--c-blue);">
+                    </div>
                 </div>
             </div>
             <div class="ios-row vertical">
@@ -1228,8 +1258,36 @@ function abrirModalEditar(id) {
     abrirModal('Editar Recordatorio', buildMedForm(med));
 }
 
+window.toggleInlinePaciente = function(val) {
+    const box = document.getElementById('inline-paciente-container');
+    if (box) {
+        box.style.display = (val === '__NUEVO__' || val === '') ? 'block' : 'none';
+    }
+};
+
 async function guardarMedicamento() {
-    const familiar = document.getElementById('f-familiar').value.trim();
+    const familiarSel = document.getElementById('f-familiar').value.trim();
+    const inlineInput = document.getElementById('f-nuevo-paciente');
+    const nuevoNombre = inlineInput ? inlineInput.value.trim() : '';
+    let familiar = familiarSel;
+
+    if (familiarSel === '__NUEVO__' || !familiarSel || (inlineInput && inlineInput.parentElement.style.display !== 'none' && nuevoNombre)) {
+        if (!nuevoNombre) {
+            toast('Por favor ingresa el nombre del paciente', 'error');
+            return;
+        }
+        // Crear paciente transparentemente
+        try {
+            const nuevoPac = await api('POST', `/api/grupos/${state.activeGrupoId}/pacientes`, { nombre: nuevoNombre });
+            if (!state.pacientes) state.pacientes = [];
+            state.pacientes.push(nuevoPac);
+            familiar = nuevoNombre;
+        } catch {
+            toast('Error al crear paciente', 'error');
+            return;
+        }
+    }
+
     const nombre = document.getElementById('f-nombre').value.trim();
     const dosis = document.getElementById('f-dosis').value.trim();
     const fechaInicio = document.getElementById('f-fechaInicio').value;
