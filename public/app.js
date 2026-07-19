@@ -5,7 +5,7 @@
 // --- ESTADO GLOBAL ---
 const state = {
     user: null,
-    token: 'dummy-token-123',
+    token: null,
     grupos: [],
     activeGrupoId: null,
     activeGrupoNombre: '',
@@ -89,7 +89,8 @@ firebase.auth().onAuthStateChanged(async (user) => {
             email: user.email,
             name: user.displayName || 'Usuario'
         };
-        state.token = await user.getIdToken();
+        // Always get a fresh token — never use a cached or dummy one
+        state.token = await user.getIdToken(true);
         
         document.getElementById('login-screen').classList.add('hidden');
         
@@ -103,16 +104,23 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
         await inicializarGrupos();
     } else {
-        // Mostrar login, asegurar que la app esté oculta
+        // Only show login if there is no pending redirect in progress
+        state.token = null;
         document.getElementById('app').classList.add('hidden');
         document.getElementById('group-screen')?.classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
     }
 });
 
-firebase.auth().getRedirectResult().catch((error) => {
+// Process the result from the Google redirect — this must run BEFORE
+// onAuthStateChanged fires so the token is available immediately.
+firebase.auth().getRedirectResult().then((result) => {
+    if (result && result.user) {
+        console.log('Redirect login successful:', result.user.email);
+    }
+}).catch((error) => {
     console.error("Redirect Auth Error:", error);
-    if (error.code) {
+    if (error.code && error.code !== 'auth/credential-already-in-use') {
         toast('Error de login: ' + error.message, 'error');
     }
 });
