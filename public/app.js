@@ -70,8 +70,7 @@ document.getElementById('btn-google-login').addEventListener('click', async () =
     toast('Iniciando sesión con Google...', 'info');
     const provider = new firebase.auth.GoogleAuthProvider();
     try {
-        const result = await firebase.auth().signInWithPopup(provider);
-        toast('Autenticación exitosa', 'success');
+        await firebase.auth().signInWithRedirect(provider);
     } catch (error) {
         console.error("Auth Error:", error);
         toast('Error de login: ' + error.message, 'error');
@@ -103,6 +102,13 @@ firebase.auth().onAuthStateChanged(async (user) => {
         document.getElementById('app').classList.add('hidden');
         document.getElementById('group-screen').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
+    }
+});
+
+firebase.auth().getRedirectResult().catch((error) => {
+    console.error("Redirect Auth Error:", error);
+    if (error.code) {
+        toast('Error de login: ' + error.message, 'error');
     }
 });
 
