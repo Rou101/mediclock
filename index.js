@@ -285,12 +285,18 @@ app.get('/api/grupos/:grupoId/medicamentos', authMiddleware, async (req, res) =>
 app.post('/api/grupos/:grupoId/medicamentos', authMiddleware, async (req, res) => {
     const { grupoId } = req.params;
     if (!await verificarAcceso(grupoId, req.user.uid, res)) return;
+    
+    const pastillasRestantes = req.body.pastillasRestantes !== undefined && req.body.pastillasRestantes !== null 
+        ? req.body.pastillasRestantes 
+        : (req.body.pastillasPorCaja || null);
+
     const nuevo = { 
         ...req.body, 
         estado: 'pendiente', 
         creadoEn: new Date().toISOString(), 
         creadoPor: req.user.uid,
-        pastillasRestantes: req.body.pastillasPorCaja || null
+        pastillasRestantes: pastillasRestantes,
+        tomas: {} // Inicializar mapa de tomas vacío
     };
     const ref = await grupoRef(grupoId).collection('medicamentos').add(nuevo);
     res.status(201).json({ id: ref.id, ...nuevo });
@@ -324,18 +330,82 @@ app.post('/api/grupos/:grupoId/marcar-toma', authMiddleware, async (req, res) =>
         };
         await grupoRef(grupoId).collection('historial').add(registro);
 
+        // Actualizar el estado de la dosis en el mapa de tomas
+        const key = `${fecha}_${hora}`;
+        const updateData = {};
+        updateData[`tomas.${key}`] = {
+            estado,
+            tomadoPor: tomadoPor || req.user.nombre,
+            timestamp: new Date().toISOString()
+        };
+
         // Actualizar inventario si fue tomada
         if (estado === 'tomada' && medData.pastillasRestantes != null) {
             let restantes = medData.pastillasRestantes - 1;
             if (restantes < 0) restantes = 0;
-            await medRef.update({ pastillasRestantes: restantes });
-            
-            // TODO: Integrar alerta de WhatsApp si restantes <= 5
+            updateData.pastillasRestantes = restantes;
+
+            // Alerta de WhatsApp si restantes <= alertaStockMinimo (default 5)
+            const umbral = medData.alertaStockMinimo !== undefined && medData.alertaStockMinimo !== null 
+                ? parseInt(medData.alertaStockMinimo) 
+                : 5;
+                
+            if (restantes <= umbral) {
+                // Obtener config para número de admin
+                const cfgDoc = await grupoRef(grupoId).collection('config').doc('principal').get();
+                const cfg = cfgDoc.exists ? cfgDoc.data() : {};
+                const ADMIN = cfg.adminPhone || '';
+                if (ADMIN) {
+                    const alerta = `⚠️ *ALERTA MediClock: Stock Bajo* ⚠️\n\nQuedan pocas unidades de *${medData.nombre}* para *${medData.familiar}*.\n\nStock actual: *${restantes}* pastillas.\n¡Por favor, reabastece el medicamento pronto!`;
+                    await enviarWA(ADMIN, 'Admin', alerta);
+                }
+            }
         }
 
+        await medRef.update(updateData);
         res.json({ success: true });
     } catch (error) {
         console.error('Error marcando toma:', error);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+app.post('/api/grupos/:grupoId/medicamentos/:medId/reabastecer', authMiddleware, async (req, res) => {
+    const { grupoId, medId } = req.params;
+    const { cantidad } = req.body;
+    if (!await verificarAcceso(grupoId, req.user.uid, res)) return;
+
+    if (cantidad === undefined || cantidad === null || isNaN(cantidad) || cantidad <= 0) {
+        return res.status(400).json({ error: 'Cantidad inválida para reabastecer' });
+    }
+
+    try {
+        const medRef = grupoRef(grupoId).collection('medicamentos').doc(medId);
+        const med = await medRef.get();
+        if (!med.exists) {
+            return res.status(404).json({ error: 'Medicamento no encontrado' });
+        }
+
+        const medData = med.data();
+        let actuales = medData.pastillasRestantes != null ? medData.pastillasRestantes : 0;
+        let nuevasRestantes = actuales + parseInt(cantidad, 10);
+
+        await medRef.update({ pastillasRestantes: nuevasRestantes });
+
+        // Registrar reabastecimiento en el historial
+        await grupoRef(grupoId).collection('historial').add({
+            medicamentoId: medId,
+            nombre: medData.nombre,
+            familiar: medData.familiar || 'Desconocido',
+            estado: 'reabastecido',
+            tomadoPor: req.user.nombre,
+            timestamp: new Date().toISOString(),
+            detalle: `Reabasteció ${cantidad} pastillas (Stock total: ${nuevasRestantes})`
+        });
+
+        res.json({ success: true, pastillasRestantes: nuevasRestantes });
+    } catch (error) {
+        console.error('Error reabasteciendo medicamento:', error);
         res.status(500).json({ error: 'Error del servidor' });
     }
 });
@@ -559,6 +629,7 @@ app.post('/api/meta-webhook', async (req, res) => {
             console.log(`[Webhook Meta] De ${numero}: "${texto}" (Tipo: ${messageType})`);
 
             // Buscar en todos los grupos
+            const fechaChile = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' });
             const gruposSnap = await db.collection('grupos').get();
             let medConfirmado = null;
 
@@ -570,30 +641,81 @@ app.post('/api/meta-webhook', async (req, res) => {
                     // Limpiar el teléfono de la DB para compararlo con el formato de Meta
                     const telDB = (med.telefono || '').replace(/\D/g, ''); 
                     
-                    if (telDB === numero && med.estado === 'pendiente') {
-                        const esOk = texto.includes('tome') || texto.includes('ok') ||
-                            texto.includes('si') || texto.includes('sí') ||
-                            texto.includes('listo') || texto.includes('ya') ||
-                            esFoto || esVoz;
+                    if (telDB === numero) {
+                        const horasList = med.horas && med.horas.length > 0 ? med.horas : [med.hora || '08:00'];
+                        // Buscar una hora pendiente para hoy
+                        let horaPendiente = null;
+                        for (const h of horasList) {
+                            const key = `${fechaChile}_${h}`;
+                            const toma = med.tomas?.[key];
+                            const estadoDose = toma?.estado || 'pendiente';
+                            if (estadoDose === 'pendiente') {
+                                horaPendiente = h;
+                                break; // Encontramos la primera dosis pendiente del día
+                            }
+                        }
 
-                        if (esOk) {
-                            const extras = {};
-                            if (esFoto) extras.fotoConfirmacion = mediaUrl;
-                            if (esVoz) extras.vozConfirmacion = mediaUrl;
+                        if (horaPendiente) {
+                            const esOk = texto.includes('tome') || texto.includes('ok') ||
+                                texto.includes('si') || texto.includes('sí') ||
+                                texto.includes('listo') || texto.includes('ya') ||
+                                esFoto || esVoz;
 
-                            await med._ref.update({ estado: 'tomada', confirmadoEn: new Date().toISOString(), ...extras });
-                            await grupoDoc.ref.collection('historial').add({
-                                medicamentoId: med.id,
-                                familiar: med.familiar,
-                                nombre: med.nombre,
-                                dosis: med.dosis || '',
-                                horaProgram: med.hora,
-                                estado: 'tomada',
-                                timestamp: new Date().toISOString(),
-                                ...extras
-                            });
-                            medConfirmado = med;
-                            break;
+                            if (esOk) {
+                                const extras = {};
+                                if (esFoto) extras.fotoConfirmacion = mediaUrl;
+                                if (esVoz) extras.vozConfirmacion = mediaUrl;
+
+                                const key = `${fechaChile}_${horaPendiente}`;
+                                const updateData = {};
+                                updateData[`tomas.${key}`] = {
+                                    estado: 'tomada',
+                                    confirmadoEn: new Date().toISOString(),
+                                    tomadoPor: 'Paciente (WhatsApp)',
+                                    ...extras
+                                };
+
+                                // Decrementar inventario si corresponde
+                                let restantes = med.pastillasRestantes;
+                                if (restantes != null) {
+                                    restantes = restantes - 1;
+                                    if (restantes < 0) restantes = 0;
+                                    updateData.pastillasRestantes = restantes;
+
+                                    // Verificar alerta de stock
+                                    const umbral = med.alertaStockMinimo !== undefined && med.alertaStockMinimo !== null 
+                                        ? parseInt(med.alertaStockMinimo) 
+                                        : 5;
+                                    
+                                    if (restantes <= umbral) {
+                                        const cfgDoc = await grupoDoc.ref.collection('config').doc('principal').get();
+                                        const cfg = cfgDoc.exists ? cfgDoc.data() : {};
+                                        const ADMIN = cfg.adminPhone || '';
+                                        if (ADMIN) {
+                                            const alerta = `⚠️ *ALERTA MediClock: Stock Bajo* ⚠️\n\nQuedan pocas unidades de *${med.nombre}* para *${med.familiar}*.\n\nStock actual: *${restantes}* pastillas.\n¡Por favor, reabastece el medicamento pronto!`;
+                                            await enviarWA(ADMIN, 'Admin', alerta);
+                                        }
+                                    }
+                                }
+
+                                await med._ref.update(updateData);
+                                
+                                await grupoDoc.ref.collection('historial').add({
+                                    medicamentoId: med.id,
+                                    familiar: med.familiar,
+                                    nombre: med.nombre,
+                                    dosis: med.dosis || '',
+                                    horaProgram: horaPendiente,
+                                    fecha: fechaChile,
+                                    estado: 'tomada',
+                                    tomadoPor: 'Paciente (WhatsApp)',
+                                    timestamp: new Date().toISOString(),
+                                    ...extras
+                                });
+
+                                medConfirmado = { ...med, hora: horaPendiente };
+                                break;
+                            }
                         }
                     }
                 }
@@ -676,10 +798,12 @@ async function enviarWA(telefono, familiar, mensaje) {
 
 async function verificarReloj() {
     const { hora, dia, seg } = horaChile();
+    const fechaChile = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' });
+    
     if (seg < 5) enviados = {};
     if (hora === '00:00' && seg < 30) alertados = {};
 
-    console.log(`[Vigilante] ${hora} | Día: ${dia}`);
+    console.log(`[Vigilante] ${hora} | Día: ${dia} | Fecha: ${fechaChile}`);
 
     const gruposSnap = await db.collection('grupos').get();
 
@@ -693,29 +817,58 @@ async function verificarReloj() {
         const meds = medsSnap.docs.map(d => ({ id: d.id, ...d.data(), _ref: d.ref }));
 
         for (const med of meds) {
-            const kEnvio = `${grupoDoc.id}-${med.id}-${hora}`;
-            const kOlvido = `olvido-${grupoDoc.id}-${med.id}-${med.hora}`;
             const hoy = med.frecuencia === 'diaria' || (med.frecuencia === 'especifica' && med.dias?.map(Number).includes(dia));
+            if (!hoy) continue;
 
-            if (med.hora === hora && hoy && !enviados[kEnvio]) {
-                enviados[kEnvio] = true;
-                await med._ref.update({ estado: 'pendiente', confirmadoEn: null, fotoConfirmacion: null });
-                const msg = `🔔 *RECORDATORIO:* Hola *${med.familiar}*, es hora de tomar tu *${med.nombre}* (${med.dosis}).\n\n👉 _Responde *Listo*, *Ok*, envía una 📷 foto o 🎤 nota de voz para confirmar._`;
-                await enviarWA(med.telefono, med.familiar, msg);
-            }
+            const horasList = med.horas && med.horas.length > 0 ? med.horas : [med.hora || '08:00'];
 
-            const mins = minutosDesde(med.hora);
-            if (med.estado === 'pendiente' && mins >= MIN_OLVIDO && mins < 120 && !alertados[kOlvido]) {
-                alertados[kOlvido] = true;
-                await med._ref.update({ estado: 'olvidada' });
-                await grupoDoc.ref.collection('historial').add({
-                    medicamentoId: med.id, familiar: med.familiar, nombre: med.nombre,
-                    dosis: med.dosis || '', horaProgram: med.hora, estado: 'olvidada',
-                    timestamp: new Date().toISOString()
-                });
-                if (ADMIN) {
-                    const alerta = `⚠️ *ALERTA MediClock:* *${med.familiar}* no confirmó su *${med.nombre}* de las ${med.hora}. Han pasado ${MIN_OLVIDO} minutos.`;
-                    await enviarWA(ADMIN, 'Admin', alerta);
+            for (const H of horasList) {
+                const kEnvio = `${grupoDoc.id}-${med.id}-${H}`;
+                const kOlvido = `olvido-${grupoDoc.id}-${med.id}-${H}`;
+
+                if (H === hora && !enviados[kEnvio]) {
+                    enviados[kEnvio] = true;
+                    
+                    const key = `${fechaChile}_${H}`;
+                    const updateData = {};
+                    updateData[`tomas.${key}`] = {
+                        estado: 'pendiente',
+                        timestamp: new Date().toISOString()
+                    };
+                    await med._ref.update(updateData);
+                    
+                    const msg = `🔔 *RECORDATORIO:* Hola *${med.familiar}*, es hora de tomar tu *${med.nombre}* (${med.dosis}).\n\n👉 _Responde *Listo*, *Ok*, envía una 📷 foto o 🎤 nota de voz para confirmar._`;
+                    await enviarWA(med.telefono, med.familiar, msg);
+                }
+
+                const mins = minutosDesde(H);
+                const key = `${fechaChile}_${H}`;
+                const toma = med.tomas?.[key];
+                const estadoDose = toma?.estado || 'pendiente';
+
+                if (estadoDose === 'pendiente' && mins >= MIN_OLVIDO && mins < 120 && !alertados[kOlvido]) {
+                    alertados[kOlvido] = true;
+                    
+                    const updateData = {};
+                    updateData[`tomas.${key}.estado`] = 'olvidada';
+                    updateData[`tomas.${key}.timestamp`] = new Date().toISOString();
+                    await med._ref.update(updateData);
+                    
+                    await grupoDoc.ref.collection('historial').add({
+                        medicamentoId: med.id, 
+                        familiar: med.familiar, 
+                        nombre: med.nombre,
+                        dosis: med.dosis || '', 
+                        horaProgram: H, 
+                        fecha: fechaChile,
+                        estado: 'olvidada',
+                        timestamp: new Date().toISOString()
+                    });
+                    
+                    if (ADMIN) {
+                        const alerta = `⚠️ *ALERTA MediClock:* *${med.familiar}* no confirmó su *${med.nombre}* de las ${H}. Han pasado ${MIN_OLVIDO} minutos.`;
+                        await enviarWA(ADMIN, 'Admin', alerta);
+                    }
                 }
             }
         }

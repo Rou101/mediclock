@@ -283,7 +283,15 @@ input, select, textarea { font-family: var(--font); }
     position: relative;
 }
 .nav-btn span.nav-label { font-size: 10px; line-height: 1; }
-.nav-icon { font-size: 24px; margin-bottom: 4px; }
+.nav-icon {
+    width: 20px;
+    height: 20px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: inherit;
+}
 .nav-btn.active { color: var(--c-green); }
 .nav-btn.active svg { filter: drop-shadow(0 0 6px var(--c-green-glow)); }
 .nav-btn::before {
@@ -1049,3 +1057,181 @@ input:checked + .slider {
 input:checked + .slider:before {
     transform: translateX(20px);
 }
+
+/* ============================================================
+   CONTROL DE STOCK E INTERFAZ DE CONFIGURACIÓN ESTILO IOS
+   ============================================================ */
+
+.ios-section-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    color: var(--c-text-2);
+    margin: 20px 6px 6px 6px;
+    letter-spacing: 0.5px;
+}
+
+.ios-list {
+    background: var(--c-surface);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--c-border);
+    overflow: hidden;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+}
+
+.ios-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    min-height: 52px;
+    background: transparent;
+    border-bottom: 1px solid var(--c-border);
+}
+
+.ios-row:last-child {
+    border-bottom: none;
+}
+
+.ios-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--c-text);
+}
+
+.ios-row-icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+}
+
+.ios-input-wrapper {
+    flex: 1;
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+}
+
+.ios-input-wrapper select,
+.ios-input-wrapper input {
+    border: none !important;
+    background: transparent !important;
+    text-align: right;
+    color: var(--c-text) !important;
+    font-size: 15px;
+    font-family: inherit;
+    width: 100%;
+    outline: none;
+    padding: 0;
+    margin: 0;
+}
+
+.ios-input-wrapper input::placeholder {
+    color: var(--c-text-3);
+}
+
+.ios-row.vertical {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+}
+
+.ios-row.vertical .ios-input-wrapper {
+    width: 100%;
+}
+
+.ios-row.vertical .ios-input-wrapper input {
+    text-align: left;
+    padding: 4px 0;
+}
+
+/* Botones circulares para los días de la semana */
+.ios-day-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--c-border);
+    background: var(--c-surface2);
+    color: var(--c-text);
+    font-size: 13px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.ios-day-btn.selected {
+    background: var(--c-green);
+    color: white;
+    border-color: var(--c-green);
+}
+
+/* Contenedor de horas múltiples */
+.ios-time-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    width: 100%;
+}
+
+.ios-time-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+}
+
+.ios-time-add-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--c-blue);
+    font-size: 14px;
+    font-weight: 600;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px 0;
+    align-self: flex-start;
+}
+
+/* Etiquetas visuales para el stock en tarjetas */
+.med-stock {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--c-text-2);
+    margin-top: 6px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.med-stock.low-stock {
+    color: #ff9500;
+    background: rgba(255, 149, 0, 0.15);
+    padding: 2px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 149, 0, 0.25);
+    font-weight: 700;
+}
+
+.med-stock.no-stock {
+    color: var(--c-red);
+    background: var(--c-red-dim);
+    padding: 2px 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 69, 58, 0.25);
+    font-weight: 700;
+}
+

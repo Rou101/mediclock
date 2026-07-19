@@ -391,6 +391,26 @@ function renderLockState() {
 // RENDERS ESPECIFICOS
 // ============================================================
 
+function getLocalDateString() {
+    const d = new Date();
+    return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function renderStockBadge(m) {
+    if (m.pastillasRestantes == null) return '';
+    const umbral = m.alertaStockMinimo != null ? parseInt(m.alertaStockMinimo) : 5;
+    const isLow = m.pastillasRestantes <= umbral;
+    const isZero = m.pastillasRestantes <= 0;
+    
+    if (isZero) {
+        return `<div class="med-stock no-stock">❌ Sin stock</div>`;
+    } else if (isLow) {
+        return `<div class="med-stock low-stock">⚠️ Stock bajo: ${m.pastillasRestantes} uds.</div>`;
+    } else {
+        return `<div class="med-stock">📦 Stock: ${m.pastillasRestantes} uds.</div>`;
+    }
+}
+
 function renderHoy() {
     const lista = document.getElementById('hoy-lista');
     
@@ -424,15 +444,34 @@ function renderHoy() {
     const diasNombre = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     document.getElementById('hoy-fecha').textContent =
-        `${diasNombre[hoy.getDay()]}, ${hoy.getDate()} de ${meses[hoy.getMonth()]}`;
+        `${diasNombre[hoy.getDay()]} ${hoy.getDate()} de ${meses[hoy.getMonth()]}`;
 
     const diaNum = hoy.getDay();
-    const hoyDateStr = hoy.toISOString().split('T')[0];
-    const medHoy = state.medicamentos.filter(m => {
-        if (m.fechaInicio && m.fechaInicio > hoyDateStr) return false;
-        return m.frecuencia === 'diaria' ||
-               (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
-    }).sort((a, b) => a.hora.localeCompare(b.hora));
+    const localDateStr = getLocalDateString();
+    
+    // Expand meds into individual timing slots
+    const medHoy = [];
+    state.medicamentos.forEach(m => {
+        if (m.fechaInicio && m.fechaInicio > localDateStr) return;
+        const matches = m.frecuencia === 'diaria' ||
+                        (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
+        if (matches) {
+            const horasList = m.horas && m.horas.length > 0 ? m.horas : [m.hora || '08:00'];
+            horasList.forEach(h => {
+                const key = `${localDateStr}_${h}`;
+                const toma = m.tomas?.[key];
+                const estadoDose = toma?.estado || 'pendiente';
+                medHoy.push({
+                    ...m,
+                    hora: h,
+                    estado: estadoDose,
+                    origId: m.id,
+                    tomaMeta: toma
+                });
+            });
+        }
+    });
+    medHoy.sort((a, b) => a.hora.localeCompare(b.hora));
 
     const tomadas = medHoy.filter(m => m.estado === 'tomada').length;
     const total = medHoy.length;
@@ -473,11 +512,12 @@ function renderHoy() {
                 </div>
             </div>
             ${meds.map(m => `
-                <div class="med-card ${m.estado || ''}" onclick="abrirModalTomaManual('${m.id}')">
+                <div class="med-card ${m.estado || ''}" onclick="abrirModalTomaManual('${m.origId || m.id}', '${m.hora}')">
                     <div class="med-time">${m.hora}<small>${frecLabel(m)}</small></div>
                     <div class="med-info">
                         <div class="med-name">💊 ${m.nombre}</div>
                         <div class="med-dose">${m.dosis || ''}</div>
+                        ${renderStockBadge(m)}
                     </div>
                     <span class="med-status ${statusClass(m.estado)}">${estadoLabel(m.estado)}</span>
                 </div>
@@ -533,22 +573,39 @@ function renderCalendario() {
         const esPasado = dia < hoyZero;
         const diaNum = numDia(dia);
         const diaDateStr = dia.toISOString().split('T')[0];
-        const meds = state.medicamentos
-            .filter(m => {
-                if (m.fechaInicio && m.fechaInicio > diaDateStr) return false;
-                return m.frecuencia === 'diaria' ||
-                       (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
-            })
-            .sort((a, b) => a.hora.localeCompare(b.hora));
+        const medsList = [];
+        state.medicamentos.forEach(m => {
+            if (m.fechaInicio && m.fechaInicio > diaDateStr) return;
+            const matches = m.frecuencia === 'diaria' ||
+                            (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
+            if (matches) {
+                const horasList = m.horas && m.horas.length > 0 ? m.horas : [m.hora || '08:00'];
+                horasList.forEach(h => {
+                    const key = `${diaDateStr}_${h}`;
+                    const toma = m.tomas?.[key];
+                    const estadoDose = toma?.estado || 'pendiente';
+                    medsList.push({
+                        ...m,
+                        hora: h,
+                        estado: estadoDose,
+                        origId: m.id
+                    });
+                });
+            }
+        });
+        medsList.sort((a, b) => a.hora.localeCompare(b.hora));
 
         const esHoyBool = dia.toDateString() === hoyStr;
-        const medsHtml = meds.map(m => `
-            <div class="cal-med ${esHoyBool ? (m.estado || 'sin-estado') : 'sin-estado'}"
-                 ${esPasado ? 'style="opacity: 0.5; cursor: not-allowed;"' : `onclick="abrirModalEditar('${m.id}')"`}
-                 title="${m.nombre} ${m.hora}">
-                ${m.hora}<br>${m.nombre.substring(0, 8)}
-            </div>
-        `).join('');
+        const medsHtml = medsList.map(m => {
+            const isLow = m.pastillasRestantes != null && m.pastillasRestantes <= (m.alertaStockMinimo != null ? parseInt(m.alertaStockMinimo) : 5);
+            return `
+                <div class="cal-med ${esHoyBool ? (m.estado || 'sin-estado') : 'sin-estado'}"
+                     ${esPasado ? 'style="opacity: 0.5; cursor: not-allowed;"' : `onclick="abrirModalEditar('${m.origId || m.id}')"`}
+                     title="${m.nombre} ${m.hora}${m.pastillasRestantes != null ? ` (Stock: ${m.pastillasRestantes})` : ''}">
+                    ${m.hora}<br>${m.nombre.substring(0, 8)}${isLow ? ' ⚠️' : ''}
+                </div>
+            `;
+        }).join('');
 
         return `
             <div class="cal-day ${esHoy ? 'hoy' : ''}">
@@ -865,67 +922,165 @@ function cerrarModal() {
     overlay.classList.remove('visible');
     overlay.style.opacity = '0';
     overlay.style.pointerEvents = 'none';
-    setTimeout(() => { overlay.classList.add('hidden'); state.editingId = null; }, 350);
-}
-
 function buildMedForm(data = {}) {
-    const dias = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
-    const diasCheck = dias.map((d, i) => `
-        <label class="dia-label">
-            <input type="checkbox" name="dias" value="${i}" ${data.dias?.map(Number).includes(i) ? 'checked' : ''}>
-            <div class="dia-pill">${d}</div>
-        </label>
-    `).join('');
+    const familiarOptions = (state.pacientes || []).map(p => `
+        <option value="${p.nombre}" ${data.familiar === p.nombre ? 'selected' : ''}>${p.nombre}</option>
+    `).join('') || `<option value="">Sin pacientes registrados</option>`;
+
+    const diasMap = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
+    const diasButtons = Array.from({ length: 7 }, (_, i) => {
+        const selected = data.dias?.map(Number).includes(i);
+        return `
+            <button type="button" class="ios-day-btn ${selected ? 'selected' : ''}" data-day="${i}" onclick="this.classList.toggle('selected')">
+                ${diasMap[i]}
+            </button>
+        `;
+    }).join('');
+
+    // Prepopulate hours after rendering the modal
+    setTimeout(() => {
+        const container = document.getElementById('horas-container');
+        if (container) {
+            container.innerHTML = '';
+            const horas = data.horas || (data.hora ? [data.hora] : ['08:00']);
+            horas.forEach(h => agregarHoraInput(h));
+        }
+    }, 50);
 
     return `
-        <div class="form-group">
-            <label>Familiar / Paciente</label>
-            <select id="f-familiar" class="form-input">
-                <option value="">Selecciona un paciente...</option>
-                ${(state.pacientes || []).map(p => 
-                    `<option value="${p.nombre}" ${data.familiar === p.nombre ? 'selected' : ''}>${p.nombre}</option>`
-                ).join('')}
-            </select>
-        </div>
-        <div class="form-group">
-            <label>Medicamento</label>
-            <input type="text" id="f-nombre" class="form-input" placeholder="Nombre del medicamento" value="${data.nombre || ''}">
-        </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Dosis</label>
-                <input type="text" id="f-dosis" class="form-input" placeholder="Ej: 1 de 500 mg" value="${data.dosis || ''}">
+        <div class="ios-section-title">Paciente y Medicamento</div>
+        <div class="ios-list">
+            <div class="ios-row">
+                <div class="ios-row-left">
+                    <div class="ios-row-icon" style="background:#007AFF;">👤</div>
+                    <span>Paciente</span>
+                </div>
+                <div class="ios-input-wrapper">
+                    <select id="f-familiar" class="form-input">
+                        ${familiarOptions}
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Hora</label>
-                <input type="time" id="f-hora" class="form-input" value="${data.hora || '08:00'}">
+            <div class="ios-row vertical">
+                <div class="ios-row-left" style="width:100%;">
+                    <div class="ios-row-icon" style="background:#FF9500;">💊</div>
+                    <span>Nombre del Medicamento</span>
+                </div>
+                <div class="ios-input-wrapper">
+                    <input type="text" id="f-nombre" class="form-input" placeholder="Nombre del medicamento" value="${data.nombre || ''}">
+                </div>
+            </div>
+            <div class="ios-row vertical">
+                <div class="ios-row-left" style="width:100%;">
+                    <div class="ios-row-icon" style="background:#5856D6;">🥄</div>
+                    <span>Dosis</span>
+                </div>
+                <div class="ios-input-wrapper">
+                    <input type="text" id="f-dosis" class="form-input" placeholder="Ej: 1 pastilla de 500mg" value="${data.dosis || ''}">
+                </div>
             </div>
         </div>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Fecha de Inicio</label>
-                <input type="date" id="f-fechaInicio" class="form-input" value="${data.fechaInicio || new Date().toISOString().split('T')[0]}">
+
+        <div class="ios-section-title">Programación de Alarmas</div>
+        <div class="ios-list">
+            <div class="ios-row">
+                <div class="ios-row-left">
+                    <div class="ios-row-icon" style="background:#34C759;">📅</div>
+                    <span>Frecuencia</span>
+                </div>
+                <div class="ios-input-wrapper">
+                    <select id="f-frec" class="form-input" onchange="toggleDias()">
+                        <option value="diaria" ${data.frecuencia === 'diaria' ? 'selected' : ''}>Todos los días</option>
+                        <option value="especifica" ${data.frecuencia === 'especifica' ? 'selected' : ''}>Días específicos</option>
+                    </select>
+                </div>
             </div>
-            <div class="form-group">
-                <label>Pastillas en la Caja</label>
-                <input type="number" id="f-caja" class="form-input" placeholder="Ej: 30" value="${data.pastillasPorCaja || ''}">
+            <div class="ios-row" id="f-dias-group" style="display:${data.frecuencia === 'especifica' ? 'flex' : 'none'}; flex-direction:column; align-items:stretch;">
+                <div style="font-size:12px; color:var(--c-text-2); margin-bottom:8px;">Días de toma:</div>
+                <div style="display:flex; gap:6px; justify-content:space-between;">
+                    ${diasButtons}
+                </div>
+            </div>
+            <div class="ios-row vertical">
+                <div class="ios-row-left" style="width:100%;">
+                    <div class="ios-row-icon" style="background:#AF52DE;">⏰</div>
+                    <span>Horas de Toma</span>
+                </div>
+                <div class="ios-input-wrapper" style="flex-direction:column; align-items:stretch; margin-top:8px;">
+                    <div class="ios-time-list" id="horas-container">
+                        <!-- Loaded dynamically -->
+                    </div>
+                    <button type="button" class="ios-time-add-btn" onclick="agregarHoraInput()">
+                        <span>➕</span> Agregar otra hora
+                    </button>
+                </div>
+            </div>
+            <div class="ios-row">
+                <div class="ios-row-left">
+                    <div class="ios-row-icon" style="background:#FF2D55;">📆</div>
+                    <span>Fecha de Inicio</span>
+                </div>
+                <div class="ios-input-wrapper">
+                    <input type="date" id="f-fechaInicio" class="form-input" value="${data.fechaInicio || new Date().toISOString().split('T')[0]}" style="width:150px; text-align:right;">
+                </div>
             </div>
         </div>
-        <div class="form-group">
-            <label>WhatsApp del paciente</label>
-            <input type="tel" id="f-tel" class="form-input" placeholder="+56912345678" value="${data.telefono || ''}">
+
+        <div class="ios-section-title">Inventario y Stock</div>
+        <div class="ios-list">
+            <div class="ios-row">
+                <div class="ios-row-left">
+                    <div class="ios-row-icon" style="background:#30D158;">📦</div>
+                    <span>Controlar Stock</span>
+                </div>
+                <div class="ios-input-wrapper">
+                    <label class="ios-switch">
+                        <input type="checkbox" id="f-track-stock" ${data.pastillasPorCaja != null ? 'checked' : ''} onchange="toggleStockFields(this.checked)">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            <div id="stock-fields-container" style="display:${data.pastillasPorCaja != null ? 'block' : 'none'};">
+                <div class="ios-row">
+                    <div class="ios-row-left">
+                        <span>Pastillas por Caja</span>
+                    </div>
+                    <div class="ios-input-wrapper">
+                        <input type="number" id="f-caja" class="form-input" placeholder="Ej: 30" value="${data.pastillasPorCaja || ''}" style="width:100px;">
+                    </div>
+                </div>
+                <div class="ios-row">
+                    <div class="ios-row-left">
+                        <span>Stock Actual (Restantes)</span>
+                    </div>
+                    <div class="ios-input-wrapper">
+                        <input type="number" id="f-restantes" class="form-input" placeholder="Ej: 30" value="${data.pastillasRestantes != null ? data.pastillasRestantes : ''}" style="width:100px;">
+                    </div>
+                </div>
+                <div class="ios-row">
+                    <div class="ios-row-left">
+                        <span>Alerta Mínima de Stock</span>
+                    </div>
+                    <div class="ios-input-wrapper">
+                        <input type="number" id="f-alerta-min" class="form-input" placeholder="Ej: 5" value="${data.alertaStockMinimo != null ? data.alertaStockMinimo : ''}" style="width:100px;">
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="form-group">
-            <label>Frecuencia</label>
-            <select id="f-frec" class="form-input" onchange="toggleDias()">
-                <option value="diaria" ${data.frecuencia === 'diaria' ? 'selected' : ''}>Todos los días</option>
-                <option value="especifica" ${data.frecuencia === 'especifica' ? 'selected' : ''}>Días específicos</option>
-            </select>
+
+        <div class="ios-section-title">Alertas por WhatsApp</div>
+        <div class="ios-list">
+            <div class="ios-row vertical">
+                <div class="ios-row-left" style="width:100%;">
+                    <div class="ios-row-icon" style="background:#34C759;">📱</div>
+                    <span>WhatsApp del Paciente</span>
+                </div>
+                <div class="ios-input-wrapper">
+                    <input type="tel" id="f-tel" class="form-input" placeholder="Ej: +56912345678" value="${data.telefono || ''}">
+                </div>
+            </div>
         </div>
-        <div class="form-group" id="f-dias-group" style="display:${data.frecuencia === 'especifica' ? 'block' : 'none'}">
-            <label>Días de la semana</label>
-            <div class="dias-check">${diasCheck}</div>
-        </div>
+
         <div class="modal-btn-row">
             <button class="btn-primary" onclick="guardarMedicamento()">Guardar</button>
             ${state.editingId ? `<button class="btn-ghost btn-danger" onclick="eliminarMedicamento('${state.editingId}')">Eliminar</button>` : ''}
@@ -935,7 +1090,23 @@ function buildMedForm(data = {}) {
 
 window.toggleDias = function() {
     const v = document.getElementById('f-frec').value;
-    document.getElementById('f-dias-group').style.display = v === 'especifica' ? 'block' : 'none';
+    document.getElementById('f-dias-group').style.display = v === 'especifica' ? 'flex' : 'none';
+};
+
+window.toggleStockFields = function(checked) {
+    document.getElementById('stock-fields-container').style.display = checked ? 'block' : 'none';
+};
+
+window.agregarHoraInput = function(val = '08:00') {
+    const container = document.getElementById('horas-container');
+    if (!container) return;
+    const div = document.createElement('div');
+    div.className = 'ios-time-row';
+    div.innerHTML = `
+        <input type="time" class="form-input ios-time-val" value="${val}" style="width:120px; text-align:center; padding: 6px 12px; border-radius: 8px; background:var(--c-surface2); border:1px solid var(--c-border); color:var(--c-text);">
+        <button type="button" class="btn-icon" style="color:var(--c-red); font-size:16px;" onclick="this.parentElement.remove()">❌</button>
+    `;
+    container.appendChild(div);
 };
 
 function abrirModalNuevo(prefill = {}) {
@@ -954,19 +1125,47 @@ async function guardarMedicamento() {
     const familiar = document.getElementById('f-familiar').value.trim();
     const nombre = document.getElementById('f-nombre').value.trim();
     const dosis = document.getElementById('f-dosis').value.trim();
-    const hora = document.getElementById('f-hora').value;
     const fechaInicio = document.getElementById('f-fechaInicio').value;
-    const pastillasPorCaja = parseInt(document.getElementById('f-caja').value, 10) || null;
     const telefono = document.getElementById('f-tel').value.trim();
     const frecuencia = document.getElementById('f-frec').value;
-    const diasChecked = [...document.querySelectorAll('input[name="dias"]:checked')].map(c => c.value);
+    
+    // Extract times
+    const horasChecked = [...document.querySelectorAll('.ios-time-val')].map(input => input.value).filter(Boolean);
+    
+    // Extract selected days
+    const diasChecked = [...document.querySelectorAll('.ios-day-btn.selected')].map(b => b.dataset.day);
 
-    if (!nombre || !hora || !fechaInicio) {
-        toast('Por favor completa nombre, hora y fecha de inicio', 'error');
+    // Extract stock fields conditionally
+    const trackStock = document.getElementById('f-track-stock').checked;
+    let pastillasPorCaja = null;
+    let pastillasRestantes = null;
+    let alertaStockMinimo = null;
+    
+    if (trackStock) {
+        pastillasPorCaja = parseInt(document.getElementById('f-caja').value, 10) || null;
+        pastillasRestantes = document.getElementById('f-restantes').value !== '' ? parseInt(document.getElementById('f-restantes').value, 10) : null;
+        alertaStockMinimo = document.getElementById('f-alerta-min').value !== '' ? parseInt(document.getElementById('f-alerta-min').value, 10) : null;
+    }
+
+    if (!nombre || horasChecked.length === 0 || !fechaInicio) {
+        toast('Por favor completa nombre, al menos una hora y fecha de inicio', 'error');
         return;
     }
 
-    const datos = { familiar, nombre, dosis, hora, fechaInicio, pastillasPorCaja, telefono, frecuencia, dias: diasChecked };
+    const datos = { 
+        familiar, 
+        nombre, 
+        dosis, 
+        hora: horasChecked[0], // backward compatibility
+        horas: horasChecked, 
+        fechaInicio, 
+        pastillasPorCaja, 
+        pastillasRestantes, 
+        alertaStockMinimo, 
+        telefono, 
+        frecuencia, 
+        dias: diasChecked 
+    };
 
     try {
         const id = state.activeGrupoId;
@@ -974,11 +1173,11 @@ async function guardarMedicamento() {
             await api('PUT', `/api/grupos/${id}/medicamentos/${state.editingId}`, datos);
             const idx = state.medicamentos.findIndex(m => m.id === state.editingId);
             if (idx >= 0) state.medicamentos[idx] = { ...state.medicamentos[idx], ...datos };
-            toast('⭐ Guardado', 'success');
+            toast('⭐ Guardado', 'success');
         } else {
             const nuevo = await api('POST', `/api/grupos/${id}/medicamentos`, datos);
             state.medicamentos.push(nuevo);
-            toast('⭐ Creado', 'success');
+            toast('⭐ Creado', 'success');
         }
         cerrarModal();
         renderCurrentTab();
@@ -1246,42 +1445,54 @@ window.eliminarPaciente = async function(id) {
 // TOMA MANUAL
 // ============================================================
 
-window.abrirModalTomaManual = function(id) {
+window.abrirModalTomaManual = function(id, hora = null) {
     const med = state.medicamentos.find(m => m.id === id);
     if (!med) return;
     
+    const targetHora = hora || med.hora || '08:00';
+    
     abrirModal('Registro de Toma', `
         <div style="text-align:center; padding:10px;">
-            <p>¿Deseas registrar la toma de <strong>${med.nombre}</strong> para hoy a las ${med.hora}?</p>
+            <p>¿Deseas registrar la toma de <strong>${med.nombre}</strong> a las ${targetHora}?</p>
             <p style="font-size:12px; color:var(--c-gray); margin-top:10px;">
                 Esto descontará una dosis de la caja y registrará la acción en el historial.
             </p>
-            ${med.pastillasRestantes != null ? `<p style="font-size:14px; font-weight:bold; color:var(--c-blue); margin-top:10px;">Inventario actual: ${med.pastillasRestantes} pastillas</p>` : ''}
+            ${med.pastillasRestantes != null ? `
+                <div style="margin-top:15px; padding:12px; background:var(--c-surface2); border-radius:12px;">
+                    <p style="font-size:14px; font-weight:bold; color:var(--c-blue);">Inventario actual: ${med.pastillasRestantes} pastillas</p>
+                    <button class="btn-secondary btn-sm" style="margin-top:8px; font-size:12px; padding:6px 12px;" onclick="reabastecerMedicamento('${id}', '${targetHora}')">➕ Reabastecer Caja</button>
+                </div>
+            ` : ''}
         </div>
         <div class="modal-btn-row" style="margin-top:20px;">
-            <button class="btn-primary pulse-btn" onclick="confirmarTomaManual('${id}', 'tomada')">✅ Confirmar Toma</button>
+            <button class="btn-primary pulse-btn" onclick="confirmarTomaManual('${id}', 'tomada', '${targetHora}')">✅ Confirmar Toma</button>
             <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
         </div>
     `);
 };
 
-window.confirmarTomaManual = async function(id, estado) {
+window.confirmarTomaManual = async function(id, estado, hora) {
     try {
         const med = state.medicamentos.find(m => m.id === id);
         if (!med) return;
         
-        const hoy = new Date().toISOString().split('T')[0];
+        const hoy = getLocalDateString();
         
         await api('POST', `/api/grupos/${state.activeGrupoId}/marcar-toma`, {
             medicamentoId: id,
             fecha: hoy,
-            hora: med.hora,
+            hora: hora,
             estado: estado,
             tomadoPor: state.user.name
         });
         
-        // Actualizar UI localmente por ahora
-        med.estado = estado;
+        if (!med.tomas) med.tomas = {};
+        med.tomas[`${hoy}_${hora}`] = {
+            estado: estado,
+            tomadoPor: state.user.name,
+            timestamp: new Date().toISOString()
+        };
+        
         if (med.pastillasRestantes != null && estado === 'tomada') {
             med.pastillasRestantes--;
         }
@@ -1291,6 +1502,30 @@ window.confirmarTomaManual = async function(id, estado) {
         renderCurrentTab();
     } catch (e) {
         toast('Error al registrar la toma', 'error');
+    }
+};
+
+window.reabastecerMedicamento = async function(id, targetHora) {
+    const med = state.medicamentos.find(m => m.id === id);
+    if (!med) return;
+    const cantidadStr = prompt(`¿Cuántas pastillas deseas agregar a la caja de ${med.nombre}?`, med.pastillasPorCaja || 30);
+    if (cantidadStr === null) return;
+    const cantidad = parseInt(cantidadStr, 10);
+    if (isNaN(cantidad) || cantidad <= 0) {
+        toast('Cantidad inválida', 'error');
+        return;
+    }
+    
+    try {
+        const res = await api('POST', `/api/grupos/${state.activeGrupoId}/medicamentos/${id}/reabastecer`, { cantidad });
+        if (res.success) {
+            med.pastillasRestantes = (med.pastillasRestantes || 0) + cantidad;
+            toast(`Caja reabastecida con ${cantidad} pastillas`, 'success');
+            abrirModalTomaManual(id, targetHora);
+            renderCurrentTab();
+        }
+    } catch (e) {
+        toast('Error al reabastecer stock', 'error');
     }
 };
 
@@ -1340,27 +1575,43 @@ window.renderPacienteScreen = function() {
 
     const hoy = new Date();
     const diaNum = hoy.getDay();
-    const hoyDateStr = hoy.toISOString().split('T')[0];
+    const localDateStr = getLocalDateString();
     
-    let meds = state.medicamentos.filter(m => {
-        if (m.familiar !== paciente?.nombre) return false;
-        if (m.fechaInicio && m.fechaInicio > hoyDateStr) return false;
-        return m.frecuencia === 'diaria' ||
-               (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
-    }).sort((a, b) => a.hora.localeCompare(b.hora));
+    const medsList = [];
+    state.medicamentos.forEach(m => {
+        if (m.familiar !== paciente?.nombre) return;
+        if (m.fechaInicio && m.fechaInicio > localDateStr) return;
+        const matches = m.frecuencia === 'diaria' ||
+                        (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
+        if (matches) {
+            const horasList = m.horas && m.horas.length > 0 ? m.horas : [m.hora || '08:00'];
+            horasList.forEach(h => {
+                const key = `${localDateStr}_${h}`;
+                const toma = m.tomas?.[key];
+                const estadoDose = toma?.estado || 'pendiente';
+                medsList.push({
+                    ...m,
+                    hora: h,
+                    estado: estadoDose,
+                    origId: m.id
+                });
+            });
+        }
+    });
+    medsList.sort((a, b) => a.hora.localeCompare(b.hora));
 
-    const pendientes = meds.filter(m => m.estado !== 'tomada');
+    const pendientes = medsList.filter(m => m.estado !== 'tomada');
     document.getElementById('paciente-subtitle').textContent = pendientes.length > 0
         ? `Tienes ${pendientes.length} medicamentos pendientes hoy.`
         : `¡Todo listo! No tienes medicamentos pendientes.`;
 
     const listEl = document.getElementById('paciente-meds-list');
-    if (meds.length === 0) {
+    if (medsList.length === 0) {
         listEl.innerHTML = `<div style="text-align:center; padding:20px; background:white; border-radius:12px;">Sin medicamentos para hoy</div>`;
         return;
     }
 
-    listEl.innerHTML = meds.map(m => `
+    listEl.innerHTML = medsList.map(m => `
         <div style="background:var(--c-surface); border-radius:16px; padding:20px; box-shadow:var(--c-border-inner), var(--shadow); border: 2px solid ${m.estado === 'tomada' ? 'var(--c-green)' : 'var(--c-border)'}; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <span style="font-size:24px; font-weight:bold; color:var(--c-text);">${m.hora}</span>
@@ -1369,10 +1620,11 @@ window.renderPacienteScreen = function() {
                 </span>
             </div>
             <div style="font-size:20px; font-weight:600; color:var(--c-text); margin-bottom:4px;">💊 ${m.nombre}</div>
-            <div style="color:var(--c-text-2); font-size:16px; margin-bottom:20px;">${m.dosis || '1 Dosis'}</div>
+            <div style="color:var(--c-text-2); font-size:16px; margin-bottom:8px;">${m.dosis || '1 Dosis'}</div>
+            <div style="margin-bottom:20px;">${renderStockBadge(m)}</div>
             
             ${m.estado !== 'tomada' ? `
-                <button class="btn-primary pulse-btn" style="width:100%; font-size:18px; padding:16px; border-radius:12px; box-shadow: 0 4px 15px rgba(48,209,88,0.3);" onclick="confirmarTomaPaciente('${m.id}')">
+                <button class="btn-primary pulse-btn" style="width:100%; font-size:18px; padding:16px; border-radius:12px; box-shadow: 0 4px 15px rgba(48,209,88,0.3);" onclick="confirmarTomaPaciente('${m.origId || m.id}', '${m.hora}')">
                     ✅ YA ME LA TOMÉ
                 </button>
             ` : `
@@ -1384,21 +1636,27 @@ window.renderPacienteScreen = function() {
     `).join('');
 };
 
-window.confirmarTomaPaciente = async function(id) {
+window.confirmarTomaPaciente = async function(id, hora) {
     const med = state.medicamentos.find(m => m.id === id);
     if (!med) return;
     
-    const hoy = new Date().toISOString().split('T')[0];
+    const hoy = getLocalDateString();
     try {
         await api('POST', `/api/grupos/${state.activeGrupoId}/marcar-toma`, {
             medicamentoId: id,
             fecha: hoy,
-            hora: med.hora,
+            hora: hora,
             estado: 'tomada',
             tomadoPor: 'Paciente (Modo App)'
         });
         
-        med.estado = 'tomada';
+        if (!med.tomas) med.tomas = {};
+        med.tomas[`${hoy}_${hora}`] = {
+            estado: 'tomada',
+            tomadoPor: 'Paciente (Modo App)',
+            timestamp: new Date().toISOString()
+        };
+        
         if (med.pastillasRestantes != null) med.pastillasRestantes--;
         
         renderPacienteScreen(); // re-render
