@@ -51,37 +51,59 @@ function toast(msg, type = '') {
 
 // --- LOGOUT ---
 function logout() {
-    state.user = null;
-    state.token = null;
-    state.activeGrupoId = null;
-    localStorage.removeItem('mc_active_grupo_id');
-    document.getElementById('app').classList.add('hidden');
-    document.getElementById('group-screen').classList.add('hidden');
-    document.getElementById('login-screen').classList.remove('hidden');
+    firebase.auth().signOut().then(() => {
+        state.user = null;
+        state.token = null;
+        state.activeGrupoId = null;
+        localStorage.removeItem('mc_active_grupo_id');
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('group-screen').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+    });
 }
 
 // ============================================================
-// AUTHENTICATION FLOW (MOCKED)
+// AUTHENTICATION FLOW (FIREBASE)
 // ============================================================
 
 document.getElementById('btn-google-login').addEventListener('click', async () => {
-    toast('Iniciando sesión de prueba...', 'info');
-    
-    // Simular login
-    state.user = { uid: 'test-user-123', email: 'test@mediclock.com', name: 'Usuario Prueba' };
-    state.token = 'dummy-token-123';
-    
-    document.getElementById('login-screen').classList.add('hidden');
-    
-    // Manejar link de invitación si existe en la URL actual
-    const m = window.location.pathname.match(/\/unirse\/([A-Z0-9]+)/);
-    if (m) {
-        const codigo = m[1];
-        await procesarInvitacion(codigo);
-        return;
+    toast('Iniciando sesión con Google...', 'info');
+    const provider = new firebase.auth.GoogleAuthProvider();
+    try {
+        const result = await firebase.auth().signInWithPopup(provider);
+        toast('Autenticación exitosa', 'success');
+    } catch (error) {
+        console.error("Auth Error:", error);
+        toast('Error de login: ' + error.message, 'error');
     }
+});
 
-    await inicializarGrupos();
+firebase.auth().onAuthStateChanged(async (user) => {
+    if (user) {
+        state.user = {
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName || 'Usuario'
+        };
+        state.token = await user.getIdToken();
+        
+        document.getElementById('login-screen').classList.add('hidden');
+        
+        // Manejar link de invitación si existe en la URL actual
+        const m = window.location.pathname.match(/\/unirse\/([A-Z0-9]+)/);
+        if (m) {
+            const codigo = m[1];
+            await procesarInvitacion(codigo);
+            return;
+        }
+
+        await inicializarGrupos();
+    } else {
+        // Mostrar login, asegurar que la app esté oculta
+        document.getElementById('app').classList.add('hidden');
+        document.getElementById('group-screen').classList.add('hidden');
+        document.getElementById('login-screen').classList.remove('hidden');
+    }
 });
 
 // ============================================================
@@ -219,6 +241,20 @@ async function cargarDatosGrupo() {
             api('GET', `/api/grupos/${id}/miembros`),
             api('GET', `/api/grupos/${id}/pacientes`),
         ]);
+
+        const miUser = state.miembros.find(m => m.uid === state.user?.uid);
+        if (miUser) {
+            state.miRol = miUser.rol || 'miembro';
+            state.miPacienteId = miUser.pacienteId || null;
+        }
+
+        if (state.miRol === 'paciente') {
+            document.getElementById('app').classList.add('hidden');
+            renderPacienteScreen();
+            setInterval(actualizarRelojPaciente, 1000 * 60);
+            return;
+        }
+
     } catch (e) {
         toast('Error cargando datos del grupo', 'error');
     }
@@ -253,7 +289,11 @@ function initApp() {
     document.getElementById('btn-add-hoy').addEventListener('click', () => abrirModalNuevo());
 
     // Calendario
-    document.getElementById('cal-prev').addEventListener('click', () => { state.calOffset--; renderCalendario(); });
+    document.getElementById('cal-prev').addEventListener('click', () => { 
+        if (state.calOffset <= 0) return;
+        state.calOffset--; 
+        renderCalendario(); 
+    });
     document.getElementById('cal-next').addEventListener('click', () => { state.calOffset++; renderCalendario(); });
 
     // Biblioteca
@@ -264,12 +304,59 @@ function initApp() {
     document.getElementById('btn-logout').addEventListener('click', logout);
     document.getElementById('btn-invitar-miembro').addEventListener('click', generarInvitacion);
     document.getElementById('btn-copy-invite').addEventListener('click', copiarLinkInvitacion);
+
+    // PWA Install
+    const btnInstall = document.getElementById('btn-install-app');
+    if(btnInstall) {
+        btnInstall.addEventListener('click', async () => {
+            if (window.deferredPrompt) {
+                window.deferredPrompt.prompt();
+                const { outcome } = await window.deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    window.deferredPrompt = null;
+                }
+            } else {
+                // iOS Fallback o no soportado
+                abrirModal('Instalar en tu Teléfono', `
+                    <div style="text-align:center;">
+                        <p style="margin-bottom:16px; font-size:15px; color:var(--c-text-2);">Para usar MediClock como una App nativa a pantalla completa:</p>
+                        <ol style="text-align:left; padding-left:20px; line-height:1.6; margin-bottom:20px; color:var(--c-text-2);">
+                            <li>En iPhone (Safari): Toca el botón <strong>Compartir</strong> <span style="font-size:20px">⍐</span> abajo al centro.</li>
+                            <li>Desliza y selecciona <strong>"Agregar a Inicio"</strong>.</li>
+                            <li>Toca <strong>Agregar</strong> arriba a la derecha.</li>
+                        </ol>
+                        <p style="font-size:13px; color:var(--c-green);">En Android, toca los 3 puntitos arriba a la derecha y selecciona "Instalar Aplicación".</p>
+                    </div>
+                `);
+            }
+        });
+    }
 }
 
 function switchTab(tab) {
+    const panels = document.querySelectorAll('.tab-panel');
+    const oldPanel = document.getElementById(`panel-${state.activeTab}`);
+    const newPanel = document.getElementById(`panel-${tab}`);
+
+    if (oldPanel && oldPanel !== newPanel) {
+        oldPanel.classList.remove('active', 'view-transition-enter-active');
+        oldPanel.classList.add('view-transition-exit-active');
+        setTimeout(() => {
+            oldPanel.classList.remove('view-transition-exit-active');
+        }, 300);
+    }
+
     state.activeTab = tab;
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
-    document.querySelectorAll('.tab-panel').forEach(p => p.classList.toggle('active', p.id === `panel-${tab}`));
+    
+    if (newPanel) {
+        newPanel.classList.add('active', 'view-transition-enter');
+        // Force reflow
+        void newPanel.offsetWidth;
+        newPanel.classList.remove('view-transition-enter');
+        newPanel.classList.add('view-transition-enter-active');
+    }
+    
     renderCurrentTab();
 }
 
@@ -340,10 +427,12 @@ function renderHoy() {
         `${diasNombre[hoy.getDay()]}, ${hoy.getDate()} de ${meses[hoy.getMonth()]}`;
 
     const diaNum = hoy.getDay();
-    const medHoy = state.medicamentos.filter(m =>
-        m.frecuencia === 'diaria' ||
-        (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum))
-    ).sort((a, b) => a.hora.localeCompare(b.hora));
+    const hoyDateStr = hoy.toISOString().split('T')[0];
+    const medHoy = state.medicamentos.filter(m => {
+        if (m.fechaInicio && m.fechaInicio > hoyDateStr) return false;
+        return m.frecuencia === 'diaria' ||
+               (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
+    }).sort((a, b) => a.hora.localeCompare(b.hora));
 
     const tomadas = medHoy.filter(m => m.estado === 'tomada').length;
     const total = medHoy.length;
@@ -365,11 +454,26 @@ function renderHoy() {
         grupos[m.familiar].push(m);
     });
 
-    lista.innerHTML = Object.entries(grupos).map(([familiar, meds]) => `
+    lista.innerHTML = Object.entries(grupos).map(([familiar, meds]) => {
+        const totalFam = meds.length;
+        const tomadasFam = meds.filter(m => m.estado === 'tomada').length;
+        const pct = totalFam === 0 ? 0 : Math.round((tomadasFam / totalFam) * 100);
+        const offset = 125.6 - (125.6 * pct) / 100; // 2 * pi * 20 = 125.6
+
+        return `
         <div class="familiar-group">
-            <div class="familiar-label">👤 ${familiar}</div>
+            <div class="familiar-label" style="display:flex; justify-content:space-between; align-items:center;">
+                <span>👤 ${familiar}</span>
+                <div class="progress-ring-container">
+                    <svg class="progress-ring" width="48" height="48" viewBox="0 0 48 48">
+                        <circle class="progress-ring-circle-bg" cx="24" cy="24" r="20"></circle>
+                        <circle class="progress-ring-circle" cx="24" cy="24" r="20" stroke-dasharray="125.6" stroke-dashoffset="${offset}"></circle>
+                    </svg>
+                    <span class="progress-ring-text">${pct}%</span>
+                </div>
+            </div>
             ${meds.map(m => `
-                <div class="med-card ${m.estado || ''}" onclick="abrirModalEditar('${m.id}')">
+                <div class="med-card ${m.estado || ''}" onclick="abrirModalTomaManual('${m.id}')">
                     <div class="med-time">${m.hora}<small>${frecLabel(m)}</small></div>
                     <div class="med-info">
                         <div class="med-name">💊 ${m.nombre}</div>
@@ -379,7 +483,8 @@ function renderHoy() {
                 </div>
             `).join('')}
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function frecLabel(m) {
@@ -405,26 +510,41 @@ function renderCalendario() {
     const hoyStr = new Date().toDateString();
     const nombresCortos = ['Lun','Mar','Mié','Jue','Vie','Sáb','Dom'];
     const numDia = d => d.getDay() === 0 ? 0 : d.getDay();
-
     const mes = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
     document.getElementById('cal-titulo').textContent =
-        `${mes[dias[0].getMonth()]} ${dias[0].getDate()}  ${dias[6].getDate()}`;
+        `${mes[dias[0].getMonth()]} ${dias[0].getDate()} - ${dias[6].getDate()}`;
+
+    // Deshabilitar ir al pasado
+    const btnPrev = document.getElementById('cal-prev');
+    if (state.calOffset <= 0) {
+        btnPrev.style.opacity = '0.3';
+        btnPrev.style.pointerEvents = 'none';
+    } else {
+        btnPrev.style.opacity = '1';
+        btnPrev.style.pointerEvents = 'auto';
+    }
 
     const grid = document.getElementById('calendario-grid');
+    const hoyZero = new Date();
+    hoyZero.setHours(0,0,0,0);
+
     grid.innerHTML = dias.map((dia, i) => {
         const esHoy = dia.toDateString() === hoyStr;
+        const esPasado = dia < hoyZero;
         const diaNum = numDia(dia);
+        const diaDateStr = dia.toISOString().split('T')[0];
         const meds = state.medicamentos
-            .filter(m =>
-                m.frecuencia === 'diaria' ||
-                (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum))
-            )
+            .filter(m => {
+                if (m.fechaInicio && m.fechaInicio > diaDateStr) return false;
+                return m.frecuencia === 'diaria' ||
+                       (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
+            })
             .sort((a, b) => a.hora.localeCompare(b.hora));
 
         const esHoyBool = dia.toDateString() === hoyStr;
         const medsHtml = meds.map(m => `
             <div class="cal-med ${esHoyBool ? (m.estado || 'sin-estado') : 'sin-estado'}"
-                 onclick="abrirModalEditar('${m.id}')"
+                 ${esPasado ? 'style="opacity: 0.5; cursor: not-allowed;"' : `onclick="abrirModalEditar('${m.id}')"`}
                  title="${m.nombre} ${m.hora}">
                 ${m.hora}<br>${m.nombre.substring(0, 8)}
             </div>
@@ -550,37 +670,107 @@ async function eliminarRemedio(id) {
 // ============================================================
 
 function renderConfig() {
-    const cfg = state.config;
-    document.getElementById('cfg-admin-phone').value = cfg.adminPhone || '';
-    document.getElementById('cfg-minutos').value = cfg.minutosOlvido || 20;
+    const cfg = state.config || {};
+    const adminPhoneEl = document.getElementById('cfg-admin-phone');
+    if (adminPhoneEl) adminPhoneEl.value = cfg.adminPhone || '';
+    
+    const minutosEl = document.getElementById('cfg-minutos');
+    if (minutosEl) minutosEl.value = cfg.minutosOlvido || 20;
 
-    // Solo admin puede guardar config global y generar invitaciones
+    const themeEl = document.getElementById('cfg-theme');
+    if (themeEl) themeEl.checked = localStorage.getItem('theme') === 'dark';
+
+    // Solo admin puede generar invitaciones
     const isAdmin = state.miRol === 'admin';
-    document.getElementById('btn-guardar-config').disabled = !isAdmin;
-    document.getElementById('btn-invitar-miembro').style.display = isAdmin ? 'block' : 'none';
+    const btnInvitar = document.getElementById('btn-invitar-miembro');
+    if (btnInvitar) {
+        btnInvitar.style.display = isAdmin ? 'block' : 'none';
+        btnInvitar.parentElement.style.display = isAdmin ? 'flex' : 'none';
+    }
 
-    // Lista de miembros
+    // Lista de miembros (Guardias)
     const container = document.getElementById('miembros-lista');
-    container.innerHTML = state.miembros.map(m => `
-        <div class="admin-card">
-            <div style="display:flex; align-items:center; gap:12px;">
-                <img src="${m.foto || '/icon-512.png'}" style="width:36px; height:36px; border-radius:50%; background:var(--c-surface);">
-                <div class="admin-info">
-                    <span class="admin-name">${m.nombre}</span>
-                    <span style="font-size:11px; color:var(--c-gray);">${m.email}</span>
+    if (!container) return;
+
+    const guardias = cfg.guardiasActivas || [];
+    
+    container.innerHTML = state.miembros.map(m => {
+        const esGuardia = guardias.find(g => g.uid === m.uid && new Date(g.expiresAt) > new Date());
+        const guardiaBtn = esGuardia 
+            ? `<button class="btn-sm" style="color:var(--c-red); background:transparent;" onclick="revocarGuardia('${m.uid}')">Revocar</button>`
+            : `<button class="btn-sm" style="color:var(--c-blue); background:transparent;" onclick="abrirModalGuardia('${m.uid}', '${m.nombre}')">Delegar</button>`;
+        
+        return `
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 4px 0; border-bottom:1px solid var(--c-border);">
+            <div style="display:flex; align-items:center; gap:8px;">
+                <img src="${m.foto || '/icon-512.png'}" style="width:24px; height:24px; border-radius:50%;">
+                <div style="display:flex; flex-direction:column;">
+                    <span style="font-size:14px; font-weight:500;">${m.nombre}</span>
+                    ${esGuardia ? `<span style="font-size:10px; color:var(--c-green);">Escudo hasta ${new Date(esGuardia.expiresAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>` : ''}
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:8px;">
-                <span class="admin-role ${m.rol === 'admin' ? 'admin' : 'member'}">${m.rol.toUpperCase()}</span>
-                ${isAdmin && m.uid !== state.user.uid ? `
-                    <button class="remedio-del" style="position:static; width:28px; height:28px;" onclick="eliminarMiembro('${m.uid}')">=</button>
-                ` : ''}
-            </div>
+            ${isAdmin && m.uid !== state.user?.uid ? guardiaBtn : (esGuardia ? '🛡️' : '')}
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
-async function guardarConfig() {
+window.abrirModalGuardia = function(uid, nombre) {
+    abrirModal('Delegar Guardia', `
+        <p style="margin-bottom:16px; font-size:14px; color:var(--c-text-2);">Delega la recepción de notificaciones de WhatsApp a <strong>${nombre}</strong>.</p>
+        <div class="form-group">
+            <label>Duración del turno</label>
+            <select id="guardia-duracion" class="form-input">
+                <option value="2">2 horas</option>
+                <option value="4">4 horas</option>
+                <option value="8">8 horas</option>
+                <option value="12">12 horas</option>
+                <option value="24">24 horas</option>
+                <option value="999999">Permanente</option>
+            </select>
+        </div>
+        <div class="modal-btn-row">
+            <button class="btn-primary" onclick="guardarGuardia('${uid}')">Activar Guardia</button>
+        </div>
+    `);
+};
+
+window.guardarGuardia = async function(uid) {
+    const horas = parseInt(document.getElementById('guardia-duracion').value);
+    const expiresAt = new Date(Date.now() + horas * 60 * 60 * 1000).toISOString();
+    let guardias = (state.config.guardiasActivas || []).filter(g => new Date(g.expiresAt) > new Date());
+    guardias = guardias.filter(g => g.uid !== uid);
+    guardias.push({ uid, expiresAt });
+    
+    try {
+        await api('PUT', `/api/grupos/${state.activeGrupoId}/config`, { guardiasActivas: guardias });
+        state.config.guardiasActivas = guardias;
+        cerrarModal();
+        renderConfig();
+        toast('Guardia delegada 🛡️', 'success');
+    } catch {
+        toast('Error al delegar', 'error');
+    }
+};
+
+window.revocarGuardia = async function(uid) {
+    let guardias = (state.config.guardiasActivas || []).filter(g => g.uid !== uid);
+    try {
+        await api('PUT', `/api/grupos/${state.activeGrupoId}/config`, { guardiasActivas: guardias });
+        state.config.guardiasActivas = guardias;
+        renderConfig();
+        toast('Guardia revocada', 'success');
+    } catch {
+        toast('Error al revocar', 'error');
+    }
+};
+
+window.saveConfig = async function() {
+    if (state.miRol !== 'admin') {
+        toast('Solo los administradores pueden cambiar esto', 'error');
+        renderConfig(); // revert UI
+        return;
+    }
     const datos = {
         adminPhone: document.getElementById('cfg-admin-phone').value.trim(),
         minutosOlvido: parseInt(document.getElementById('cfg-minutos').value) || 20,
@@ -588,10 +778,27 @@ async function guardarConfig() {
     try {
         await api('PUT', `/api/grupos/${state.activeGrupoId}/config`, datos);
         state.config = { ...state.config, ...datos };
-        toast('⭐ Configuración guardada', 'success');
+        toast('Preferencias guardadas', 'success');
     } catch {
         toast('Error guardando configuración', 'error');
     }
+};
+
+window.toggleTheme = function(isDark) {
+    if (isDark) {
+        document.body.setAttribute('data-theme', 'dark');
+        localStorage.setItem('theme', 'dark');
+    } else {
+        document.body.setAttribute('data-theme', 'light');
+        localStorage.setItem('theme', 'light');
+    }
+};
+
+// Initial theme setup (runs once)
+if (localStorage.getItem('theme') === 'light') {
+    document.body.setAttribute('data-theme', 'light');
+} else if (localStorage.getItem('theme') === 'dark') {
+    document.body.setAttribute('data-theme', 'dark');
 }
 
 async function cargarMiembros() {
@@ -694,6 +901,16 @@ function buildMedForm(data = {}) {
                 <input type="time" id="f-hora" class="form-input" value="${data.hora || '08:00'}">
             </div>
         </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>Fecha de Inicio</label>
+                <input type="date" id="f-fechaInicio" class="form-input" value="${data.fechaInicio || new Date().toISOString().split('T')[0]}">
+            </div>
+            <div class="form-group">
+                <label>Pastillas en la Caja</label>
+                <input type="number" id="f-caja" class="form-input" placeholder="Ej: 30" value="${data.pastillasPorCaja || ''}">
+            </div>
+        </div>
         <div class="form-group">
             <label>WhatsApp del paciente</label>
             <input type="tel" id="f-tel" class="form-input" placeholder="+56912345678" value="${data.telefono || ''}">
@@ -710,8 +927,8 @@ function buildMedForm(data = {}) {
             <div class="dias-check">${diasCheck}</div>
         </div>
         <div class="modal-btn-row">
-            <button class="btn-primary" onclick="guardarMedicamento()">x▾Guardar</button>
-            ${state.editingId ? `<button class="btn-ghost btn-danger" onclick="eliminarMedicamento('${state.editingId}')">x Eliminar</button>` : ''}
+            <button class="btn-primary" onclick="guardarMedicamento()">Guardar</button>
+            ${state.editingId ? `<button class="btn-ghost btn-danger" onclick="eliminarMedicamento('${state.editingId}')">Eliminar</button>` : ''}
         </div>
     `;
 }
@@ -738,16 +955,18 @@ async function guardarMedicamento() {
     const nombre = document.getElementById('f-nombre').value.trim();
     const dosis = document.getElementById('f-dosis').value.trim();
     const hora = document.getElementById('f-hora').value;
+    const fechaInicio = document.getElementById('f-fechaInicio').value;
+    const pastillasPorCaja = parseInt(document.getElementById('f-caja').value, 10) || null;
     const telefono = document.getElementById('f-tel').value.trim();
     const frecuencia = document.getElementById('f-frec').value;
     const diasChecked = [...document.querySelectorAll('input[name="dias"]:checked')].map(c => c.value);
 
-    if (!nombre || !hora) {
-        toast('Por favor completa el nombre y la hora', 'error');
+    if (!nombre || !hora || !fechaInicio) {
+        toast('Por favor completa nombre, hora y fecha de inicio', 'error');
         return;
     }
 
-    const datos = { familiar, nombre, dosis, hora, telefono, frecuencia, dias: diasChecked };
+    const datos = { familiar, nombre, dosis, hora, fechaInicio, pastillasPorCaja, telefono, frecuencia, dias: diasChecked };
 
     try {
         const id = state.activeGrupoId;
@@ -813,7 +1032,7 @@ function abrirModalNuevoRemedio() {
             <input type="text" id="r-indicaciones" class="form-input" placeholder="Ej: Tomar con agua">
         </div>
         <div class="modal-btn-row">
-            <button class="btn-primary" onclick="guardarRemedio()">x▾Guardar</button>
+            <button class="btn-primary" onclick="guardarRemedio()">Guardar</button>
         </div>
     `);
 }
@@ -888,7 +1107,32 @@ setInterval(async () => {
     }
 }, 30000);
 
+window.applyTheme = function(theme) {
+    localStorage.setItem('mc_theme', theme);
+    document.getElementById('cfg-theme').value = theme;
+    
+    if (theme === 'auto') {
+        const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    } else {
+        document.documentElement.setAttribute('data-theme', theme);
+    }
+}
+
 window.addEventListener('DOMContentLoaded', () => {
+    // Theme logic
+    const savedTheme = localStorage.getItem('mc_theme') || 'auto';
+    applyTheme(savedTheme);
+    document.getElementById('cfg-theme').addEventListener('change', (e) => {
+        applyTheme(e.target.value);
+    });
+
+    // PWA Install prompt intercept
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        window.deferredPrompt = e;
+    });
+
     // Detectar iOS para adaptar la interfaz (OS-Aware UI)
     const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     if (isIOS) {
@@ -916,6 +1160,7 @@ function renderPacientes() {
                     ${p.alergias ? `<div class="paciente-meta" style="color:var(--c-red); font-weight: 600;">⚠️ Alergias: ${p.alergias}</div>` : ''}
                     ${p.peso ? `<div class="paciente-meta">⚖️ Peso: ${p.peso}</div>` : ''}
                     ${p.medico ? `<div class="paciente-meta">👨‍⚕️ Médico: ${p.medico}</div>` : ''}
+                    <button class="btn-secondary" style="margin-top:10px; font-size:12px; padding: 6px 12px; width:100%; border-radius: 8px; border: 1px solid var(--c-primary); color: var(--c-primary)" onclick="event.stopPropagation(); generarCodigoPaciente('${p.id}')">🔗 Enlazar Teléfono (Modo Paciente)</button>
                 </div>
             </div>
         `).join('');
@@ -995,5 +1240,170 @@ window.eliminarPaciente = async function(id) {
         renderPacientes();
         toast('Eliminado', 'success');
     } catch { toast('Error', 'error'); }
+};
+
+// ============================================================
+// TOMA MANUAL
+// ============================================================
+
+window.abrirModalTomaManual = function(id) {
+    const med = state.medicamentos.find(m => m.id === id);
+    if (!med) return;
+    
+    abrirModal('Registro de Toma', `
+        <div style="text-align:center; padding:10px;">
+            <p>¿Deseas registrar la toma de <strong>${med.nombre}</strong> para hoy a las ${med.hora}?</p>
+            <p style="font-size:12px; color:var(--c-gray); margin-top:10px;">
+                Esto descontará una dosis de la caja y registrará la acción en el historial.
+            </p>
+            ${med.pastillasRestantes != null ? `<p style="font-size:14px; font-weight:bold; color:var(--c-blue); margin-top:10px;">Inventario actual: ${med.pastillasRestantes} pastillas</p>` : ''}
+        </div>
+        <div class="modal-btn-row" style="margin-top:20px;">
+            <button class="btn-primary pulse-btn" onclick="confirmarTomaManual('${id}', 'tomada')">✅ Confirmar Toma</button>
+            <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+        </div>
+    `);
+};
+
+window.confirmarTomaManual = async function(id, estado) {
+    try {
+        const med = state.medicamentos.find(m => m.id === id);
+        if (!med) return;
+        
+        const hoy = new Date().toISOString().split('T')[0];
+        
+        await api('POST', `/api/grupos/${state.activeGrupoId}/marcar-toma`, {
+            medicamentoId: id,
+            fecha: hoy,
+            hora: med.hora,
+            estado: estado,
+            tomadoPor: state.user.name
+        });
+        
+        // Actualizar UI localmente por ahora
+        med.estado = estado;
+        if (med.pastillasRestantes != null && estado === 'tomada') {
+            med.pastillasRestantes--;
+        }
+        
+        toast('Toma registrada correctamente', 'success');
+        cerrarModal();
+        renderCurrentTab();
+    } catch (e) {
+        toast('Error al registrar la toma', 'error');
+    }
+};
+
+window.generarCodigoPaciente = async function(pacienteId) {
+    const paciente = state.pacientes.find(p => p.id === pacienteId);
+    if (!paciente) return;
+    try {
+        const result = await api('POST', `/api/grupos/${state.activeGrupoId}/invitar`, {
+            rol: 'paciente',
+            pacienteId: pacienteId
+        });
+        abrirModal('Enlazar Teléfono', `
+            <div style="text-align:center;">
+                <p>Usa este código en el celular de <strong>${paciente.nombre}</strong> para activar el Modo Paciente.</p>
+                <div style="font-size:32px; font-weight:bold; letter-spacing:4px; margin:20px 0; padding:15px; background:var(--c-bg); border-radius:12px; color:var(--c-primary);">
+                    ${result.codigo}
+                </div>
+                <p style="font-size:13px; color:var(--c-gray);">El código expira en 24 horas.</p>
+            </div>
+            <button class="btn-primary" style="width:100%; margin-top:20px;" onclick="cerrarModal()">Entendido</button>
+        `);
+    } catch (e) {
+        toast('Error al generar código', 'error');
+    }
+};
+
+// ============================================================
+// MODO PACIENTE
+// ============================================================
+
+window.actualizarRelojPaciente = function() {
+    const el = document.getElementById('paciente-clock');
+    if (!el) return;
+    const now = new Date();
+    el.textContent = now.toLocaleTimeString('es-CL', { hour: '2-digit', minute: '2-digit' });
+};
+
+window.renderPacienteScreen = function() {
+    const screen = document.getElementById('paciente-screen');
+    screen.classList.remove('hidden');
+    actualizarRelojPaciente();
+
+    const paciente = state.pacientes?.find(p => p.id === state.miPacienteId);
+    if (paciente) {
+        document.getElementById('paciente-greeting').textContent = `Hola, ${paciente.nombre}`;
+    }
+
+    const hoy = new Date();
+    const diaNum = hoy.getDay();
+    const hoyDateStr = hoy.toISOString().split('T')[0];
+    
+    let meds = state.medicamentos.filter(m => {
+        if (m.familiar !== paciente?.nombre) return false;
+        if (m.fechaInicio && m.fechaInicio > hoyDateStr) return false;
+        return m.frecuencia === 'diaria' ||
+               (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
+    }).sort((a, b) => a.hora.localeCompare(b.hora));
+
+    const pendientes = meds.filter(m => m.estado !== 'tomada');
+    document.getElementById('paciente-subtitle').textContent = pendientes.length > 0
+        ? `Tienes ${pendientes.length} medicamentos pendientes hoy.`
+        : `¡Todo listo! No tienes medicamentos pendientes.`;
+
+    const listEl = document.getElementById('paciente-meds-list');
+    if (meds.length === 0) {
+        listEl.innerHTML = `<div style="text-align:center; padding:20px; background:white; border-radius:12px;">Sin medicamentos para hoy</div>`;
+        return;
+    }
+
+    listEl.innerHTML = meds.map(m => `
+        <div style="background:var(--c-surface); border-radius:16px; padding:20px; box-shadow:var(--c-border-inner), var(--shadow); border: 2px solid ${m.estado === 'tomada' ? 'var(--c-green)' : 'var(--c-border)'}; backdrop-filter: var(--glass-blur); -webkit-backdrop-filter: var(--glass-blur);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <span style="font-size:24px; font-weight:bold; color:var(--c-text);">${m.hora}</span>
+                <span style="font-size:14px; padding:4px 12px; border-radius:20px; background:${m.estado === 'tomada' ? 'var(--c-green-dim)' : 'var(--c-surface2)'}; color:${m.estado === 'tomada' ? 'var(--c-green)' : 'var(--c-text-2)'}; font-weight:600;">
+                    ${m.estado === 'tomada' ? 'Tomada' : 'Pendiente'}
+                </span>
+            </div>
+            <div style="font-size:20px; font-weight:600; color:var(--c-text); margin-bottom:4px;">💊 ${m.nombre}</div>
+            <div style="color:var(--c-text-2); font-size:16px; margin-bottom:20px;">${m.dosis || '1 Dosis'}</div>
+            
+            ${m.estado !== 'tomada' ? `
+                <button class="btn-primary pulse-btn" style="width:100%; font-size:18px; padding:16px; border-radius:12px; box-shadow: 0 4px 15px rgba(48,209,88,0.3);" onclick="confirmarTomaPaciente('${m.id}')">
+                    ✅ YA ME LA TOMÉ
+                </button>
+            ` : `
+                <div style="text-align:center; color:var(--c-green); font-weight:600; padding:12px; background:var(--c-green-dim); border-radius:12px;">
+                    ¡Registrado!
+                </div>
+            `}
+        </div>
+    `).join('');
+};
+
+window.confirmarTomaPaciente = async function(id) {
+    const med = state.medicamentos.find(m => m.id === id);
+    if (!med) return;
+    
+    const hoy = new Date().toISOString().split('T')[0];
+    try {
+        await api('POST', `/api/grupos/${state.activeGrupoId}/marcar-toma`, {
+            medicamentoId: id,
+            fecha: hoy,
+            hora: med.hora,
+            estado: 'tomada',
+            tomadoPor: 'Paciente (Modo App)'
+        });
+        
+        med.estado = 'tomada';
+        if (med.pastillasRestantes != null) med.pastillasRestantes--;
+        
+        renderPacienteScreen(); // re-render
+    } catch(e) {
+        toast('Error. Revisa tu conexión a internet.', 'error');
+    }
 };
 

@@ -12,12 +12,30 @@
     <meta name="apple-mobile-web-app-title" content="MediClock">
     <link rel="apple-touch-icon" href="/icon-512.png">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="style.css?v=19">
+    <link rel="stylesheet" href="style.css?v=22">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDY6iZbHhSUzTpSjQ5pWY3war8LMfKpRZM",
+            authDomain: "viejoalarm-app-2026-74b04.firebaseapp.com",
+            projectId: "viejoalarm-app-2026-74b04",
+            storageBucket: "viejoalarm-app-2026-74b04.firebasestorage.app",
+            messagingSenderId: "487343508670",
+            appId: "1:487343508670:web:6be7d2278e37244245e2ef",
+            measurementId: "G-V8V4H3EH04"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
 </head>
 <body>
+<!-- AMBIENT ORBS (iOS 26 Background) -->
+<div class="ambient-background">
+    <div class="ambient-orb green"></div>
+    <div class="ambient-orb blue"></div>
+</div>
+
 
 <!-- TOAST NOTIFICACIONES -->
 <div id="toast" class="toast hidden"></div>
@@ -43,7 +61,7 @@
 <div id="app" class="app hidden">
     <!-- HEADER -->
     <header class="app-header">
-        <div class="header-brand" id="btn-switch-group" style="cursor:pointer;" title="Cambiar de grupo">
+        <div class="header-brand">
             <span class="header-logo">⏰</span>
             <div>
                 <span class="header-title" style="display:block; line-height:1.2;">MediClock</span>
@@ -123,13 +141,14 @@
             </div>
         </section>
 
-        <!-- PESTAÑA: PACIENTES -->
+        <!-- PESTAÑA: MI FAMILIA -->
         <section id="panel-pacientes" class="tab-panel">
             <div class="panel-header">
                 <div>
-                    <h2>Pacientes</h2>
-                    <p class="subtitle">Gestiona los perfiles de salud</p>
+                    <h2>Mi Familia</h2>
+                    <p class="subtitle">Gestiona pacientes y cambia de grupo</p>
                 </div>
+                <button class="btn-ghost btn-sm" id="btn-switch-group" style="border:1px solid var(--c-border); font-size:12px;">👥 Cambiar Familia</button>
             </div>
             <div class="pacientes-lista" id="pacientes-lista">
                 <!-- Se llena dinámicamente -->
@@ -145,48 +164,91 @@
                 </div>
             </div>
 
-            <div class="config-section">
-                <h3>👥 Miembros de la Familia</h3>
-                <div id="miembros-lista" style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
-                    <!-- Se llena con JS -->
-                </div>
-                <button id="btn-invitar-miembro" class="btn-ghost" style="width:100%; border:1px dashed var(--c-green); color:var(--c-green);">➕ Generar Link de Invitación</button>
-                <div id="invite-box" class="hidden" style="margin-top:10px; background:var(--c-navy-light); padding:10px; border-radius:8px;">
-                    <p style="font-size:11px; margin-bottom:6px;">Comparte este link por WhatsApp (Expira en 24h):</p>
-                    <input type="text" id="invite-url" class="form-input" readonly style="font-size:12px; margin-bottom:8px;">
-                    <button id="btn-copy-invite" class="btn-primary btn-sm" style="width:100%;">Copiar Link</button>
+            <div class="settings-group">
+                <div class="setting-row">
+                    <div class="setting-row-left">
+                        <div class="setting-icon" style="background:#5856D6;">🎨</div>
+                        <div>
+                            <div class="setting-label">Tema Oscuro</div>
+                            <div class="setting-sub">Forzar modo oscuro en toda la app</div>
+                        </div>
+                    </div>
+                    <label class="ios-switch">
+                        <input type="checkbox" id="cfg-theme" onchange="toggleTheme(this.checked)">
+                        <span class="slider"></span>
+                    </label>
                 </div>
             </div>
 
-            <div class="config-section">
-                <h3>🔔 Reglas de Alertas</h3>
-                <div class="form-group">
-                    <label>WhatsApp del Administrador (Recibe alertas de olvidos)</label>
-                    <input type="tel" id="cfg-admin-phone" class="form-input" placeholder="Ej: +56957838682">
+            <div class="settings-group">
+                <div class="setting-row" style="background:var(--c-surface2)">
+                    <div class="setting-row-left">
+                        <div class="setting-icon" style="background:var(--c-green);">🛡️</div>
+                        <div style="padding-top:4px; padding-bottom:4px;">
+                            <div class="setting-label">Guardias Activas</div>
+                            <div class="setting-sub" style="margin-bottom:8px;">Personas que reciben alertas hoy</div>
+                            <div id="miembros-lista" style="display:flex; flex-direction:column; gap:8px;">
+                                <!-- Se llena con JS -->
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="form-group">
-                    <label>Minutos de gracia antes de considerar Olvido</label>
-                    <select id="cfg-minutos" class="form-input">
-                        <option value="10">10 minutos</option>
-                        <option value="20" selected>20 minutos</option>
-                        <option value="30">30 minutos</option>
-                        <option value="45">45 minutos</option>
+                <div class="setting-row" style="cursor:pointer;" onclick="document.getElementById('btn-invitar-miembro').click()">
+                    <div class="setting-row-left">
+                        <div class="setting-icon" style="background:var(--c-blue);">➕</div>
+                        <div class="setting-label" style="color:var(--c-blue);">Invitar Familiar</div>
+                    </div>
+                    <button id="btn-invitar-miembro" class="hidden">Invitar</button>
+                </div>
+                <div id="invite-box" class="hidden setting-row" style="flex-direction:column; align-items:stretch; background:var(--c-surface2);">
+                    <p style="font-size:12px; margin-bottom:8px; color:var(--c-text-2);">Link de Invitación (Expira en 24h):</p>
+                    <input type="text" id="invite-url" class="form-input" readonly style="font-size:12px; margin-bottom:8px;">
+                    <button id="btn-copy-invite" class="btn-primary btn-sm">Copiar Link</button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <div class="setting-row">
+                    <div class="setting-row-left">
+                        <div class="setting-icon" style="background:#FF9500;">⏱️</div>
+                        <div>
+                            <div class="setting-label">Tiempo de Gracia</div>
+                            <div class="setting-sub">Minutos antes de reportar olvido</div>
+                        </div>
+                    </div>
+                    <select id="cfg-minutos" class="form-input" style="width:120px; margin:0;" onchange="saveConfig()">
+                        <option value="10">10 min</option>
+                        <option value="20">20 min</option>
+                        <option value="30">30 min</option>
+                        <option value="45">45 min</option>
                         <option value="60">1 hora</option>
                     </select>
                 </div>
-                <button class="btn-primary" id="btn-guardar-config" style="width: 100%;">Guardar Preferencias</button>
+                <div class="setting-row">
+                    <div class="setting-row-left">
+                        <div class="setting-icon" style="background:#34C759;">📱</div>
+                        <div style="flex:1;">
+                            <div class="setting-label">WhatsApp Admin</div>
+                            <input type="tel" id="cfg-admin-phone" class="form-input" placeholder="+569..." style="margin-top:4px; margin-bottom:0; width:100%; border:none; padding-left:0; background:transparent;" onblur="saveConfig()">
+                        </div>
+                    </div>
+                </div>
             </div>
 
-            <div class="config-section">
-                <h3>🤖 Sandbox de Twilio</h3>
-                <p class="config-info">
-                    Para que el bot envíe mensajes de WhatsApp gratis durante pruebas, los teléfonos destino deben enviar el texto <strong>join identity-eager</strong> al número <strong>+1 415 523 8886</strong> por WhatsApp.
-                </p>
+            <div class="settings-group">
+                <div class="setting-row" style="cursor:pointer;" onclick="installApp()">
+                    <div class="setting-row-left">
+                        <div class="setting-icon" style="background:#007AFF;">⬇️</div>
+                        <div class="setting-label">Instalar Aplicación</div>
+                    </div>
+                </div>
             </div>
 
-            <button class="btn-ghost btn-danger" id="btn-logout" style="width: 100%; margin-top: 20px;">
-                Cerrar Sesión Google
-            </button>
+            <div class="settings-group" style="margin-top:40px;">
+                <div class="setting-row" style="cursor:pointer; justify-content:center;" onclick="logout()">
+                    <div class="setting-label" style="color:var(--c-red);">Cerrar Sesión Google</div>
+                </div>
+            </div>
         </section>
     </main>
 
@@ -209,14 +271,34 @@
             <span class="nav-label">Remedios</span>
         </button>
         <button class="nav-btn" data-tab="pacientes">
-            <span class="nav-icon">👤</span>
-            <span class="nav-label">Pacientes</span>
+            <span class="nav-icon">👪</span>
+            <span class="nav-label">Mi Familia</span>
         </button>
         <button class="nav-btn" data-tab="config">
             <span class="nav-icon">⚙️</span>
             <span class="nav-label">Config</span>
         </button>
     </nav>
+</div>
+
+<!-- MODO PACIENTE SCREEN -->
+<div id="paciente-screen" class="hidden" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:var(--c-bg); z-index:50; overflow-y:auto;">
+    <!-- AMBIENT ORBS FOR PACIENTE -->
+    <div class="ambient-background">
+        <div class="ambient-orb green"></div>
+        <div class="ambient-orb blue"></div>
+    </div>
+    <div style="padding: 24px; text-align:center; position:relative; z-index:1;">
+        <h1 id="paciente-clock" style="font-size:48px; font-weight:800; color:var(--c-text); margin-bottom:8px; margin-top:20px;">--:--</h1>
+        <h2 id="paciente-greeting" style="font-size:24px; color:var(--c-text); font-weight:600;">Hola</h2>
+        <p id="paciente-subtitle" style="color:var(--c-text-2); margin-bottom:32px;">Cargando tus medicamentos...</p>
+        
+        <div id="paciente-meds-list" style="display:flex; flex-direction:column; gap:16px; text-align:left;">
+            <!-- Rendered by JS -->
+        </div>
+
+        <button class="btn-ghost" style="margin-top:40px; color:var(--c-red);" onclick="logout()">Cerrar Sesión</button>
+    </div>
 </div>
 
 <!-- CAPA OVERLAY MODAL -->
@@ -232,6 +314,6 @@
     </div>
 </div>
     <!-- Scripts -->
-    <script src="app.js?v=19"></script>
+    <script src="app.js?v=27"></script>
 </body>
 </html>

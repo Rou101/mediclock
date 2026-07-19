@@ -35,15 +35,25 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ===========================================
 // AUTH MIDDLEWARE
 // ===========================================
-// Middleware de Auth (MOCKED DEV MODE)
 async function authMiddleware(req, res, next) {
-    req.user = {
-        uid: 'test-user-123',
-        email: 'test@mediclock.com',
-        nombre: 'Usuario Prueba',
-        foto: ''
-    };
-    next();
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        return res.status(401).json({ error: 'No token provided' });
+    }
+    const token = authHeader.split('Bearer ')[1];
+    try {
+        const decoded = await adminAuth.verifyIdToken(token);
+        req.user = {
+            uid: decoded.uid,
+            email: decoded.email,
+            nombre: decoded.name || 'Usuario',
+            foto: decoded.picture || ''
+        };
+        next();
+    } catch (error) {
+        console.error('Error verificando token:', error);
+        return res.status(401).json({ error: 'Invalid token' });
+    }
 }
 
 // ===========================================
@@ -200,7 +210,7 @@ app.put('/api/grupos/:grupoId/miembros/:uid/rol', authMiddleware, async (req, re
     const { grupoId, uid } = req.params;
     const { rol } = req.body;
     if (!await esAdmin(grupoId, req.user.uid)) return res.status(403).json({ error: 'Solo el admin puede cambiar roles' });
-    if (!['admin', 'miembro'].includes(rol)) return res.status(400).json({ error: 'Rol inválido' });
+    if (!['admin', 'miembro', 'paciente'].includes(rol)) return res.status(400).json({ error: 'Rol inválido' });
     await grupoRef(grupoId).collection('miembros').doc(uid).update({ rol });
     res.json({ success: true });
 });
@@ -211,6 +221,8 @@ app.put('/api/grupos/:grupoId/miembros/:uid/rol', authMiddleware, async (req, re
 
 app.post('/api/grupos/:grupoId/invitar', authMiddleware, async (req, res) => {
     const { grupoId } = req.params;
+    const { rol = 'miembro', pacienteId = null } = req.body || {};
+
     if (!await esAdmin(grupoId, req.user.uid)) {
         return res.status(403).json({ error: 'Solo el admin puede invitar' });
     }
@@ -227,7 +239,9 @@ app.post('/api/grupos/:grupoId/invitar', authMiddleware, async (req, res) => {
         invitadoPorNombre: req.user.nombre,
         creadoEn: new Date().toISOString(),
         expiresAt,
-        estado: 'pendiente'
+        estado: 'pendiente',
+        rol: rol,
+        pacienteId: pacienteId
     });
 
     const baseUrl = req.headers.origin || `https://mediclock-973418999022.us-central1.run.app`;
@@ -248,7 +262,8 @@ app.get('/api/unirse/:codigo', authMiddleware, async (req, res) => {
         email: req.user.email,
         nombre: req.user.nombre,
         foto: req.user.foto,
-        rol: 'miembro',
+        rol: inv.rol || 'miembro',
+        pacienteId: inv.pacienteId || null,
         unidoEn: new Date().toISOString()
     });
 
@@ -270,9 +285,59 @@ app.get('/api/grupos/:grupoId/medicamentos', authMiddleware, async (req, res) =>
 app.post('/api/grupos/:grupoId/medicamentos', authMiddleware, async (req, res) => {
     const { grupoId } = req.params;
     if (!await verificarAcceso(grupoId, req.user.uid, res)) return;
-    const nuevo = { ...req.body, estado: 'pendiente', creadoEn: new Date().toISOString(), creadoPor: req.user.uid };
+    const nuevo = { 
+        ...req.body, 
+        estado: 'pendiente', 
+        creadoEn: new Date().toISOString(), 
+        creadoPor: req.user.uid,
+        pastillasRestantes: req.body.pastillasPorCaja || null
+    };
     const ref = await grupoRef(grupoId).collection('medicamentos').add(nuevo);
     res.status(201).json({ id: ref.id, ...nuevo });
+});
+
+app.post('/api/grupos/:grupoId/marcar-toma', authMiddleware, async (req, res) => {
+    const { grupoId } = req.params;
+    const { medicamentoId, fecha, hora, estado, tomadoPor } = req.body;
+    if (!await verificarAcceso(grupoId, req.user.uid, res)) return;
+
+    try {
+        const medRef = grupoRef(grupoId).collection('medicamentos').doc(medicamentoId);
+        const med = await medRef.get();
+        
+        if (!med.exists) {
+            return res.status(404).json({ error: 'Medicamento no encontrado' });
+        }
+
+        const medData = med.data();
+        
+        // Registrar en el historial
+        const registro = {
+            medicamentoId,
+            nombre: medData.nombre,
+            familiar: medData.familiar || 'Desconocido',
+            fecha,
+            hora,
+            estado,
+            tomadoPor: tomadoPor || req.user.nombre,
+            timestamp: new Date().toISOString()
+        };
+        await grupoRef(grupoId).collection('historial').add(registro);
+
+        // Actualizar inventario si fue tomada
+        if (estado === 'tomada' && medData.pastillasRestantes != null) {
+            let restantes = medData.pastillasRestantes - 1;
+            if (restantes < 0) restantes = 0;
+            await medRef.update({ pastillasRestantes: restantes });
+            
+            // TODO: Integrar alerta de WhatsApp si restantes <= 5
+        }
+
+        res.json({ success: true });
+    } catch (error) {
+        console.error('Error marcando toma:', error);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
 });
 
 app.put('/api/grupos/:grupoId/medicamentos/:medId', authMiddleware, async (req, res) => {
