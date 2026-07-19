@@ -322,33 +322,33 @@ function initApp() {
     });
 
     // Header actions
-    document.getElementById('btn-export').addEventListener('click', exportarICS);
-    document.getElementById('btn-refresh').addEventListener('click', async () => {
+    document.getElementById('btn-export')?.addEventListener('click', exportarICS);
+    document.getElementById('btn-refresh')?.addEventListener('click', async () => {
         toast('Sincronizando...', 'info');
         await cargarDatosGrupo();
         renderCurrentTab();
-        toast('⭐ Sincronizado', 'success');
+        toast('Sincronizado', 'success');
     });
 
     // Modal
-    document.getElementById('modal-close').addEventListener('click', cerrarModal);
-    document.getElementById('modal-overlay').addEventListener('click', e => {
+    document.getElementById('modal-close')?.addEventListener('click', cerrarModal);
+    document.getElementById('modal-overlay')?.addEventListener('click', e => {
         if (e.target === e.currentTarget) cerrarModal();
     });
 
     // Hoy
-    document.getElementById('btn-add-hoy').addEventListener('click', () => abrirModalNuevo());
+    document.getElementById('btn-add-hoy')?.addEventListener('click', () => abrirModalNuevo());
 
     // Calendario
-    document.getElementById('cal-prev').addEventListener('click', () => { 
+    document.getElementById('cal-prev')?.addEventListener('click', () => { 
         if (state.calOffset <= 0) return;
         state.calOffset--; 
         renderCalendario(); 
     });
-    document.getElementById('cal-next').addEventListener('click', () => { state.calOffset++; renderCalendario(); });
+    document.getElementById('cal-next')?.addEventListener('click', () => { state.calOffset++; renderCalendario(); });
 
     // Biblioteca
-    document.getElementById('btn-add-remedio').addEventListener('click', () => abrirModalNuevoRemedio());
+    document.getElementById('btn-add-remedio')?.addEventListener('click', () => abrirModalNuevoRemedio());
 
     // Config
     document.getElementById('btn-guardar-config')?.addEventListener('click', guardarConfig);
