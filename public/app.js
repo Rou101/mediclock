@@ -32,11 +32,33 @@ async function api(method, endpoint, body) {
     
     const res = await fetch(endpoint, opts);
     if (res.status === 401) {
-        // Token expirado
-        logout();
-        throw new Error("Sesión expirada");
+        console.warn('API 401 on', endpoint, '— refreshing token and retrying once...');
+        // Try refreshing the token once before giving up
+        try {
+            const fbUser = firebase.auth().currentUser;
+            if (fbUser) {
+                state.token = await fbUser.getIdToken(true);
+                headers['Authorization'] = `Bearer ${state.token}`;
+                const retry = await fetch(endpoint, { method, headers, body: opts.body });
+                if (retry.status === 401) {
+                    const errBody = await retry.json().catch(() => ({}));
+                    console.error('API still 401 after token refresh. Server said:', errBody);
+                    toast(`Error de autenticación: ${errBody.error || 'Token rechazado por el servidor'}`, 'error');
+                    logout();
+                    throw new Error('Sesión expirada');
+                }
+                if (!retry.ok) throw new Error(`HTTP ${retry.status}`);
+                return retry.json();
+            }
+        } catch (e) {
+            if (e.message !== 'Sesión expirada') console.error('Token refresh failed:', e);
+            throw e;
+        }
     }
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    if (!res.ok) {
+        const errBody = await res.json().catch(() => ({}));
+        throw new Error(errBody.error || `HTTP ${res.status}`);
+    }
     return res.json();
 }
 
@@ -83,14 +105,22 @@ document.getElementById('btn-google-login').addEventListener('click', async () =
 });
 
 firebase.auth().onAuthStateChanged(async (user) => {
+    console.log('[AUTH] onAuthStateChanged fired. user:', user ? user.email : 'null');
     if (user) {
         state.user = {
             uid: user.uid,
             email: user.email,
             name: user.displayName || 'Usuario'
         };
-        // Always get a fresh token — never use a cached or dummy one
-        state.token = await user.getIdToken(true);
+        console.log('[AUTH] Getting fresh ID token...');
+        try {
+            state.token = await user.getIdToken(true);
+            console.log('[AUTH] Token obtained. Length:', state.token.length);
+        } catch(tokenErr) {
+            console.error('[AUTH] Failed to get ID token:', tokenErr);
+            toast('Error obteniendo token de sesión: ' + tokenErr.message, 'error');
+            return;
+        }
         
         document.getElementById('login-screen').classList.add('hidden');
         
@@ -104,7 +134,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
 
         await inicializarGrupos();
     } else {
-        // Only show login if there is no pending redirect in progress
+        console.log('[AUTH] No user session. Showing login screen.');
         state.token = null;
         document.getElementById('app').classList.add('hidden');
         document.getElementById('group-screen')?.classList.add('hidden');
@@ -153,8 +183,10 @@ async function procesarInvitacion(codigo) {
 // ============================================================
 
 async function inicializarGrupos() {
+    console.log('[GRUPOS] Calling /api/mis-grupos...');
     try {
         state.grupos = await api('GET', '/api/mis-grupos');
+        console.log('[GRUPOS] Success. Groups found:', state.grupos.length);
         
         // Entrar a la app siempre
         document.getElementById('app').classList.remove('hidden');
@@ -162,7 +194,7 @@ async function inicializarGrupos() {
         if (state.grupos.length === 0) {
             // No tiene grupos -> Onboarding Premium
             state.activeGrupoId = null;
-            document.getElementById('active-group-name').textContent = "Nueva Cuenta ";
+            document.getElementById('active-group-name').textContent = "Nueva Cuenta ↗";
             renderCurrentTab(); 
         } else {
             // Cargar grupo activo guardado o usar el primero
@@ -175,7 +207,8 @@ async function inicializarGrupos() {
             }
         }
     } catch (e) {
-        toast('Error al sincronizar grupos', 'error');
+        console.error('[GRUPOS] Error calling /api/mis-grupos:', e);
+        toast('Error al sincronizar: ' + e.message, 'error');
     }
 }
 
