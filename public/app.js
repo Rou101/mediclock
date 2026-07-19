@@ -57,7 +57,7 @@ function logout() {
         state.activeGrupoId = null;
         localStorage.removeItem('mc_active_grupo_id');
         document.getElementById('app').classList.add('hidden');
-        document.getElementById('group-screen').classList.add('hidden');
+        document.getElementById('group-screen')?.classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
     });
 }
@@ -105,7 +105,7 @@ firebase.auth().onAuthStateChanged(async (user) => {
     } else {
         // Mostrar login, asegurar que la app esté oculta
         document.getElementById('app').classList.add('hidden');
-        document.getElementById('group-screen').classList.add('hidden');
+        document.getElementById('group-screen')?.classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
     }
 });
