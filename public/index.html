@@ -174,60 +174,54 @@
                 <div>
                     <h2>Ajustes</h2>
                     <p class="subtitle" id="config-user-subtitle">Tu cuenta</p>
-                </div>
-            </div>
-
-            <!-- SECCIÓN: APARIENCIA -->
+                </div>            <!-- SECCIÓN: APARIENCIA -->
             <div class="cfg-section-label">Apariencia</div>
             <div class="settings-group">
                 <div class="setting-row">
                     <div class="setting-row-left">
                         <div>
-                            <div class="setting-label">Tema oscuro</div>
-                            <div class="setting-sub">Interfaz en modo grafito</div>
+                            <div class="setting-label">Tema de la interfaz</div>
+                            <div class="setting-sub">Elige tu preferencia entre modo grafito o blanco</div>
                         </div>
                     </div>
-                    <label class="ios-switch">
-                        <input type="checkbox" id="cfg-theme" onchange="toggleTheme(this.checked)">
-                        <span class="slider"></span>
-                    </label>
+                    <select id="cfg-theme-select" class="cfg-inline-input" style="width: auto; padding: 6px 10px; font-weight: 500;" onchange="cambiarTemaSeleccionado(this.value)">
+                        <option value="dark">Oscuro (Grafito)</option>
+                        <option value="light">Claro (Blanco)</option>
+                        <option value="auto">Automático (Sistema)</option>
+                    </select>
                 </div>
             </div>
 
-            <!-- SECCIÓN: CUENTA -->
-            <div class="cfg-section-label">Cuenta</div>
-            <div class="settings-group">
-                <div class="setting-row" style="flex-direction:column; align-items:flex-start; gap:2px;">
-                    <div class="setting-label" id="cfg-user-name" style="font-size:15px;">—</div>
-                    <div class="setting-sub" id="cfg-user-email">Inicia sesión para ver tu cuenta</div>
-                </div>
-                <div class="setting-row setting-row-action" onclick="logout()" style="cursor:pointer;">
-                    <div class="setting-label" style="color:var(--c-red); font-weight:500;">Cerrar sesión</div>
+            <!-- SECCIÓN: GRUPO FAMILIAR (bloqueada si no hay grupo) -->
+            <div class="cfg-section-label" id="cfg-label-grupo">Grupo Familiar</div>
+            <div class="settings-group" id="cfg-group-section">
+                <div class="setting-row setting-row-action" onclick="mostrarSelectorGrupos()" style="cursor:pointer;">
+                    <div>
+                        <div class="setting-label">Cambiar o crear grupo</div>
+                        <div class="setting-sub">Administra tus familias</div>
+                    </div>
                     <svg class="setting-chevron" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-            </div>
-
-            <!-- SECCIÓN: GRUPO (bloqueada si no hay grupo) -->
-            <div class="cfg-section-label" id="cfg-label-grupo">Grupo familiar</div>
-            <div class="settings-group" id="cfg-group-section">
                 <div class="setting-row">
                     <div class="setting-row-left">
                         <div>
-                            <div class="setting-label">Tiempo de gracia</div>
-                            <div class="setting-sub">Minutos antes de reportar olvido</div>
+                            <div class="setting-label">Teléfono administrador</div>
+                            <div class="setting-sub">Alertas WhatsApp por omisión</div>
                         </div>
                     </div>
-                    <select id="cfg-minutos" class="cfg-select" onchange="saveConfig()">
-                        <option value="10">10 min</option>
-                        <option value="20">20 min</option>
-                        <option value="30">30 min</option>
-                        <option value="45">45 min</option>
-                        <option value="60">1 hora</option>
-                    </select>
+                    <input type="tel" id="cfg-admin-phone" class="cfg-inline-input" placeholder="+56912345678">
                 </div>
-                <div class="setting-row" style="flex-direction:column; align-items:flex-start; gap:6px;">
-                    <div class="setting-label">WhatsApp administrador</div>
-                    <input type="tel" id="cfg-admin-phone" class="cfg-inline-input" placeholder="+569 0000 0000" onblur="saveConfig()">
+                <div class="setting-row">
+                    <div class="setting-row-left">
+                        <div>
+                            <div class="setting-label">Minutos de tolerancia</div>
+                            <div class="setting-sub">Tiempos antes de alertar al guardia</div>
+                        </div>
+                    </div>
+                    <input type="number" id="cfg-minutos" class="cfg-inline-input" style="width:60px;" value="20" min="5" max="120">
+                </div>
+                <div class="setting-row">
+                    <button class="btn-primary btn-sm" id="btn-guardar-config" style="width:100%;">Guardar ajustes de grupo</button>
                 </div>
             </div>
 
@@ -261,17 +255,25 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN: APLICACIÓN -->
-            <div class="cfg-section-label">Aplicación</div>
+            <!-- SECCIÓN: APLICACIÓN Y ACTUALIZACIONES -->
+            <div class="cfg-section-label">Aplicación y Actualizaciones</div>
             <div class="settings-group">
                 <div class="setting-row setting-row-action" id="cfg-install-row" onclick="promptInstallApp()" style="cursor:pointer;">
                     <div class="setting-label">Instalar en pantalla de inicio</div>
                     <svg class="setting-chevron" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
-                <div class="setting-row" style="flex-direction:column; align-items:flex-start; gap:2px;">
-                    <div class="setting-label" style="font-size:13px; color:var(--c-text-2);">Versión</div>
-                    <div class="setting-sub">v18 · MediClock · 2026</div>
+                <div class="setting-row setting-row-action" onclick="verificarActualizacion(true)" style="cursor:pointer;">
+                    <div>
+                        <div class="setting-label">Buscar actualizaciones</div>
+                        <div class="setting-sub" id="cfg-update-status">Comprobar si hay versión nueva</div>
+                    </div>
+                    <svg class="setting-chevron" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
                 </div>
+                <div class="setting-row" style="flex-direction:column; align-items:flex-start; gap:2px;">
+                    <div class="setting-label" style="font-size:13px; color:var(--c-text-2);">Versión Instalada</div>
+                    <div class="setting-sub" id="cfg-version-badge">v20 · MediClock · 2026</div>
+                </div>
+            </div>                </div>
             </div>
 
             <div style="height: 32px;"></div>

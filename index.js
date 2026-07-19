@@ -27,6 +27,14 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Versión activa del sistema
+const APP_VERSION = 'v20';
+
+// Endpoint público para verificación de versión y auto-actualización forzada
+app.get('/api/version', (req, res) => {
+    res.json({ version: APP_VERSION, buildDate: '2026-07-19', forceUpdate: true });
+});
+
 // ===========================================
 // AUTH MIDDLEWARE
 // ===========================================
