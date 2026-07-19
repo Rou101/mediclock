@@ -60,11 +60,15 @@ function logout() {
         document.getElementById('group-screen').classList.add('hidden');
         document.getElementById('login-screen').classList.remove('hidden');
     });
-}
-
-// ============================================================
-// AUTHENTICATION FLOW (FIREBASE)
-// ============================================================
+// --- GLOBAL DIAGNOSTICS ---
+window.addEventListener('error', (event) => {
+    console.error("Global Error:", event.error);
+    toast("Error: " + (event.error?.message || event.message), "error");
+});
+window.addEventListener('unhandledrejection', (event) => {
+    console.error("Unhandled Rejection:", event.reason);
+    toast("Rejection: " + (event.reason?.message || event.reason), "error");
+});
 
 document.getElementById('btn-google-login').addEventListener('click', async () => {
     toast('Iniciando sesión con Google...', 'info');
