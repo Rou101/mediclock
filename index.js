@@ -239,7 +239,7 @@ app.post('/api/grupos/:grupoId/invitar', authMiddleware, async (req, res) => {
         pacienteId: pacienteId
     });
 
-    const baseUrl = req.headers.origin || `https://mediclock-973418999022.us-central1.run.app`;
+    const baseUrl = req.headers.origin || `https://mediclock-961339509446.us-central1.run.app`;
     res.json({ codigo, link: `${baseUrl}/unirse/${codigo}`, expiresAt });
 });
 
