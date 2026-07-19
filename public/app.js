@@ -412,7 +412,8 @@ function switchTab(tab) {
 }
 
 function renderCurrentTab() {
-    if (!state.activeGrupoId && state.activeTab !== 'hoy') {
+    // Config is always accessible regardless of group state
+    if (!state.activeGrupoId && state.activeTab !== 'hoy' && state.activeTab !== 'config') {
         renderLockState();
         return;
     }
@@ -778,46 +779,84 @@ async function eliminarRemedio(id) {
 // ============================================================
 
 function renderConfig() {
-    const cfg = state.config || {};
-    const adminPhoneEl = document.getElementById('cfg-admin-phone');
-    if (adminPhoneEl) adminPhoneEl.value = cfg.adminPhone || '';
-    
-    const minutosEl = document.getElementById('cfg-minutos');
-    if (minutosEl) minutosEl.value = cfg.minutosOlvido || 20;
+    // --- User info ---
+    const nameEl = document.getElementById('cfg-user-name');
+    const emailEl = document.getElementById('cfg-user-email');
+    const subtitleEl = document.getElementById('config-user-subtitle');
+    if (nameEl) nameEl.textContent = state.user?.name || '—';
+    if (emailEl) emailEl.textContent = state.user?.email || 'Sin sesión activa';
+    if (subtitleEl) subtitleEl.textContent = state.activeGrupoNombre || 'Sin grupo activo';
 
+    // --- Theme ---
     const themeEl = document.getElementById('cfg-theme');
     if (themeEl) themeEl.checked = localStorage.getItem('theme') === 'dark';
 
-    // Solo admin puede generar invitaciones
-    const isAdmin = state.miRol === 'admin';
-    const btnInvitar = document.getElementById('btn-invitar-miembro');
-    if (btnInvitar) {
-        btnInvitar.style.display = isAdmin ? 'block' : 'none';
-        btnInvitar.parentElement.style.display = isAdmin ? 'flex' : 'none';
-    }
+    // --- Group sections: lock/unlock ---
+    const hasGroup = !!state.activeGrupoId;
+    const groupSection = document.getElementById('cfg-group-section');
+    const membersSection = document.getElementById('cfg-members-section');
+    const exportSection = document.getElementById('cfg-export-section');
+    const labelGrupo = document.getElementById('cfg-label-grupo');
+    const labelMiembros = document.getElementById('cfg-label-miembros');
+    const labelExport = document.getElementById('cfg-label-export');
 
-    // Lista de miembros (Guardias)
+    [groupSection, membersSection, exportSection].forEach(el => {
+        if (!el) return;
+        if (hasGroup) {
+            el.classList.remove('cfg-section-locked');
+        } else {
+            el.classList.add('cfg-section-locked');
+        }
+    });
+    [labelGrupo, labelMiembros, labelExport].forEach(el => {
+        if (!el) return;
+        if (hasGroup) {
+            el.classList.remove('cfg-section-locked-label');
+        } else {
+            el.classList.add('cfg-section-locked-label');
+        }
+    });
+
+    if (!hasGroup) return; // rest requires a group
+
+    const cfg = state.config || {};
+    const adminPhoneEl = document.getElementById('cfg-admin-phone');
+    if (adminPhoneEl) adminPhoneEl.value = cfg.adminPhone || '';
+
+    const minutosEl = document.getElementById('cfg-minutos');
+    if (minutosEl) minutosEl.value = cfg.minutosOlvido || 20;
+
+    // --- Admin controls ---
+    const isAdmin = state.miRol === 'admin';
+    const inviteRow = document.getElementById('cfg-invite-row');
+    if (inviteRow) inviteRow.style.display = isAdmin ? 'flex' : 'none';
+
+    // --- Members list ---
     const container = document.getElementById('miembros-lista');
     if (!container) return;
 
     const guardias = cfg.guardiasActivas || [];
-    
+
     container.innerHTML = state.miembros.map(m => {
         const esGuardia = guardias.find(g => g.uid === m.uid && new Date(g.expiresAt) > new Date());
-        const guardiaBtn = esGuardia 
-            ? `<button class="btn-sm" style="color:var(--c-red); background:transparent;" onclick="revocarGuardia('${m.uid}')">Revocar</button>`
-            : `<button class="btn-sm" style="color:var(--c-blue); background:transparent;" onclick="abrirModalGuardia('${m.uid}', '${m.nombre}')">Delegar</button>`;
-        
+        const guardiaBtn = esGuardia
+            ? `<button class="btn-sm" style="color:var(--c-red); background:transparent; font-size:13px;" onclick="revocarGuardia('${m.uid}')">Revocar</button>`
+            : (isAdmin && m.uid !== state.user?.uid
+                ? `<button class="btn-sm" style="color:var(--c-blue); background:transparent; font-size:13px;" onclick="abrirModalGuardia('${m.uid}', '${m.nombre}')">Delegar</button>`
+                : '');
+
         return `
-        <div style="display:flex; justify-content:space-between; align-items:center; padding: 4px 0; border-bottom:1px solid var(--c-border);">
-            <div style="display:flex; align-items:center; gap:8px;">
-                <img src="${m.foto || '/icon-512.png'}" style="width:24px; height:24px; border-radius:50%;">
-                <div style="display:flex; flex-direction:column;">
-                    <span style="font-size:14px; font-weight:500;">${m.nombre}</span>
-                    ${esGuardia ? `<span style="font-size:10px; color:var(--c-green);">Escudo hasta ${new Date(esGuardia.expiresAt).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>` : ''}
+        <div class="setting-row" style="border-bottom:1px solid var(--c-border); padding: 10px 16px;">
+            <div style="display:flex; align-items:center; gap:10px; flex:1;">
+                <img src="${m.foto || '/icon-512.png'}" style="width:32px; height:32px; border-radius:50%; object-fit:cover; background:var(--c-surface2);">
+                <div>
+                    <div class="setting-label" style="font-size:14px;">${m.nombre}</div>
+                    ${esGuardia
+                        ? `<div style="font-size:11px; color:var(--c-green); font-weight:500;">Guardia hasta ${new Date(esGuardia.expiresAt).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</div>`
+                        : `<div class="setting-sub">Miembro</div>`}
                 </div>
             </div>
-            ${isAdmin && m.uid !== state.user?.uid ? guardiaBtn : (esGuardia ? '🛡️' : '')}
+            ${guardiaBtn}
         </div>
         `;
     }).join('');
@@ -1325,7 +1364,7 @@ async function guardarRemedio() {
         state.biblioteca.push(nuevo);
         cerrarModal();
         renderRemedios();
-        toast('⭐ Guardado en biblioteca', 'success');
+        toast('Guardado en biblioteca', 'success');
     } catch {
         toast('Error guardando remedio', 'error');
     }
@@ -1338,15 +1377,10 @@ window.guardarRemedio = guardarRemedio;
 
 function exportarICS() {
     if (!state.activeGrupoId) return;
-    const a = document.createElement('a');
-    // Pasar el token en query param para que el navegador pueda descargarlo (ICS no usa headers en tag <a>)
-    a.href = `/api/grupos/${state.activeGrupoId}/export/ics?token=${state.token}`;
-    // Usamos endpoint alternativo con token o lo redirigimos
-    a.href = `/api/grupos/${state.activeGrupoId}/export/ics`;
+    const exportUrl = `/api/grupos/${state.activeGrupoId}/export/ics`;
     
-    // Como la descarga directa de un endpoint con auth token requiere headers, hacemos un fetch blob:
     toast('Generando archivo de calendario...', 'info');
-    fetch(a.href, {
+    fetch(exportUrl, {
         headers: { 'Authorization': `Bearer ${state.token}` }
     })
     .then(r => r.blob())
@@ -1354,14 +1388,16 @@ function exportarICS() {
         const url = window.URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `${state.activeGrupoNombre.toLowerCase().replace(/\s+/g, '_')}_calendario.ics`;
+        link.download = `${(state.activeGrupoNombre || 'mediclock').toLowerCase().replace(/\s+/g, '_')}_calendario.ics`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-        toast('x& Calendario descargado', 'success');
+        toast('Calendario descargado 📅', 'success');
     })
     .catch(() => toast('Error al descargar calendario', 'error'));
 }
+
+window.exportarICS = exportarICS;
 
 // ============================================================
 // AUTO-REFRESH E INICIO

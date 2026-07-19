@@ -1042,6 +1042,78 @@ select.form-input { appearance: none; -webkit-appearance: none; cursor: pointer;
     font-size: 12px; color: var(--c-text-2);
 }
 
+/* Config section labels (like iOS "APPEARANCE" group headers) */
+.cfg-section-label {
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--c-text-3);
+    padding: 0 4px 8px 4px;
+    margin-top: 8px;
+}
+
+/* Action rows with chevron */
+.setting-row-action {
+    transition: background 0.15s ease;
+}
+.setting-row-action:active {
+    background: var(--c-surface2);
+}
+.setting-chevron {
+    color: var(--c-text-3);
+    flex-shrink: 0;
+}
+
+/* Locked/disabled section style when no group is active */
+.cfg-section-locked {
+    opacity: 0.35;
+    pointer-events: none;
+    user-select: none;
+}
+.cfg-section-locked-label {
+    opacity: 0.35;
+}
+
+/* Inline select in settings */
+.cfg-select {
+    background: transparent;
+    border: none;
+    color: var(--c-text-2);
+    font-size: 14px;
+    font-family: var(--font);
+    text-align: right;
+    padding: 0;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+}
+.cfg-select option {
+    background: var(--c-bg);
+    color: var(--c-text);
+}
+
+/* Inline text input in settings */
+.cfg-inline-input {
+    width: 100%;
+    background: var(--c-surface2);
+    border: 1px solid var(--c-border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--c-text);
+    outline: none;
+    transition: border-color 0.2s;
+}
+.cfg-inline-input:focus {
+    border-color: var(--c-blue);
+}
+.cfg-inline-input[readonly] {
+    color: var(--c-text-2);
+    cursor: default;
+}
+
 /* Toggle Switch */
 .ios-switch {
     position: relative;
