@@ -17,15 +17,10 @@ const META_WA_ACCESS_TOKEN = process.env.META_WA_ACCESS_TOKEN || '';
 const META_WA_PHONE_NUMBER_ID = process.env.META_WA_PHONE_NUMBER_ID || '';
 const META_WEBHOOK_VERIFY_TOKEN = process.env.META_WEBHOOK_VERIFY_TOKEN || 'mediclock_secure_token_123';
 
-// Firebase: dos apps
-// 1. Firestore → proyecto GCP original
-const fsApp = initializeApp({ projectId: 'viejoalarm-app-2026' }, 'fsApp');
-const db = getFirestore(fsApp);
-
-// 2. Auth → proyecto Firebase creado por el usuario
-//    verifyIdToken solo usa claves públicas de Google, no necesita credenciales del proyecto
-const authApp = initializeApp({ projectId: 'viejoalarm-app-2026-74b04' }, 'authApp');
-const adminAuth = getAuth(authApp);
+// Firebase: Single unified application
+const firebaseApp = initializeApp({ projectId: 'mediclock-recordatorios' });
+const db = getFirestore(firebaseApp);
+const adminAuth = getAuth(firebaseApp);
 
 // Middlewares
 app.use(express.json());

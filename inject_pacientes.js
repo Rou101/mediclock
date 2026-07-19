@@ -1,7 +1,7 @@
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 
-const fsApp = initializeApp({ projectId: 'viejoalarm-app-2026' });
+const fsApp = initializeApp({ projectId: 'mediclock-recordatorios' });
 const db = getFirestore(fsApp);
 
 async function injectPacientes() {
