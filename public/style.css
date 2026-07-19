@@ -276,6 +276,29 @@ input, select, textarea { font-family: var(--font); }
     transform: scale(0.97);
 }
 
+.login-btn-install {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 220px;
+    padding: 10px 18px;
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    font-size: 13px;
+    border: 1px solid rgba(255, 255, 255, 0.16);
+    border-radius: 12px;
+    cursor: pointer;
+    backdrop-filter: blur(10px);
+    transition: all 0.15s ease;
+    z-index: 2;
+}
+.login-btn-install:hover {
+    background: rgba(255, 255, 255, 0.16) !important;
+    color: #ffffff !important;
+}
+
 .login-version-tag {
     position: absolute;
     bottom: 24px;

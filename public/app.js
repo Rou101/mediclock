@@ -1528,7 +1528,10 @@ function renderPacientes() {
                     ${p.alergias ? `<div class="paciente-meta" style="color:var(--c-red); font-weight: 600;">⚠️ Alergias: ${p.alergias}</div>` : ''}
                     ${p.peso ? `<div class="paciente-meta">⚖️ Peso: ${p.peso}</div>` : ''}
                     ${p.medico ? `<div class="paciente-meta">👨‍⚕️ Médico: ${p.medico}</div>` : ''}
-                    <button class="btn-secondary" style="margin-top:10px; font-size:12px; padding: 6px 12px; width:100%; border-radius: 8px; border: 1px solid var(--c-primary); color: var(--c-primary)" onclick="event.stopPropagation(); generarCodigoPaciente('${p.id}')">🔗 Enlazar Teléfono (Modo Paciente)</button>
+                    <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
+                        <button class="btn-secondary" style="font-size:12px; padding: 6px 12px; width:100%; border-radius: 8px; border: 1px solid var(--c-green); color: var(--c-green); background: var(--c-green-dim); display:flex; align-items:center; justify-content:center; gap:6px; font-weight:600;" onclick="event.stopPropagation(); enviarAppPorWhatsAppPacienteCard('${p.nombre}', '${p.telefono || ''}')">💬 Enviar App por WhatsApp</button>
+                        <button class="btn-secondary" style="font-size:12px; padding: 6px 12px; width:100%; border-radius: 8px; border: 1px solid var(--c-primary); color: var(--c-primary);" onclick="event.stopPropagation(); generarCodigoPaciente('${p.id}')">🔗 Enlazar Teléfono (Modo Paciente)</button>
+                    </div>
                 </div>
             </div>
         `).join('');
@@ -1536,13 +1539,26 @@ function renderPacientes() {
     lista.innerHTML += `<button class="btn-primary pulse-btn" style="width:100%; margin-top:16px" onclick="abrirModalNuevoPaciente()">+ Agregar Paciente</button>`;
 }
 
+window.enviarAppPorWhatsAppPacienteCard = function(nombre, telefono) {
+    const telLimpio = (telefono || '').replace(/\D/g, '');
+    const appUrl = 'https://mediclock-961339509446.us-central1.run.app';
+    const textMsg = `Hola ${nombre || ''}, te invito a descargar e instalar la aplicación MediClock para llevar el control de tus medicamentos: ${appUrl}`;
+    
+    const waUrl = telLimpio 
+        ? `https://wa.me/${telLimpio}?text=${encodeURIComponent(textMsg)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`;
+    
+    window.open(waUrl, '_blank');
+    toast('Abriendo WhatsApp para enviar enlace...', 'info');
+};
+
 window.abrirModalNuevoPaciente = function(id = null) {
     const p = state.pacientes?.find(x => x.id === id) || {};
     state.editingPacienteId = id;
     abrirModal(id ? 'Editar Paciente' : 'Nuevo Paciente', `
         <div class="form-group">
             <label>Nombre del Paciente</label>
-            <input type="text" id="p-nombre" class="form-input" placeholder="Ej: Pap" value="${p.nombre || ''}">
+            <input type="text" id="p-nombre" class="form-input" placeholder="Ej: Papá" value="${p.nombre || ''}">
         </div>
         <div class="form-group">
             <label>WhatsApp (Opcional)</label>
@@ -1564,12 +1580,32 @@ window.abrirModalNuevoPaciente = function(id = null) {
             <label>Médico Tratante (Opcional)</label>
             <input type="text" id="p-medico" class="form-input" placeholder="Nombre o teléfono" value="${p.medico || ''}">
         </div>
-        <div class="modal-btn-row">
+        <div style="margin-top:12px; border-top:1px solid var(--c-border); padding-top:12px;">
+            <button type="button" class="btn-secondary" style="width:100%; border:1px solid var(--c-green); color:var(--c-green); background:var(--c-green-dim); display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600; padding:10px;" onclick="enviarAppPorWhatsAppPacienteForm()">
+                💬 Enviar App por WhatsApp a este teléfono
+            </button>
+        </div>
+        <div class="modal-btn-row" style="margin-top:14px;">
             <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
             <button type="button" class="btn-primary" onclick="guardarPaciente()">${id ? 'Guardar' : 'Crear'}</button>
         </div>
         ${id ? `<button type="button" class="btn-secondary" style="width:100%; margin-top:8px; color:var(--c-red)" onclick="eliminarPaciente('${id}')">Eliminar Paciente</button>` : ''}
     `);
+};
+
+window.enviarAppPorWhatsAppPacienteForm = function() {
+    const nombre = document.getElementById('p-nombre')?.value.trim() || 'Familiar';
+    const telInput = document.getElementById('p-tel')?.value.trim() || '';
+    const telLimpio = telInput.replace(/\D/g, '');
+    const appUrl = 'https://mediclock-961339509446.us-central1.run.app';
+    const textMsg = `Hola ${nombre}, te invito a descargar e instalar la aplicación MediClock para llevar el control de tus medicamentos: ${appUrl}`;
+    
+    const waUrl = telLimpio 
+        ? `https://wa.me/${telLimpio}?text=${encodeURIComponent(textMsg)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`;
+    
+    window.open(waUrl, '_blank');
+    toast('Abriendo WhatsApp...', 'info');
 };
 
 window.guardarPaciente = async function() {
