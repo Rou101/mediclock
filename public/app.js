@@ -312,9 +312,15 @@ async function seleccionarGrupo(grupoId) {
     if (g) {
         state.activeGrupoNombre = g.nombre;
         state.miRol = g.miRol;
+        document.body.setAttribute('data-group-color', g.color || 'green');
     }
     
-    document.getElementById('active-group-name').textContent = `${state.activeGrupoNombre} `;
+    const badgeEl = document.getElementById('active-group-name');
+    if (badgeEl) {
+        badgeEl.textContent = state.activeGrupoNombre || 'Mi Familia';
+    }
+    
+    toast(`👥 ENTORNO ACTIVO: "${state.activeGrupoNombre || 'Mi Familia'}"`, 'info');
     
     await cargarDatosGrupo();
     renderCurrentTab();
@@ -1096,7 +1102,8 @@ function copiarLinkInvitacion() {
 // ============================================================
 
 function abrirModal(titulo, contenido) {
-    document.getElementById('modal-title').textContent = titulo;
+    const grupoLabel = state.activeGrupoNombre ? ` &nbsp;<span style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--c-green-dim); color:var(--c-green); border:1px solid var(--c-green); font-weight:700;">👥 ${state.activeGrupoNombre.toUpperCase()}</span>` : '';
+    document.getElementById('modal-title').innerHTML = `<span>${titulo}</span>${grupoLabel}`;
     document.getElementById('modal-body').innerHTML = contenido;
     const overlay = document.getElementById('modal-overlay');
     overlay.classList.remove('hidden');

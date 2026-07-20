@@ -78,7 +78,7 @@
         </button>
     </div>
 
-    <p id="app-version" class="login-version-tag">v29 · BUILD 2026-07-19</p>
+    <p id="app-version" class="login-version-tag">v30 · BUILD 2026-07-19</p>
 </div>
 
 <!-- APP PRINCIPAL -->
@@ -86,9 +86,12 @@
     <!-- HEADER -->
     <header class="app-header">
         <div class="header-brand">
-            <div>
-                <span class="header-title" style="display:block; line-height:1.2;">MediClock</span>
-                <span id="active-group-name" style="font-size:11px; color:var(--c-green); font-weight:600;">Cargando...</span>
+            <span class="header-logo">⏰</span>
+            <span class="header-title">MediClock</span>
+            <div id="btn-header-switch-group" class="active-group-pill" onclick="mostrarSelectorGrupos()" title="Toca para cambiar de familia">
+                <span style="font-size:14px;">👥</span>
+                <span id="active-group-name">Sin Grupo</span>
+                <span style="font-size:10px; opacity:0.7;">▼</span>
             </div>
         </div>
         <div class="header-actions">
