@@ -442,8 +442,8 @@ body[data-group-color="coral"] {
 .tab-panel {
     position: absolute; inset: 0;
     overflow-y: auto; overflow-x: hidden;
-    padding: 16px 16px;
-    padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 16px);
+    padding: 24px 20px; /* Mas respiro lateral */
+    padding-bottom: calc(var(--nav-h) + var(--safe-bottom) + 60px); /* Evitar que el bottom nav asfixie el contenido */
     opacity: 0; pointer-events: none;
     transform: translateY(12px);
     transition: opacity 0.25s ease, transform 0.25s ease;
@@ -553,13 +553,13 @@ body[data-group-color="coral"] {
 /* ========================================
    HOY - MEDICATION CARDS
    ======================================== */
-.card-list { display: flex; flex-direction: column; gap: 10px; }
+.card-list { display: flex; flex-direction: column; gap: 14px; } /* Inset-grouped style gap */
 
-.familiar-group { margin-bottom: 20px; }
+.familiar-group { margin-bottom: 24px; }
 .familiar-label {
-    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    font-size: 12px; font-weight: 700; letter-spacing: 1.2px;
     color: var(--c-text-3); text-transform: uppercase;
-    padding: 0 4px; margin-bottom: 8px;
+    padding: 0 8px; margin-bottom: 10px;
 }
 
 .med-card {
@@ -569,8 +569,8 @@ body[data-group-color="coral"] {
     backdrop-filter: var(--glass-blur);
     -webkit-backdrop-filter: var(--glass-blur);
     border-radius: var(--radius);
-    padding: 16px;
-    display: flex; align-items: center; gap: 14px;
+    padding: 20px 16px; /* Más respiro vertical */
+    display: flex; align-items: center; gap: 16px;
     transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.2s;
     cursor: pointer;
     position: relative;
@@ -1003,149 +1003,61 @@ select.form-input { appearance: none; -webkit-appearance: none; cursor: pointer;
 @media (min-width: 768px) {
     body {
         background: var(--c-bg);
-    }
-    
-    .app {
-        position: relative;
-        width: 100%;
-        min-height: 100vh;
-        display: block;
-        padding-top: 0;
-    }
-    
-    .app-header {
-        position: fixed;
-        top: 0;
-        left: 240px;
-        right: 0;
-        height: var(--header-h);
-        border-bottom: 1px solid var(--c-border);
-        padding: 0 32px;
-        background: var(--c-surface);
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-        z-index: 8000;
-    }
-    
-    .bottom-nav {
-        position: fixed;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        right: auto;
-        width: 240px;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        align-items: stretch;
-        justify-content: flex-start;
-        padding: 32px 16px;
-        gap: 8px;
-        border-top: none;
-        border-right: 1px solid var(--c-border);
-        background: var(--c-surface2);
-        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.08);
-        z-index: 9000;
-        backdrop-filter: var(--glass-blur);
-        -webkit-backdrop-filter: var(--glass-blur);
-    }
-    
-    .nav-btn {
-        flex: none;
-        width: 100%;
-        height: 48px;
-        flex-direction: row;
-        justify-content: flex-start;
-        padding: 0 20px;
-        border-radius: 12px;
-        font-size: 14px;
-        color: var(--c-text-2);
-        transition: background 0.15s ease, color 0.15s ease;
-    }
-    
-    .nav-btn:hover {
-        color: var(--c-text);
-        background: var(--c-surface);
+        /* Flexbox for centering the virtual phone */
+        align-items: center;
+        background-image: radial-gradient(circle at top right, var(--c-green-dim), transparent 40%),
+                          radial-gradient(circle at bottom left, var(--c-blue-dim), transparent 40%);
     }
 
-    .nav-btn span.nav-label { font-size: 15px; font-weight: 500; }
-    
-    .nav-btn::before {
-        display: none;
+    .ambient-background {
+        display: block; /* Keep ambient orbs behind */
     }
-    
-    .nav-btn.active {
-        background: var(--c-green-dim);
-        border-left: 4px solid var(--c-green);
-        border-radius: 0 12px 12px 0;
-        margin-left: -16px;
-        padding-left: 32px;
-        color: var(--c-green);
-        font-weight: 600;
-    }
-    
-    .main-content {
-        position: relative;
-        margin-left: 240px;
-        margin-top: var(--header-h);
-        width: calc(100% - 240px);
-        height: calc(100vh - var(--header-h));
-        overflow: hidden;
-    }
-    
-    .tab-panel {
-        position: absolute;
-        inset: 0;
-        padding: 32px 40px;
-        padding-bottom: 40px;
-        overflow-y: auto;
-        overflow-x: hidden;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
+
+    /* Virtual Phone Wrapper */
+    .app, #login-screen {
+        position: relative !important;
+        inset: auto !important;
         width: 100%;
+        max-width: 414px; /* iPhone Pro Max width */
+        height: 100%;
+        max-height: 896px; /* iPhone Pro Max height */
+        margin: 24px auto;
+        border-radius: 44px;
+        border: 10px solid #111; /* Simulates device bezel */
+        box-shadow: 
+            0 0 0 1px #333, /* Outer thin bezel */
+            inset 0 0 0 1px #000, /* Inner bezel */
+            0 30px 60px rgba(0,0,0,0.3),
+            0 10px 20px rgba(0,0,0,0.2);
+        overflow: hidden;
+        background: var(--c-bg);
+        box-sizing: content-box; /* To accommodate the border */
+    }
+
+    #login-screen {
+        /* Add some padding to simulate where the app wrapper starts */
         box-sizing: border-box;
     }
-    
-    .tab-panel > * {
-        width: 100%;
-        max-width: 1120px;
-    }
-    
-    #panel-calendario > * {
-        max-width: 100%;
+
+    /* Maintain bottom nav style, just constraint it */
+    .bottom-nav {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 0 0 34px 34px; /* Curve bottom nav with bezel */
     }
 
-    /* Grillas Dashboard Multicolumna para Desktop */
-    .med-list {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-        gap: 16px;
-    }
-
-    .pacientes-lista {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 16px;
-    }
-
-    .remedios-lista {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 16px;
+    /* Modals need to stay inside the phone */
+    .modal-overlay {
+        position: absolute;
+        border-radius: 34px; /* Match inner corner radius */
     }
     
-    .panel-header {
-        max-width: 760px;
-        width: 100%;
-    }
-    
-    /* El modal se ve mejor en desktop si está en el centro */
     .modal {
-        max-width: 440px;
-        border-radius: 24px;
-        margin-bottom: auto;
-        margin-top: 10vh;
+        border-radius: var(--radius-lg);
+        width: 100%;
+        margin-top: auto; /* Slide from bottom inside the phone */
     }
 }
 
@@ -1270,8 +1182,8 @@ select.form-input { appearance: none; -webkit-appearance: none; cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 14px 20px;
-    min-height: 52px;
+    padding: 16px 20px;
+    min-height: 56px;
     border-bottom: 1px solid var(--c-border);
     box-sizing: border-box;
     width: 100%;
