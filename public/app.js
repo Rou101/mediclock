@@ -818,37 +818,10 @@ function renderConfig() {
     if (subtitleEl) subtitleEl.textContent = state.activeGrupoNombre || 'Sin grupo activo';
 
     // --- Theme ---
-    const themeEl = document.getElementById('cfg-theme');
-    if (themeEl) themeEl.checked = localStorage.getItem('theme') === 'dark';
+    const themeSel = document.getElementById('cfg-theme-select') || document.getElementById('cfg-theme');
+    if (themeSel) themeSel.value = localStorage.getItem('theme') || localStorage.getItem('mc_theme') || 'dark';
 
-    // --- Group sections: lock/unlock ---
-    const hasGroup = !!state.activeGrupoId;
-    const groupSection = document.getElementById('cfg-group-section');
-    const membersSection = document.getElementById('cfg-members-section');
-    const exportSection = document.getElementById('cfg-export-section');
-    const labelGrupo = document.getElementById('cfg-label-grupo');
-    const labelMiembros = document.getElementById('cfg-label-miembros');
-    const labelExport = document.getElementById('cfg-label-export');
-
-    [groupSection, membersSection, exportSection].forEach(el => {
-        if (!el) return;
-        if (hasGroup) {
-            el.classList.remove('cfg-section-locked');
-        } else {
-            el.classList.add('cfg-section-locked');
-        }
-    });
-    [labelGrupo, labelMiembros, labelExport].forEach(el => {
-        if (!el) return;
-        if (hasGroup) {
-            el.classList.remove('cfg-section-locked-label');
-        } else {
-            el.classList.add('cfg-section-locked-label');
-        }
-    });
-
-    if (!hasGroup) return; // rest requires a group
-
+    // --- Configuración siempre desbloqueada ---
     const cfg = state.config || {};
     const adminPhoneEl = document.getElementById('cfg-admin-phone');
     if (adminPhoneEl) adminPhoneEl.value = cfg.adminPhone || '';
@@ -1459,7 +1432,9 @@ setInterval(async () => {
 
 window.applyTheme = function(theme) {
     localStorage.setItem('mc_theme', theme);
-    document.getElementById('cfg-theme').value = theme;
+    localStorage.setItem('theme', theme);
+    const themeEl = document.getElementById('cfg-theme-select') || document.getElementById('cfg-theme');
+    if (themeEl) themeEl.value = theme;
     
     if (theme === 'auto') {
         const isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
@@ -1552,6 +1527,32 @@ window.enviarAppPorWhatsAppPacienteCard = function(nombre, telefono) {
     toast('Abriendo WhatsApp para enviar enlace...', 'info');
 };
 
+window.seleccionarContactoAgenda = async function(targetNombreId, targetTelId) {
+    if ('contacts' in navigator && 'select' in navigator.contacts) {
+        try {
+            const props = ['name', 'tel'];
+            const opts = { multiple: false };
+            const contacts = await navigator.contacts.select(props, opts);
+            if (contacts && contacts.length > 0) {
+                const c = contacts[0];
+                if (c.name && c.name[0] && targetNombreId) {
+                    const elNombre = document.getElementById(targetNombreId);
+                    if (elNombre) elNombre.value = c.name[0];
+                }
+                if (c.tel && c.tel[0] && targetTelId) {
+                    const elTel = document.getElementById(targetTelId);
+                    if (elTel) elTel.value = c.tel[0];
+                }
+                toast('Contacto cargado desde la agenda', 'success');
+            }
+        } catch (err) {
+            console.log('Contacto cancelado o error:', err);
+        }
+    } else {
+        toast('Navega en tu móvil o PWA instalada para seleccionar de la agenda de contactos', 'info');
+    }
+};
+
 window.abrirModalNuevoPaciente = function(id = null) {
     const p = state.pacientes?.find(x => x.id === id) || {};
     state.editingPacienteId = id;
@@ -1561,7 +1562,10 @@ window.abrirModalNuevoPaciente = function(id = null) {
             <input type="text" id="p-nombre" class="form-input" placeholder="Ej: Papá" value="${p.nombre || ''}">
         </div>
         <div class="form-group">
-            <label>WhatsApp (Opcional)</label>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                <label style="margin:0;">WhatsApp (Opcional)</label>
+                <button type="button" class="btn-secondary btn-sm" style="font-size:11px; padding:3px 8px; border-radius:6px; color:var(--c-blue); background:var(--c-surface2); border:1px solid var(--c-border);" onclick="seleccionarContactoAgenda('p-nombre', 'p-tel')">📇 Seleccionar de Agenda</button>
+            </div>
             <input type="tel" id="p-tel" class="form-input" placeholder="+56912345678" value="${p.telefono || ''}">
         </div>
         <div class="form-group">
