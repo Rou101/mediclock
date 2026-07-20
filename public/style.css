@@ -1044,11 +1044,30 @@ select.form-input { appearance: none; -webkit-appearance: none; cursor: pointer;
     
     .tab-panel > * {
         width: 100%;
-        max-width: 940px;
+        max-width: 1120px;
     }
     
     #panel-calendario > * {
         max-width: 100%;
+    }
+
+    /* Grillas Dashboard Multicolumna para Desktop */
+    .med-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 16px;
+    }
+
+    .pacientes-lista {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
+    }
+
+    .remedios-lista {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 16px;
     }
     
     .panel-header {
