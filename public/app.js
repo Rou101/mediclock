@@ -1135,8 +1135,7 @@ function copiarLinkInvitacion() {
 // ============================================================
 
 function abrirModal(titulo, contenido) {
-    const grupoLabel = state.activeGrupoNombre ? ` &nbsp;<span style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--c-green-dim); color:var(--c-green); border:1px solid var(--c-green); font-weight:700;">👥 ${state.activeGrupoNombre.toUpperCase()}</span>` : '';
-    document.getElementById('modal-title').innerHTML = `<span>${titulo}</span>${grupoLabel}`;
+    document.getElementById('modal-title').innerHTML = `<span>${titulo}</span>`;
     document.getElementById('modal-body').innerHTML = contenido;
     const overlay = document.getElementById('modal-overlay');
     overlay.classList.remove('hidden');
@@ -1752,7 +1751,7 @@ window.abrirModalNuevoPaciente = function(id = null) {
         <div class="form-group">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
                 <label style="margin:0;">WhatsApp (Opcional)</label>
-                <button type="button" class="btn-secondary btn-sm" style="font-size:11px; padding:3px 8px; border-radius:6px; color:var(--c-blue); background:var(--c-surface2); border:1px solid var(--c-border);" onclick="seleccionarContactoAgenda('p-nombre', 'p-tel')">📇 Seleccionar de Agenda</button>
+                <button type="button" class="btn-secondary btn-sm" style="font-size:11px; padding:3px 8px; border-radius:6px; color:var(--c-blue); background:var(--c-surface2); border:1px solid var(--c-border);" onclick="seleccionarContactoAgenda('p-nombre', 'p-tel')">Seleccionar de Agenda</button>
             </div>
             <input type="tel" id="p-tel" class="form-input" placeholder="+56912345678" value="${p.telefono || ''}">
         </div>
@@ -1774,7 +1773,7 @@ window.abrirModalNuevoPaciente = function(id = null) {
         </div>
         <div style="margin-top:12px; border-top:1px solid var(--c-border); padding-top:12px;">
             <button type="button" class="btn-secondary" style="width:100%; border:1px solid var(--c-green); color:var(--c-green); background:var(--c-green-dim); display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600; padding:10px;" onclick="enviarAppPorWhatsAppPacienteForm()">
-                💬 Enviar App por WhatsApp a este teléfono
+                Enviar enlace por WhatsApp
             </button>
         </div>
         <div class="modal-btn-row" style="margin-top:14px;">
