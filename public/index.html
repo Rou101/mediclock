@@ -78,7 +78,7 @@
         </button>
     </div>
 
-    <p id="app-version" class="login-version-tag">v26 · BUILD 2026-07-19</p>
+    <p id="app-version" class="login-version-tag">v28 · BUILD 2026-07-19</p>
 </div>
 
 <!-- APP PRINCIPAL -->
@@ -181,7 +181,23 @@
                 <div>
                     <h2>Ajustes</h2>
                     <p class="subtitle" id="config-user-subtitle">Tu cuenta</p>
-                </div>            <!-- SECCIÓN: APARIENCIA -->
+                </div>
+            </div>
+
+            <!-- SECCIÓN: CUENTA -->
+            <div class="cfg-section-label">Cuenta</div>
+            <div class="settings-group">
+                <div class="setting-row" style="flex-direction:column; align-items:flex-start; gap:2px;">
+                    <div class="setting-label" id="cfg-user-name" style="font-size:15px;">—</div>
+                    <div class="setting-sub" id="cfg-user-email">Inicia sesión para ver tu cuenta</div>
+                </div>
+                <div class="setting-row setting-row-action" onclick="logout()" style="cursor:pointer;">
+                    <div class="setting-label" style="color:var(--c-red); font-weight:500;">Cerrar sesión</div>
+                    <svg class="setting-chevron" width="8" height="14" viewBox="0 0 8 14" fill="none"><path d="M1 1l6 6-6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+            </div>
+
+            <!-- SECCIÓN: APARIENCIA -->
             <div class="cfg-section-label">Apariencia</div>
             <div class="settings-group">
                 <div class="setting-row">
