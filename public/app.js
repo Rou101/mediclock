@@ -1,6 +1,53 @@
-// ============================================================
-// MEDICLOCK - APP LOGIC v2 (DEV MOCK AUTH)
-// ============================================================
+const CLIENT_VERSION = 'v24';
+
+// Auto-verificar versión del servidor e inyectarla dinámicamente en el HTML
+async function sincronizarVersionDinamica() {
+    try {
+        const r = await fetch('/api/version?t=' + Date.now());
+        const data = await r.json();
+        if (data.version) {
+            window.CURRENT_SERVER_VERSION = data.version;
+            document.querySelectorAll('#app-version, .login-version-tag').forEach(el => {
+                el.textContent = `${data.version} · BUILD ${data.buildDate || '2026-07-19'}`;
+            });
+            const badge = document.getElementById('cfg-version-badge');
+            if (badge) badge.textContent = `${data.version} · MediClock · ${data.buildDate || '2026-07-19'}`;
+            
+            const statusEl = document.getElementById('cfg-update-status');
+            if (data.version !== CLIENT_VERSION) {
+                if (statusEl) statusEl.textContent = `🚀 ¡Versión ${data.version} lista! Toca para actualizar`;
+            } else {
+                if (statusEl) statusEl.textContent = `Sistema actualizado (${data.version})`;
+            }
+        }
+    } catch (e) {
+        console.log('Versión en caché offline:', e);
+    }
+}
+sincronizarVersionDinamica();
+
+window.verificarActualizacion = async function(manual = false) {
+    toast('Comprobando versión más reciente...', 'info');
+    try {
+        const r = await fetch('/api/version?t=' + Date.now());
+        const data = await r.json();
+        sincronizarVersionDinamica();
+        
+        if (data.version && data.version !== CLIENT_VERSION) {
+            if (confirm(`¡Nueva versión disponible (${data.version})! ¿Deseas actualizar ahora?`)) {
+                if ('serviceWorker' in navigator) {
+                    const registrations = await navigator.serviceWorker.getRegistrations();
+                    for (let reg of registrations) await reg.unregister();
+                }
+                window.location.reload(true);
+            }
+        } else {
+            if (manual) toast(`Estás usando la última versión oficial (${CLIENT_VERSION}) ✅`, 'success');
+        }
+    } catch (e) {
+        toast('No se pudo conectar al servidor de versiones', 'error');
+    }
+};
 
 // --- ESTADO GLOBAL ---
 const state = {
@@ -866,23 +913,64 @@ function renderConfig() {
 }
 
 window.abrirModalGuardia = function(uid, nombre) {
-    abrirModal('Delegar Guardia', `
-        <p style="margin-bottom:16px; font-size:14px; color:var(--c-text-2);">Delega la recepción de notificaciones de WhatsApp a <strong>${nombre}</strong>.</p>
+    const miembro = state.miembros?.find(m => m.uid === uid) || {};
+    const tel = miembro.telefono || '';
+    
+    abrirModal('Configurar Rol de Guardia / Asistente', `
+        <p style="margin-bottom:14px; font-size:13px; color:var(--c-text-2);">Asigna permisos ad-hoc de administración y notificaciones a <strong>${nombre}</strong>.</p>
+        
         <div class="form-group">
-            <label>Duración del turno</label>
+            <label>Duración del turno de supervisión</label>
             <select id="guardia-duracion" class="form-input">
-                <option value="2">2 horas</option>
-                <option value="4">4 horas</option>
-                <option value="8">8 horas</option>
-                <option value="12">12 horas</option>
-                <option value="24">24 horas</option>
-                <option value="999999">Permanente</option>
+                <option value="12">12 horas (Turno de día/noche)</option>
+                <option value="24" selected>24 horas (Full día)</option>
+                <option value="48">48 horas (Fin de semana)</option>
+                <option value="999999">Permanente (Co-Administrador)</option>
             </select>
         </div>
-        <div class="modal-btn-row">
-            <button class="btn-primary" onclick="guardarGuardia('${uid}')">Activar Guardia</button>
+
+        <div class="form-group">
+            <label style="font-size:13px; font-weight:600; margin-bottom:8px; display:block;">Permisos asignados a este Rol:</label>
+            <div style="display:flex; flex-direction:column; gap:8px; background:var(--c-surface2); padding:12px; border-radius:12px; border:1px solid var(--c-border);">
+                <label style="font-size:13px; display:flex; align-items:center; gap:8px; margin:0;">
+                    <input type="checkbox" id="perm-wa" checked disabled> 🔔 Recibir alertas de olvido en WhatsApp
+                </label>
+                <label style="font-size:13px; display:flex; align-items:center; gap:8px; margin:0;">
+                    <input type="checkbox" id="perm-tomas" checked> 💊 Registrar tomas en nombre de familiares
+                </label>
+                <label style="font-size:13px; display:flex; align-items:center; gap:8px; margin:0;">
+                    <input type="checkbox" id="perm-historial" checked> 📋 Ver historial médico y medicamentos
+                </label>
+            </div>
+        </div>
+
+        <div style="margin-top:12px; border-top:1px solid var(--c-border); padding-top:12px;">
+            <button type="button" class="btn-secondary" style="width:100%; border:1px solid var(--c-green); color:var(--c-green); background:var(--c-green-dim); display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600; padding:10px;" onclick="enviarPermisosGuardiaWhatsApp('${nombre}', '${tel}')">
+                💬 Enviar Rol e Invitación por WhatsApp
+            </button>
+        </div>
+
+        <div class="modal-btn-row" style="margin-top:14px;">
+            <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-primary" onclick="guardarGuardia('${uid}')">Activar Rol de Guardia</button>
         </div>
     `);
+};
+
+window.enviarPermisosGuardiaWhatsApp = function(nombre, telefono) {
+    const duracionSelect = document.getElementById('guardia-duracion');
+    const durTxt = duracionSelect ? duracionSelect.options[duracionSelect.selectedIndex].text : '24 horas';
+    const telLimpio = (telefono || '').replace(/\D/g, '');
+    const appUrl = `https://mediclock-961339509446.us-central1.run.app/?role=guardia&grupo=${state.activeGrupoId || ''}`;
+    
+    const textMsg = `Hola ${nombre}, se te ha asignado el Rol de Guardia/Asistente en MediClock (${durTxt}) para colaborar en el cuidado de la familia. Abre e instala la app directamente aquí: ${appUrl}`;
+    
+    const waUrl = telLimpio 
+        ? `https://wa.me/${telLimpio}?text=${encodeURIComponent(textMsg)}`
+        : `https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`;
+    
+    window.open(waUrl, '_blank');
+    toast('Abriendo WhatsApp para enviar enlace de Guardia...', 'info');
 };
 
 window.guardarGuardia = async function(uid) {
@@ -1516,15 +1604,15 @@ function renderPacientes() {
 
 window.enviarAppPorWhatsAppPacienteCard = function(nombre, telefono) {
     const telLimpio = (telefono || '').replace(/\D/g, '');
-    const appUrl = 'https://mediclock-961339509446.us-central1.run.app';
-    const textMsg = `Hola ${nombre || ''}, te invito a descargar e instalar la aplicación MediClock para llevar el control de tus medicamentos: ${appUrl}`;
+    const appUrl = `https://mediclock-961339509446.us-central1.run.app/?mode=paciente&grupo=${state.activeGrupoId || ''}&p=${encodeURIComponent(nombre)}`;
+    const textMsg = `Hola ${nombre || ''}, te enviamos tu enlace directo de MediClock para gestionar tus medicamentos de forma fácil y automática con 1 solo toque: ${appUrl}`;
     
     const waUrl = telLimpio 
         ? `https://wa.me/${telLimpio}?text=${encodeURIComponent(textMsg)}`
         : `https://api.whatsapp.com/send?text=${encodeURIComponent(textMsg)}`;
     
     window.open(waUrl, '_blank');
-    toast('Abriendo WhatsApp para enviar enlace...', 'info');
+    toast('Enlace mágico enviado por WhatsApp', 'info');
 };
 
 window.seleccionarContactoAgenda = async function(targetNombreId, targetTelId) {
