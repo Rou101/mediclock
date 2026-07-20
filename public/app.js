@@ -399,7 +399,7 @@ function initApp() {
     document.getElementById('btn-add-remedio')?.addEventListener('click', () => abrirModalNuevoRemedio());
 
     // Config
-    document.getElementById('btn-guardar-config')?.addEventListener('click', guardarConfig);
+    document.getElementById('btn-guardar-config')?.addEventListener('click', saveConfig);
     document.getElementById('btn-logout')?.addEventListener('click', logout);
     document.getElementById('btn-invitar-miembro')?.addEventListener('click', generarInvitacion);
     document.getElementById('btn-copy-invite')?.addEventListener('click', copiarLinkInvitacion);
@@ -1004,23 +1004,30 @@ window.revocarGuardia = async function(uid) {
 };
 
 window.saveConfig = async function() {
+    if (!state.activeGrupoId) {
+        toast('Selecciona o crea un grupo familiar primero', 'error');
+        return;
+    }
     if (state.miRol !== 'admin') {
         toast('Solo los administradores pueden cambiar esto', 'error');
         renderConfig(); // revert UI
         return;
     }
+    const adminPhoneEl = document.getElementById('cfg-admin-phone');
+    const minutosEl = document.getElementById('cfg-minutos');
     const datos = {
-        adminPhone: document.getElementById('cfg-admin-phone').value.trim(),
-        minutosOlvido: parseInt(document.getElementById('cfg-minutos').value) || 20,
+        adminPhone: adminPhoneEl ? adminPhoneEl.value.trim() : '',
+        minutosOlvido: minutosEl ? (parseInt(minutosEl.value) || 20) : 20,
     };
     try {
         await api('PUT', `/api/grupos/${state.activeGrupoId}/config`, datos);
         state.config = { ...state.config, ...datos };
-        toast('Preferencias guardadas', 'success');
-    } catch {
-        toast('Error guardando configuración', 'error');
+        toast('Ajustes de grupo guardados ✅', 'success');
+    } catch (e) {
+        toast('Error guardando configuración: ' + e.message, 'error');
     }
 };
+window.guardarConfig = window.saveConfig;
 
 window.toggleTheme = function(isDark) {
     if (isDark) {

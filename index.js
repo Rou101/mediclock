@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Versión activa del sistema
-const APP_VERSION = 'v25';
+const APP_VERSION = 'v26';
 
 // Endpoint público para verificación de versión y auto-actualización forzada
 app.get('/api/version', (req, res) => {
