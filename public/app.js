@@ -240,7 +240,8 @@ async function inicializarGrupos() {
         if (state.grupos.length === 0) {
             // No tiene grupos -> Onboarding Premium
             state.activeGrupoId = null;
-            document.getElementById('active-group-name').textContent = "Nueva Cuenta ↗";
+            const gn = document.getElementById('active-group-name');
+            if (gn) gn.textContent = "Nueva Cuenta ↗";
             renderCurrentTab(); 
         } else {
             // Cargar grupo activo guardado o usar el primero
@@ -555,9 +556,12 @@ function renderHoy() {
     
     if (!state.activeGrupoId) {
         // MODO ONBOARDING PREMIUM
-        document.getElementById('hoy-fecha').textContent = "Bienvenido a MediClock";
-        document.getElementById('hoy-resumen').textContent = "El centro de control de tu familia";
-        document.getElementById('btn-add-hoy').style.display = 'none';
+        const hf = document.getElementById('hoy-fecha');
+        if (hf) hf.textContent = "Bienvenido a MediClock";
+        const hr = document.getElementById('hoy-resumen');
+        if (hr) hr.textContent = "El centro de control de tu familia";
+        const btnH = document.getElementById('btn-add-hoy');
+        if (btnH) btnH.style.display = 'none';
 
         lista.innerHTML = `
             <div class="premium-onboarding">
@@ -582,8 +586,8 @@ function renderHoy() {
     const hoy = new Date();
     const diasNombre = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    document.getElementById('hoy-fecha').textContent =
-        `${diasNombre[hoy.getDay()]} ${hoy.getDate()} de ${meses[hoy.getMonth()]}`;
+    const hf2 = document.getElementById('hoy-fecha');
+    if (hf2) hf2.textContent = `${diasNombre[hoy.getDay()]} ${hoy.getDate()} de ${meses[hoy.getMonth()]}`;
 
     const diaNum = hoy.getDay();
     const localDateStr = getLocalDateString();
@@ -615,8 +619,8 @@ function renderHoy() {
 
     const tomadas = medHoy.filter(m => m.estado === 'tomada').length;
     const total = medHoy.length;
-    document.getElementById('hoy-resumen').textContent =
-        total > 0 ? `${tomadas} de ${total} confirmadas hoy` : 'Sin medicamentos programados para hoy';
+    const hr2 = document.getElementById('hoy-resumen');
+    if (hr2) hr2.textContent = total > 0 ? `${tomadas} de ${total} confirmadas hoy` : 'Sin medicamentos programados para hoy';
 
     if (medHoy.length === 0) {
         const noPac = !state.pacientes || state.pacientes.length === 0;
@@ -803,7 +807,8 @@ function renderHistorial() {
     const tomadas = lista.filter(h => h.estado === 'tomada').length;
     const olvidadas = lista.filter(h => h.estado === 'olvidada').length;
 
-    document.getElementById('historial-stats').innerHTML = `
+    const hs = document.getElementById('historial-stats');
+    if (hs) hs.innerHTML = `
         <span class="stat-pill">✅ ${tomadas} tomadas</span>
         <span class="stat-pill miss">❌ ${olvidadas} olvidadas</span>
     `;
