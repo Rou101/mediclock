@@ -815,11 +815,29 @@ function renderHistorial() {
 
     const container = document.getElementById('historial-lista');
     if (lista.length === 0) {
-        container.innerHTML = `<div class="empty-state">
-            <div class="empty-state-icon">📅</div>
-            <h3>Sin historial aún</h3>
-            <p>Aquí aparecerán las confirmaciones de medicamentos.</p>
-        </div>`;
+        container.innerHTML = `
+            <div style="opacity: 0.4; pointer-events: none; user-select: none;">
+                <div class="timeline-date">Hoy (Ejemplo)</div>
+                <div class="timeline-item">
+                    <div class="timeline-dot tomada" style="filter: grayscale(1);"></div>
+                    <div class="timeline-info">
+                        <div class="timeline-name" style="color: var(--c-text);">💊 Paracetamol   👤 Mamá</div>
+                        <div class="timeline-meta">Programada: 08:00 · Dosis: 1 pastilla</div>
+                        <div class="timeline-badge">
+                            <span class="med-status" style="background: var(--c-surface3); color: var(--c-text-2);">Tomada a tiempo</span>
+                        </div>
+                    </div>
+                    <div class="timeline-time">08:15</div>
+                </div>
+            </div>
+            <div class="empty-state" style="margin-top: 24px;">
+                <div class="empty-state-icon" style="color: var(--c-primary);">
+                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                </div>
+                <h3>Sin historial aún</h3>
+                <p>Aquí aparecerán las confirmaciones reales de tus pacientes, tal como se muestra en el ejemplo de arriba.</p>
+            </div>
+        `;
         return;
     }
 
@@ -864,6 +882,17 @@ function renderHistorial() {
 
 function renderRemedios() {
     const grid = document.getElementById('remedios-grid');
+    if (!state.biblioteca || state.biblioteca.length === 0) {
+        grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
+            <div class="empty-state-icon" style="color: var(--c-primary);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4.5" y1="19.5" x2="19.5" y2="4.5"></line><path d="M16 3a4.24 4.24 0 0 0-6 0L3 10a4.24 4.24 0 0 0 0 6l3 3a4.24 4.24 0 0 0 6 0l7-7a4.24 4.24 0 0 0 0-6Z"></path></svg>
+            </div>
+            <h3>Sin remedios</h3>
+            <p>Tu biblioteca está vacía. Agrega medicamentos para asignarlos rápidamente en el futuro.</p>
+        </div>`;
+        return;
+    }
+
     const remediosHtml = state.biblioteca.map(r => `
         <div class="remedio-card" onclick="usarRemedio('${r.id}')">
             <div class="remedio-icon">${r.icono || '📅'}</div>
@@ -1663,7 +1692,13 @@ window.addEventListener('DOMContentLoaded', () => {
 function renderPacientes() {
     const lista = document.getElementById('pacientes-lista');
     if (!state.pacientes || state.pacientes.length === 0) {
-        lista.innerHTML = `<div class="empty-state"><div class="empty-icon">👤</div><h3>No hay pacientes</h3><p>Agrega a los miembros de la familia que tomarán medicamentos.</p></div>`;
+        lista.innerHTML = `<div class="empty-state">
+            <div class="empty-state-icon" style="color: var(--c-primary);">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+            </div>
+            <h3>No hay pacientes</h3>
+            <p>Agrega a los miembros de la familia que tomarán medicamentos.</p>
+        </div>`;
     } else {
         lista.innerHTML = state.pacientes.map(p => `
             <div class="paciente-card" onclick="abrirModalNuevoPaciente('${p.id}')">
