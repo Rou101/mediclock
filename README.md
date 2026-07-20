@@ -58,4 +58,10 @@ El problema original que aborda MediClock es el "síndrome del cuidador principa
   2. Integración y comisión por *refill* automático con farmacias locales (B2B2C).
   3. Licenciamiento a clínicas/hospitales para monitoreo remoto de pacientes geriátricos (B2B).
 ---
-*Bitácora generada por Antigravity (AI Assistant) - 18 de Julio de 2026*
+## 📚 Documentación y Manual de Operaciones
+- 📖 [Guía de Comandos y Manual de Configuración (Git, Docker, Cloud Run, Env Vars)](file:///c:/Users/rou10/Documents/Proyectos/Mediclock/docs/GUIA_DESARROLLO_Y_COMANDOS.md)
+- 🤖 [Reglas del Proyecto para Antigravity](file:///c:/Users/rou10/Documents/Proyectos/Mediclock/.agents/AGENTS.md)
+
+---
+*Bitácora generada por Antigravity (AI Assistant) - 2026*
+
