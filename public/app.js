@@ -1923,11 +1923,55 @@ window.reabastecerMedicamento = async function(id, targetHora) {
             med.pastillasRestantes = (med.pastillasRestantes || 0) + cantidad;
             toast(`Caja reabastecida con ${cantidad} pastillas`, 'success');
             abrirModalTomaManual(id, targetHora);
-            renderCurrentTab();
+            location.reload(true);
         }
     } catch (e) {
-        toast('Error al reabastecer stock', 'error');
+        toast('Error al consultar servidor', 'error');
     }
+};
+
+// ===============================================
+// SISTEMA DE ROLES Y GRUPOS DE TRABAJO (ROLES_DEFINICION)
+// ===============================================
+window.ROLES_DEFINICION = {
+    admin: { id: 'admin', nombre: 'Administradores', icono: '👑', color: '#10b981', desc: 'Control total de la familia, notificaciones y configuración.' },
+    paciente: { id: 'paciente', nombre: 'Pacientes', icono: '🩺', color: '#3b82f6', desc: 'Personas que reciben y toman los medicamentos.' },
+    asistente: { id: 'asistente', nombre: 'Asistentes', icono: '🤝', color: '#f59e0b', desc: 'Cuidadores y enfermeros encargados de administrar dosis.' },
+    medico: { id: 'medico', nombre: 'Médicos', icono: '👨‍⚕️', color: '#8b5cf6', desc: 'Profesionales de la salud que supervisan recetas y esquemas.' },
+    miembro: { id: 'miembro', nombre: 'Miembros', icono: '👤', color: '#6b7280', desc: 'Familiares e integrantes del grupo.' }
+};
+
+window.obtenerRolInfo = function(rolKey) {
+    return window.ROLES_DEFINICION[rolKey] || window.ROLES_DEFINICION.miembro;
+};
+
+window.cambiarRolMiembro = async function(uid, nuevoRol) {
+    if (!state.activeGrupoId) return;
+    try {
+        await api('PUT', `/api/grupos/${state.activeGrupoId}/miembros/${uid}/rol`, { rol: nuevoRol });
+        const m = state.miembros?.find(x => x.uid === uid);
+        if (m) m.rol = nuevoRol;
+        const info = window.obtenerRolInfo(nuevoRol);
+        toast(`Rol cambiado a ${info.icono} ${info.nombre}`, 'success');
+        if (typeof renderConfig === 'function') renderConfig();
+    } catch (err) {
+        toast(err.message || 'Error al cambiar rol', 'error');
+    }
+};
+
+window.filtrarMiembrosPorRol = function(rolKey) {
+    if (!state.miembros) return [];
+    return state.miembros.filter(m => (m.rol || 'miembro') === rolKey);
+};
+
+window.agruparMiembrosPorRol = function() {
+    const grupos = { admin: [], paciente: [], asistente: [], medico: [], miembro: [] };
+    (state.miembros || []).forEach(m => {
+        const r = m.rol || 'miembro';
+        if (grupos[r]) grupos[r].push(m);
+        else grupos.miembro.push(m);
+    });
+    return grupos;
 };
 
 window.generarCodigoPaciente = async function(pacienteId) {

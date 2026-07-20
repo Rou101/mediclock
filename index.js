@@ -189,13 +189,34 @@ app.delete('/api/grupos/:grupoId/pacientes/:pacienteId', authMiddleware, async (
 });
 
 // ===========================================
+// DEFINICIÓN DE ROLES Y GRUPOS DE TRABAJO
+// ===========================================
+const ROLES_SISTEMA = {
+    admin: { id: 'admin', nombre: 'Administradores', icono: '👑', color: '#10b981', descripcion: 'Control total del grupo familiar, notificaciones y ajustes' },
+    paciente: { id: 'paciente', nombre: 'Pacientes', icono: '🩺', color: '#3b82f6', descripcion: 'Personas que reciben y toman los medicamentos' },
+    asistente: { id: 'asistente', nombre: 'Asistentes', icono: '🤝', color: '#f59e0b', descripcion: 'Cuidadores y enfermeros que ayudan en la administración' },
+    medico: { id: 'medico', nombre: 'Médicos', icono: '👨‍⚕️', color: '#8b5cf6', descripcion: 'Profesionales de la salud que ajustan recetas y frecuencias' },
+    miembro: { id: 'miembro', nombre: 'Miembros', icono: '👤', color: '#6b7280', descripcion: 'Familiares e integrantes del grupo' }
+};
+
+app.get('/api/roles', (req, res) => {
+    res.json(ROLES_SISTEMA);
+});
+
+// ===========================================
 // API: MIEMBROS
 // ===========================================
 
 app.get('/api/grupos/:grupoId/miembros', authMiddleware, async (req, res) => {
     const { grupoId } = req.params;
+    const { rol } = req.query;
     if (!await verificarAcceso(grupoId, req.user.uid, res)) return;
-    const snap = await grupoRef(grupoId).collection('miembros').get();
+    
+    let query = grupoRef(grupoId).collection('miembros');
+    if (rol && ROLES_SISTEMA[rol]) {
+        query = query.where('rol', '==', rol);
+    }
+    const snap = await query.get();
     res.json(snap.docs.map(d => ({ id: d.id, ...d.data() })));
 });
 
@@ -213,9 +234,9 @@ app.put('/api/grupos/:grupoId/miembros/:uid/rol', authMiddleware, async (req, re
     const { grupoId, uid } = req.params;
     const { rol } = req.body;
     if (!await esAdmin(grupoId, req.user.uid)) return res.status(403).json({ error: 'Solo el admin puede cambiar roles' });
-    if (!['admin', 'miembro', 'paciente'].includes(rol)) return res.status(400).json({ error: 'Rol inválido' });
+    if (!Object.keys(ROLES_SISTEMA).includes(rol)) return res.status(400).json({ error: 'Rol inválido. Roles válidos: admin, paciente, asistente, medico, miembro' });
     await grupoRef(grupoId).collection('miembros').doc(uid).update({ rol });
-    res.json({ success: true });
+    res.json({ success: true, rol, rolInfo: ROLES_SISTEMA[rol] });
 });
 
 // ===========================================
