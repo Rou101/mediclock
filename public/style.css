@@ -1274,6 +1274,10 @@ select.form-input { appearance: none; -webkit-appearance: none; cursor: pointer;
     outline: none;
     transition: border-color 0.2s;
 }
+.cfg-inline-input option {
+    background: var(--c-surface);
+    color: var(--c-text);
+}
 .cfg-inline-input:focus {
     border-color: var(--c-blue);
 }

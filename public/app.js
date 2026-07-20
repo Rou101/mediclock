@@ -835,12 +835,7 @@ function renderRemedios() {
         </div>
     `).join('');
 
-    grid.innerHTML = remediosHtml + `
-        <div class="remedio-add-card" onclick="abrirModalNuevoRemedio()">
-            <span style="font-size:24px">+</span>
-            <span style="font-size:12px;font-weight:600">Agregar</span>
-        </div>
-    `;
+    grid.innerHTML = remediosHtml;
 }
 
 function usarRemedio(id) {
@@ -1638,11 +1633,26 @@ function renderPacientes() {
                 <div class="paciente-avatar">${p.nombre.charAt(0).toUpperCase()}</div>
                 <div class="paciente-info">
                     <div class="paciente-nombre">${p.nombre}</div>
-                    <div class="paciente-meta">${p.telefono ? '📞 ' + p.telefono : 'Sin teléfono'}</div>
-                    ${p.condicion ? `<div class="paciente-meta">⚕️ ${p.condicion}</div>` : ''}
-                    ${p.alergias ? `<div class="paciente-meta" style="color:var(--c-red); font-weight: 600;">⚠️ Alergias: ${p.alergias}</div>` : ''}
-                    ${p.peso ? `<div class="paciente-meta">⚖️ Peso: ${p.peso}</div>` : ''}
-                    ${p.medico ? `<div class="paciente-meta">👨‍⚕️ Médico: ${p.medico}</div>` : ''}
+                    <div class="paciente-meta" style="display:flex;align-items:center;gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg> 
+                        ${p.telefono ? p.telefono : 'Sin teléfono'}
+                    </div>
+                    ${p.condicion ? `<div class="paciente-meta" style="display:flex;align-items:center;gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg> 
+                        ${p.condicion}
+                    </div>` : ''}
+                    ${p.alergias ? `<div class="paciente-meta" style="color:var(--c-red); font-weight: 600; display:flex;align-items:center;gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        Alergias: ${p.alergias}
+                    </div>` : ''}
+                    ${p.peso ? `<div class="paciente-meta" style="display:flex;align-items:center;gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                        Peso: ${p.peso}
+                    </div>` : ''}
+                    ${p.medico ? `<div class="paciente-meta" style="display:flex;align-items:center;gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        Médico: ${p.medico}
+                    </div>` : ''}
                     <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
                         <button class="btn-secondary" style="font-size:12px; padding: 6px 12px; width:100%; border-radius: 8px; border: 1px solid var(--c-green); color: var(--c-green); background: var(--c-green-dim); display:flex; align-items:center; justify-content:center; gap:6px; font-weight:600;" onclick="event.stopPropagation(); enviarAppPorWhatsAppPacienteCard('${p.nombre}', '${p.telefono || ''}')">💬 Enviar App por WhatsApp</button>
                         <button class="btn-secondary" style="font-size:12px; padding: 6px 12px; width:100%; border-radius: 8px; border: 1px solid var(--c-primary); color: var(--c-primary);" onclick="event.stopPropagation(); generarCodigoPaciente('${p.id}')">🔗 Enlazar Teléfono (Modo Paciente)</button>
