@@ -547,7 +547,7 @@ function renderStockBadge(m) {
     } else if (isLow) {
         return `<div class="med-stock low-stock">⚠️ Stock bajo: ${m.pastillasRestantes} uds.</div>`;
     } else {
-        return `<div class="med-stock">📦 Stock: ${m.pastillasRestantes} uds.</div>`;
+        return ''; // Redundant with the "1 de 200" dosis display
     }
 }
 
@@ -1255,12 +1255,19 @@ function buildMedForm(data = {}) {
             <div class="ios-row vertical">
                 <div class="ios-row-left" style="width:100%;">
                     <div class="ios-row-icon" style="background:#5856D6; display:flex; align-items:center; justify-content:center;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
                     </div>
-                    <span>Dosis</span>
+                    <span>Dosis e Inventario</span>
                 </div>
-                <div class="ios-input-wrapper">
-                    <input type="text" id="f-dosis" class="form-input" placeholder="Ej: 1 pastilla de 500mg" value="${data.dosis || ''}">
+                <div class="ios-input-wrapper" style="display:flex; flex-direction:column; gap:8px; margin-top:8px;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <input type="number" id="f-dosis-cantidad" class="form-input" placeholder="Dosis (Ej: 1)" step="0.1" style="width:100px; text-align:center;" value="${data.dosisCantidad || '1'}">
+                        <span style="color:var(--c-text-2); font-weight:600;">de</span>
+                        <input type="number" id="f-dosis-total" class="form-input" placeholder="Total (Ej: 30)" step="0.1" style="flex:1; text-align:center;" value="${data.pastillasRestantes != null ? data.pastillasRestantes : (data.pastillasPorCaja || '')}">
+                    </div>
+                    <div style="font-size:11px; color:var(--c-text-2); text-align:center;">
+                        Se descontará de la caja automáticamente con cada toma.
+                    </div>
                 </div>
             </div>
         </div>
@@ -1316,49 +1323,7 @@ function buildMedForm(data = {}) {
             </div>
         </div>
 
-        <div class="ios-section-title">Inventario y Stock</div>
-        <div class="ios-list">
-            <div class="ios-row">
-                <div class="ios-row-left">
-                    <div class="ios-row-icon" style="background:#30D158; display:flex; align-items:center; justify-content:center;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>
-                    </div>
-                    <span>Controlar Stock</span>
-                </div>
-                <div class="ios-input-wrapper">
-                    <label class="ios-switch">
-                        <input type="checkbox" id="f-track-stock" ${data.pastillasPorCaja != null ? 'checked' : ''} onchange="toggleStockFields(this.checked)">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-            <div id="stock-fields-container" style="display:${data.pastillasPorCaja != null ? 'block' : 'none'};">
-                <div class="ios-row">
-                    <div class="ios-row-left">
-                        <span>Pastillas por Caja</span>
-                    </div>
-                    <div class="ios-input-wrapper">
-                        <input type="number" id="f-caja" class="form-input" placeholder="Ej: 30" value="${data.pastillasPorCaja || ''}" style="width:100px;">
-                    </div>
-                </div>
-                <div class="ios-row">
-                    <div class="ios-row-left">
-                        <span>Stock Actual (Restantes)</span>
-                    </div>
-                    <div class="ios-input-wrapper">
-                        <input type="number" id="f-restantes" class="form-input" placeholder="Ej: 30" value="${data.pastillasRestantes != null ? data.pastillasRestantes : ''}" style="width:100px;">
-                    </div>
-                </div>
-                <div class="ios-row">
-                    <div class="ios-row-left">
-                        <span>Alerta Mínima de Stock</span>
-                    </div>
-                    <div class="ios-input-wrapper">
-                        <input type="number" id="f-alerta-min" class="form-input" placeholder="Ej: 5" value="${data.alertaStockMinimo != null ? data.alertaStockMinimo : ''}" style="width:100px;">
-                    </div>
-                </div>
-            </div>
-        </div>
+
 
         <div class="ios-section-title">Alertas por WhatsApp</div>
         <div class="ios-list">
@@ -1425,7 +1390,6 @@ async function guardarMedicamento() {
     }
 
     const nombre = document.getElementById('f-nombre').value.trim();
-    const dosis = document.getElementById('f-dosis').value.trim();
     const fechaInicio = document.getElementById('f-fechaInicio').value;
     const telefono = document.getElementById('f-tel').value.trim();
     const frecuencia = document.getElementById('f-frec').value;
@@ -1436,17 +1400,12 @@ async function guardarMedicamento() {
     // Extract selected days
     const diasChecked = [...document.querySelectorAll('.ios-day-btn.selected')].map(b => b.dataset.day);
 
-    // Extract stock fields conditionally
-    const trackStock = document.getElementById('f-track-stock').checked;
-    let pastillasPorCaja = null;
-    let pastillasRestantes = null;
-    let alertaStockMinimo = null;
-    
-    if (trackStock) {
-        pastillasPorCaja = parseInt(document.getElementById('f-caja').value, 10) || null;
-        pastillasRestantes = document.getElementById('f-restantes').value !== '' ? parseInt(document.getElementById('f-restantes').value, 10) : null;
-        alertaStockMinimo = document.getElementById('f-alerta-min').value !== '' ? parseInt(document.getElementById('f-alerta-min').value, 10) : null;
-    }
+    // Extract new stock and dosis fields
+    const dosisCantidad = document.getElementById('f-dosis-cantidad').value !== '' ? parseFloat(document.getElementById('f-dosis-cantidad').value) : 1;
+    const pastillasRestantes = document.getElementById('f-dosis-total').value !== '' ? parseFloat(document.getElementById('f-dosis-total').value) : null;
+    const pastillasPorCaja = pastillasRestantes; 
+    const alertaStockMinimo = 5; // Default alert threshold
+    const dosis = document.getElementById('f-dosis-cantidad').value + (pastillasRestantes != null ? ` de ${pastillasRestantes}` : ''); // Fallback string
 
     if (!nombre || horasChecked.length === 0 || !fechaInicio) {
         toast('Por favor completa nombre, al menos una hora y fecha de inicio', 'error');
@@ -1457,6 +1416,7 @@ async function guardarMedicamento() {
         familiar, 
         nombre, 
         dosis, 
+        dosisCantidad,
         hora: horasChecked[0], // backward compatibility
         horas: horasChecked, 
         fechaInicio, 
@@ -1929,7 +1889,7 @@ window.confirmarTomaManual = async function(id, estado, hora, grupoId = null) {
         };
         
         if (med.pastillasRestantes != null && estado === 'tomada') {
-            med.pastillasRestantes--;
+            med.pastillasRestantes -= (med.dosisCantidad || 1);
         }
         
         toast('Toma registrada correctamente', 'success');
@@ -2136,7 +2096,7 @@ window.confirmarTomaPaciente = async function(id, hora) {
             timestamp: new Date().toISOString()
         };
         
-        if (med.pastillasRestantes != null) med.pastillasRestantes--;
+        if (med.pastillasRestantes != null) med.pastillasRestantes -= (med.dosisCantidad || 1);
         
         renderPacienteScreen(); // re-render
     } catch(e) {
