@@ -463,15 +463,15 @@ body[data-group-color="coral"] {
     height: calc(var(--nav-h) + var(--safe-bottom));
     padding-bottom: var(--safe-bottom);
     background: var(--c-surface); /* Spatial Glass */
-    border-top: 1px solid var(--c-border);
-    box-shadow: 0 -4px 30px rgba(0, 0, 0, 0.12);
+    border-top: 1.5px solid var(--c-border);
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.2);
     display: flex;
     align-items: center;
     justify-content: space-around;
     padding-top: 4px;
     z-index: 9000;
-    backdrop-filter: var(--glass-blur);
-    -webkit-backdrop-filter: var(--glass-blur);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
 }
 .nav-btn {
     flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
@@ -492,16 +492,8 @@ body[data-group-color="coral"] {
     justify-content: center;
     color: inherit;
 }
-.nav-btn.active { color: var(--c-green); }
-.nav-btn.active svg { filter: drop-shadow(0 0 6px var(--c-green-glow)); }
-.nav-btn::before {
-    content: '';
-    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
-    width: 0; height: 2px; border-radius: 1px;
-    background: var(--c-green);
-    transition: width 0.25s ease;
-}
-.nav-btn.active::before { width: 24px; }
+.nav-btn.active { color: var(--c-primary); font-weight: 700; }
+.nav-btn.active svg { filter: drop-shadow(0 0 6px rgba(0, 122, 255, 0.5)); stroke-width: 2.5px; }
 
 /* ========================================
    PANEL HEADERS

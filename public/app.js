@@ -315,14 +315,12 @@ async function seleccionarGrupo(grupoId) {
         document.body.setAttribute('data-group-color', g.color || 'green');
     }
     
-    const badgeEl = document.getElementById('active-group-name');
-    if (badgeEl) {
-        badgeEl.textContent = state.activeGrupoNombre || 'Mi Familia';
-    }
+    const badgeEls = document.querySelectorAll('.local-group-name');
+    badgeEls.forEach(el => el.textContent = state.activeGrupoNombre || 'Familia');
     
     toast(`👥 ENTORNO ACTIVO: "${state.activeGrupoNombre || 'Mi Familia'}"`, 'info');
     
-    await cargarDatosGrupo();
+    await Promise.all([cargarDatosGrupo(), cargarDatosTodosGrupos()]);
     renderCurrentTab();
 }
 
@@ -362,6 +360,35 @@ async function cargarDatosGrupo() {
 
     } catch (e) {
         toast('Error cargando datos del grupo', 'error');
+    }
+}
+
+async function cargarDatosTodosGrupos() {
+    state.todosLosMedicamentos = [];
+    state.todosLosPacientes = [];
+    if (!state.grupos || state.grupos.length === 0) return;
+    
+    try {
+        const promesas = state.grupos.map(async g => {
+            try {
+                const [meds, pacs] = await Promise.all([
+                    api('GET', `/api/grupos/${g.id}/medicamentos`),
+                    api('GET', `/api/grupos/${g.id}/pacientes`)
+                ]);
+                meds.forEach(m => m._grupoId = g.id);
+                pacs.forEach(p => { p._grupoId = g.id; p._grupoNombre = g.nombre; });
+                return { meds, pacs };
+            } catch (e) {
+                return { meds: [], pacs: [] };
+            }
+        });
+        const resultados = await Promise.all(promesas);
+        resultados.forEach(r => {
+            state.todosLosMedicamentos.push(...r.meds);
+            state.todosLosPacientes.push(...r.pacs);
+        });
+    } catch(e) {
+        console.error("Error al cargar todos los grupos:", e);
     }
 }
 
@@ -561,9 +588,9 @@ function renderHoy() {
     const diaNum = hoy.getDay();
     const localDateStr = getLocalDateString();
     
-    // Expand meds into individual timing slots
     const medHoy = [];
-    state.medicamentos.forEach(m => {
+    const listaDeMeds = (state.todosLosMedicamentos && state.todosLosMedicamentos.length > 0) ? state.todosLosMedicamentos : state.medicamentos;
+    listaDeMeds.forEach(m => {
         if (m.fechaInicio && m.fechaInicio > localDateStr) return;
         const matches = m.frecuencia === 'diaria' ||
                         (m.frecuencia === 'especifica' && m.dias?.map(Number).includes(diaNum));
@@ -578,7 +605,8 @@ function renderHoy() {
                     hora: h,
                     estado: estadoDose,
                     origId: m.id,
-                    tomaMeta: toma
+                    tomaMeta: toma,
+                    _grupoId: m._grupoId
                 });
             });
         }
@@ -624,8 +652,13 @@ function renderHoy() {
 
     const grupos = {};
     medHoy.forEach(m => {
-        if (!grupos[m.familiar]) grupos[m.familiar] = [];
-        grupos[m.familiar].push(m);
+        let nomFamiliar = m.familiar;
+        if (m._grupoId) {
+            const gInfo = state.grupos.find(g => g.id === m._grupoId);
+            if (gInfo) nomFamiliar = `${m.familiar} (${gInfo.nombre})`;
+        }
+        if (!grupos[nomFamiliar]) grupos[nomFamiliar] = [];
+        grupos[nomFamiliar].push(m);
     });
 
     lista.innerHTML = Object.entries(grupos).map(([familiar, meds]) => {
@@ -647,7 +680,7 @@ function renderHoy() {
                 </div>
             </div>
             ${meds.map(m => `
-                <div class="med-card ${m.estado || ''}" onclick="abrirModalTomaManual('${m.origId || m.id}', '${m.hora}')">
+                <div class="med-card ${m.estado || ''}" onclick="abrirModalTomaManual('${m.origId || m.id}', '${m.hora}', '${m._grupoId || state.activeGrupoId}')">
                     <div class="med-time">${m.hora}<small>${frecLabel(m)}</small></div>
                     <div class="med-info">
                         <div class="med-name">💊 ${m.nombre}</div>
@@ -1804,8 +1837,10 @@ window.eliminarPaciente = async function(id) {
 // TOMA MANUAL
 // ============================================================
 
-window.abrirModalTomaManual = function(id, hora = null) {
-    const med = state.medicamentos.find(m => m.id === id);
+window.abrirModalTomaManual = function(id, hora = null, grupoId = null) {
+    const gid = grupoId || state.activeGrupoId;
+    let med = state.medicamentos.find(m => m.id === id);
+    if (!med && state.todosLosMedicamentos) med = state.todosLosMedicamentos.find(m => m.id === id && m._grupoId === gid);
     if (!med) return;
     
     const targetHora = hora || med.hora || '08:00';
@@ -1824,20 +1859,22 @@ window.abrirModalTomaManual = function(id, hora = null) {
             ` : ''}
         </div>
         <div class="modal-btn-row" style="margin-top:20px;">
-            <button class="btn-primary pulse-btn" onclick="confirmarTomaManual('${id}', 'tomada', '${targetHora}')">✅ Confirmar Toma</button>
+            <button class="btn-primary pulse-btn" onclick="confirmarTomaManual('${id}', 'tomada', '${targetHora}', '${gid}')">✅ Confirmar Toma</button>
             <button class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
         </div>
     `);
 };
 
-window.confirmarTomaManual = async function(id, estado, hora) {
+window.confirmarTomaManual = async function(id, estado, hora, grupoId = null) {
     try {
-        const med = state.medicamentos.find(m => m.id === id);
+        const gid = grupoId || state.activeGrupoId;
+        let med = state.medicamentos.find(m => m.id === id);
+        if (!med && state.todosLosMedicamentos) med = state.todosLosMedicamentos.find(m => m.id === id && m._grupoId === gid);
         if (!med) return;
         
         const hoy = getLocalDateString();
         
-        await api('POST', `/api/grupos/${state.activeGrupoId}/marcar-toma`, {
+        await api('POST', `/api/grupos/${gid}/marcar-toma`, {
             medicamentoId: id,
             fecha: hoy,
             hora: hora,
