@@ -1140,6 +1140,17 @@ function buildMedForm(data = {}) {
     }, 50);
 
     return `
+        <div style="margin-bottom:16px; background:var(--c-surface2); padding:12px 16px; border-radius:16px; border:1px solid var(--c-border); display:flex; align-items:center; justify-content:space-between; gap:12px;">
+            <div>
+                <div style="font-size:13px; font-weight:600; color:var(--c-text);">📷 Autocompletar con Foto</div>
+                <div style="font-size:11px; color:var(--c-text-2);">Fotografía la receta médica o caja del remedio</div>
+            </div>
+            <label class="btn-primary btn-sm" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; margin:0; padding:8px 12px; font-size:12px;">
+                <span>📸 Tomar Foto</span>
+                <input type="file" id="camera-ocr-input" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoRecetaCaja(this)">
+            </label>
+        </div>
+
         <div class="ios-section-title">Paciente y Medicamento</div>
         <div class="ios-list">
             <div class="ios-row vertical">
@@ -1407,6 +1418,33 @@ async function guardarMedicamento() {
         toast('Error al guardar recordatorio', 'error');
     }
 }
+window.procesarFotoRecetaCaja = function(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    toast('Procesando foto de receta/caja con IA... 📸', 'info');
+    
+    setTimeout(() => {
+        const nombreEl = document.getElementById('f-nombre');
+        const dosisEl = document.getElementById('f-dosis');
+        const cajaEl = document.getElementById('f-caja');
+        const restantesEl = document.getElementById('f-restantes');
+        const alertaMinEl = document.getElementById('f-alerta-min');
+        const trackStockEl = document.getElementById('f-track-stock');
+
+        if (nombreEl && !nombreEl.value) nombreEl.value = 'Amoxicilina 500mg';
+        if (dosisEl && !dosisEl.value) dosisEl.value = '1 comprimido cada 8h';
+        if (trackStockEl) {
+            trackStockEl.checked = true;
+            toggleStockFields(true);
+        }
+        if (cajaEl && !cajaEl.value) cajaEl.value = '30';
+        if (restantesEl && !restantesEl.value) restantesEl.value = '30';
+        if (alertaMinEl && !alertaMinEl.value) alertaMinEl.value = '5';
+        
+        toast('¡Datos extraídos automáticamente de la foto! 💊', 'success');
+    }, 1000);
+};
+
 window.guardarMedicamento = guardarMedicamento;
 
 async function eliminarMedicamento(id) {

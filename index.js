@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Versión activa del sistema
-const APP_VERSION = 'v28';
+const APP_VERSION = 'v29';
 
 // Endpoint público para verificación de versión y auto-actualización forzada
 app.get('/api/version', (req, res) => {
@@ -361,6 +361,14 @@ app.post('/api/grupos/:grupoId/marcar-toma', authMiddleware, async (req, res) =>
                 if (ADMIN) {
                     const alerta = `⚠️ *ALERTA MediClock: Stock Bajo* ⚠️\n\nQuedan pocas unidades de *${medData.nombre}* para *${medData.familiar}*.\n\nStock actual: *${restantes}* pastillas.\n¡Por favor, reabastece el medicamento pronto!`;
                     await enviarWA(ADMIN, 'Admin', alerta);
+
+                    // Notificar también a los Guardias / Cuidadores activos
+                    const guardias = cfg.guardiasActivas || [];
+                    for (const g of guardias) {
+                        if (new Date(g.expiresAt) > new Date() && g.telefono) {
+                            await enviarWA(g.telefono, 'Guardia', alerta);
+                        }
+                    }
                 }
             }
         }
