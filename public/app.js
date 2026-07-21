@@ -685,10 +685,10 @@ function renderHoy() {
             </div>
             ${meds.map(m => `
                 <div class="med-card ${m.estado || ''}" onclick="abrirModalTomaManual('${m.origId || m.id}', '${m.hora}', '${m._grupoId || state.activeGrupoId}')">
-                    <div class="med-time">${m.hora}<small>${frecLabel(m)}</small></div>
+                    <div class="med-time">${m.hora}</div>
                     <div class="med-info">
                         <div class="med-name">💊 ${m.nombre}</div>
-                        <div class="med-dose">${m.dosis || ''}</div>
+                        <div class="med-dose">${m.dosis || ''} • 🗓️ ${frecLabel(m)}</div>
                         ${renderStockBadge(m)}
                     </div>
                     <span class="med-status ${statusClass(m.estado)}">${estadoLabel(m.estado)}</span>
@@ -705,8 +705,8 @@ function frecLabel(m) {
     return '';
 }
 function diasAbrev(dias) {
-    const n = ['D','L','M','X','J','V','S'];
-    return dias.map(d => n[d]).join('');
+    const n = ['Dom','Lun','Mar','Mié','Jue','Vie','Sáb'];
+    return dias.map(d => n[d]).join(', ');
 }
 function estadoLabel(estado) {
     const m = { tomada: '✅ Tomada', pendiente: '⏳ Pendiente', olvidada: '❌ Olvidada' };
@@ -882,7 +882,27 @@ function renderHistorial() {
 
 function renderRemedios() {
     const grid = document.getElementById('remedios-grid');
-    if (!state.biblioteca || state.biblioteca.length === 0) {
+    
+    // Unify library and active medications
+    const biblioItems = [...(state.biblioteca || [])];
+    const medsNames = new Set(biblioItems.map(b => b.nombre.toLowerCase()));
+    
+    if (state.medicamentos) {
+        state.medicamentos.forEach(m => {
+            if (!medsNames.has(m.nombre.toLowerCase())) {
+                medsNames.add(m.nombre.toLowerCase());
+                biblioItems.push({
+                    id: 'auto_' + m.id,
+                    icono: '💊',
+                    nombre: m.nombre,
+                    dosis: m.dosis,
+                    isAuto: true
+                });
+            }
+        });
+    }
+
+    if (biblioItems.length === 0) {
         grid.innerHTML = `<div class="empty-state" style="grid-column: 1/-1;">
             <div class="empty-state-icon" style="color: var(--c-primary);">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="4.5" y1="19.5" x2="19.5" y2="4.5"></line><path d="M16 3a4.24 4.24 0 0 0-6 0L3 10a4.24 4.24 0 0 0 0 6l3 3a4.24 4.24 0 0 0 6 0l7-7a4.24 4.24 0 0 0 0-6Z"></path></svg>
@@ -893,23 +913,28 @@ function renderRemedios() {
         return;
     }
 
-    const remediosHtml = state.biblioteca.map(r => `
-        <div class="remedio-card" onclick="usarRemedio('${r.id}')">
+    const remediosHtml = biblioItems.map(r => `
+        <div class="remedio-card" onclick="usarRemedio('${r.isAuto ? r.nombre : r.id}', ${r.isAuto ? 'true' : 'false'})">
             <div class="remedio-icon">${r.icono || '📅'}</div>
             <div class="remedio-name">${r.nombre}</div>
             <div class="remedio-desc">${r.dosis || ''} ${r.indicaciones ? '· ' + r.indicaciones : ''}</div>
-            <button class="remedio-del" onclick="event.stopPropagation(); eliminarRemedio('${r.id}')">🗑️</button>
+            ${r.isAuto ? '' : `<button class="remedio-del" onclick="event.stopPropagation(); eliminarRemedio('${r.id}')">🗑️</button>`}
         </div>
     `).join('');
 
     grid.innerHTML = remediosHtml;
 }
 
-function usarRemedio(id) {
-    const r = state.biblioteca.find(b => b.id === id);
+function usarRemedio(id, isAuto = false) {
+    let r;
+    if (isAuto) {
+        r = state.medicamentos.find(m => m.nombre === id);
+    } else {
+        r = state.biblioteca.find(b => b.id === id);
+    }
     if (!r) return;
-    abrirModalNuevo(r);
-}
+    abrirModalNuevo({ nombre: r.nombre, dosis: r.dosis, icono: r.icono || '💊' });
+};
 
 async function eliminarRemedio(id) {
     if (!confirm('¿Eliminar de la biblioteca?')) return;
@@ -1501,6 +1526,15 @@ function abrirModalNuevoRemedio() {
     `).join('');
 
     abrirModal('Nuevo Medicamento', `
+        <div style="margin-bottom: 20px;">
+            <button type="button" class="btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; background: linear-gradient(135deg, var(--c-primary), #A259FF); border: none; box-shadow: 0 4px 15px rgba(88, 86, 214, 0.3);" onclick="toast('La función de escanear cajas con IA estará disponible en la próxima actualización.', 'info')">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                Fotografiar Caja (Auto-completar)
+            </button>
+            <div style="text-align: center; font-size: 11px; color: var(--c-text-2); margin-top: 6px;">Usa la cámara para ingresar nombre y dosis automáticamente</div>
+        </div>
+        <div class="ios-section-title" style="margin-top:0;">O ingresar manualmente</div>
+        
         <div class="form-group">
             <label>Ícono</label>
             <div id="icono-picker" style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px;">${iconosPicker}</div>
@@ -1519,7 +1553,8 @@ function abrirModalNuevoRemedio() {
             <input type="text" id="r-indicaciones" class="form-input" placeholder="Ej: Tomar con agua">
         </div>
         <div class="modal-btn-row">
-            <button class="btn-primary" onclick="guardarRemedio()">Guardar</button>
+            <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
+            <button type="button" class="btn-primary" onclick="guardarRemedio()">Guardar</button>
         </div>
     `);
 }
@@ -1685,10 +1720,6 @@ function renderPacientes() {
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
                         Médico: ${p.medico}
                     </div>` : ''}
-                    <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
-                        <button class="btn-secondary" style="font-size:12px; padding: 6px 12px; width:100%; border-radius: 8px; border: 1px solid var(--c-green); color: var(--c-green); background: var(--c-green-dim); display:flex; align-items:center; justify-content:center; gap:6px; font-weight:600;" onclick="event.stopPropagation(); enviarAppPorWhatsAppPacienteCard('${p.nombre}', '${p.telefono || ''}')">💬 Enviar App por WhatsApp</button>
-                        <button class="btn-secondary" style="font-size:12px; padding: 6px 12px; width:100%; border-radius: 8px; border: 1px solid var(--c-primary); color: var(--c-primary);" onclick="event.stopPropagation(); generarCodigoPaciente('${p.id}')">🔗 Enlazar Teléfono (Modo Paciente)</button>
-                    </div>
                 </div>
             </div>
         `).join('');
@@ -1765,11 +1796,6 @@ window.abrirModalNuevoPaciente = function(id = null) {
         <div class="form-group">
             <label>Médico Tratante (Opcional)</label>
             <input type="text" id="p-medico" class="form-input" placeholder="Nombre o teléfono" value="${p.medico || ''}">
-        </div>
-        <div style="margin-top:12px; border-top:1px solid var(--c-border); padding-top:12px;">
-            <button type="button" class="btn-secondary" style="width:100%; border:1px solid var(--c-green); color:var(--c-green); background:var(--c-green-dim); display:flex; align-items:center; justify-content:center; gap:8px; font-weight:600; padding:10px;" onclick="enviarAppPorWhatsAppPacienteForm()">
-                Enviar enlace por WhatsApp
-            </button>
         </div>
         <div class="modal-btn-row" style="margin-top:14px;">
             <button type="button" class="btn-secondary" onclick="cerrarModal()">Cancelar</button>
