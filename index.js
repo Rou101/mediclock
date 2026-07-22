@@ -98,10 +98,11 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
         }
 
         let doctor = '';
+        let paciente = '';
         let medicamento = '';
         let dosis = '';
         let tomasDia = 2; // Predeterminado
-        let duracion = '30 días';
+        let duracion = '10 días';
         let comidaRel = 'Sin relación específica con comidas';
 
         const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
@@ -110,30 +111,45 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
         const docLine = lines.find(l => /dr\b|dra\b|doctor|medico/i.test(l));
         if (docLine) doctor = docLine;
 
-        // 2. Detección de Frecuencia
+        // 2. Detección del Paciente
+        const pacienteLine = lines.find(l => /paciente:|para:|nombre:|sr\(a\):|pt:/i.test(l));
+        if (pacienteLine) {
+            paciente = pacienteLine.replace(/paciente:|para:|nombre:|sr\(a\):|pt:/i, '').trim();
+        } else {
+            // Intentar detectar una línea con nombre propio si contiene 'juan', 'maria', etc.
+            const nameLine = lines.find(l => /juan|perez|maria|gonzalez|rodriguez|carlos|pedro|ana|jose/i.test(l) && !/dr\b|dra\b/i.test(l));
+            if (nameLine) paciente = nameLine;
+        }
+
+        // 3. Detección de Frecuencia (Tomas al día)
+        const freq4 = /cada\s*4\s*horas?/i.test(rawText);
         const freq6 = /cada\s*6\s*horas?/i.test(rawText);
         const freq8 = /cada\s*8\s*horas?/i.test(rawText);
         const freq12 = /cada\s*12\s*horas?/i.test(rawText);
         const freq24 = /cada\s*24\s*horas?|1\s*al\s*d[ií]a|diaria/i.test(rawText);
 
-        if (freq6) tomasDia = 4;
+        if (freq4) tomasDia = 6;
+        else if (freq6) tomasDia = 4;
         else if (freq8) tomasDia = 3;
         else if (freq12) tomasDia = 2;
         else if (freq24) tomasDia = 1;
 
-        // 3. Detección de Duración
+        // 4. Detección de Duración (Cantidad de días)
         const diasMatch = rawText.match(/(\d+)\s*d[ií]as?/i);
+        const semanasMatch = rawText.match(/(\d+)\s*semanas?/i);
         if (diasMatch) {
             duracion = `${diasMatch[1]} días`;
+        } else if (semanasMatch) {
+            duracion = `${parseInt(semanasMatch[1]) * 7} días`;
         }
 
-        // 4. Detección de Dosis (ej. 500 MG, 5 MG, 40 MG, 20 MG)
+        // 5. Detección de Dosis (ej. 500 MG, 5 MG, 40 MG, 20 MG)
         const dosisMatch = rawText.match(/(\d+\s*(mg|g|ml|comprimidos?|pastillas?))/i);
         if (dosisMatch) {
             dosis = dosisMatch[0].toUpperCase();
         }
 
-        // 5. Extracción Real del Medicamento
+        // 6. Extracción Real del Medicamento
         const knownMeds = ['ASPIRINA', 'LEVORIGOTAX', 'LOSARTAN', 'ATORVASTATINA', 'ENALAPRIL', 'METFORMINA', 'PARACETAMOL', 'IBUPROFENO', 'AMOXICILINA', 'OMEPRAZOL', 'KETOROLACO', 'CIALIS', 'VIAGRA', 'SILDENAFILO', 'TADALAFILO'];
         const foundKnown = knownMeds.find(km => rawText.toUpperCase().includes(km));
 
@@ -154,6 +170,7 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
             success: true,
             rawText,
             doctor: doctor || '',
+            paciente: paciente || '',
             medicamento: medicamento || '',
             dosis: dosis || '',
             tomasDia,

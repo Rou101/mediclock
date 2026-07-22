@@ -467,32 +467,19 @@
 </head>
 <body>
 
-    <!-- HEADER & NAVBAR -->
-    <header class="pro-header">
+    <!-- HEADER & NAVBAR OPTIMIZADO PARA MÓVIL CON INSIGNIA VERDE v16.1 -->
+    <header class="pro-header" style="padding: 12px 16px;">
         <div class="brand">
             <div class="brand-logo">M</div>
-            <div>
-                <span class="brand-title">MediClock</span>
-                <span class="brand-badge">PRO</span>
+            <div style="display:flex; align-items:center; gap:6px;">
+                <span class="brand-title" style="font-size:18px;">MediClock</span>
+                <span style="background:#10B981; color:#000; font-weight:800; padding:3px 8px; border-radius:8px; font-size:12px; box-shadow:0 0 10px rgba(16,185,129,0.5);">v16.1</span>
             </div>
         </div>
 
-        <!-- PESTAÑAS DE NAVEGACIÓN PRINCIPAL -->
-        <nav class="pro-nav-tabs">
-            <button class="tab-btn active" id="tab-btn-prescripcion" onclick="switchTab('prescripcion')">
-                Prescripción Express IA
-            </button>
-            <button class="tab-btn" id="tab-btn-adherencia" onclick="switchTab('adherencia')">
-                Mis Pacientes & Semáforo
-            </button>
-        </nav>
-
         <div class="doctor-profile">
-            <div class="avatar">DR</div>
-            <div style="display:flex; flex-direction:column;">
-                <span style="font-size:13px; font-weight:700;">Dr. Francisco Pérez</span>
-                <span style="font-size:11px; color:var(--c-text-sub);">Cardiología</span>
-            </div>
+            <div class="avatar" style="width:34px; height:34px; font-size:13px;">DR</div>
+            <span style="font-size:13px; font-weight:700;">Dr. F. Pérez</span>
         </div>
     </header>
 
@@ -814,6 +801,10 @@
                         const data = await res.json();
 
                         if (data.success) {
+                            if (data.paciente) {
+                                document.getElementById('p-nombre').value = data.paciente;
+                                document.getElementById('p-nombre').style.borderColor = "var(--c-green)";
+                            }
                             if (data.medicamento) {
                                 document.getElementById('m-nombre').value = data.medicamento;
                                 document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
