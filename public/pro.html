@@ -827,6 +827,10 @@
 Horarios de toma: ${horariosList}
 Indicaciones: ${comidaRel}${indicacion ? '\nNota del Doctor: ' + indicacion : ''}
 
+🛒 *¿Necesitas comprar el medicamento?*
+Obtén 15% DCTO en Farmacia asociada comprando directamente aquí:
+https://farmacia.cl/compra?med=${encodeURIComponent(med)}&cupo=MEDICLOCK15
+
 Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Por favor responde OK para confirmar la primera toma.`;
             
             const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textMsg)}`;
