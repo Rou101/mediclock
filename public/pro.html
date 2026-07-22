@@ -587,7 +587,7 @@
 
     <!-- BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B) -->
     <aside class="vertical-sidebar">
-        <!-- SECCIÓN SUPERIOR CON NAVEGACIÓN Y BOTONES MÁS GRANDES -->
+        <!-- SECCIÓN SUPERIOR CON MARCA Y LOGO -->
         <div>
             <!-- LOGO Y MARCA -->
             <div class="brand-box">
@@ -596,16 +596,6 @@
                     <span class="brand-title">MediClock Pro</span>
                     <div><span class="version-tag">v28.0 CHROME B2B</span></div>
                 </div>
-            </div>
-
-            <!-- BOTONES PRINCIPALES DE ACCIÓN (MÁS GRANDES Y DEL MISMO TAMAÑO) -->
-            <div class="sidebar-menu">
-                <button type="button" class="btn-sidebar-main" onclick="closeDispatchModal()">
-                    Nueva Prescripción
-                </button>
-                <button type="button" class="btn-sidebar-main btn-sidebar-secondary" onclick="openSearchModal()">
-                    Buscar Prescripciones Enviadas
-                </button>
             </div>
         </div>
 
@@ -693,6 +683,16 @@
                         </div>
                     </div>
 
+                    <!-- ACCIONES DE PRESCRIPCIÓN AL FINAL DE LA SECCIÓN IZQUIERDA -->
+                    <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--c-border); display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                        <button type="button" class="btn-aux" style="justify-content:center; padding:12px; font-size:12px; font-weight:700; background:rgba(56, 189, 248, 0.1); border-color:var(--c-primary);" onclick="closeDispatchModal()">
+                            ✨ Nueva Prescripción
+                        </button>
+                        <button type="button" class="btn-aux" style="justify-content:center; padding:12px; font-size:12px; font-weight:700;" onclick="openSearchModal()">
+                            🔍 Buscar Prescripciones
+                        </button>
+                    </div>
+
                 </section>
 
                 <!-- COLUMNA DERECHA REFORMADA: INDICACIONES DEL MÉDICO (SIMÉTRICO Y EXPANSIVO) -->
@@ -704,9 +704,9 @@
                             </h2>
                         </div>
 
-                        <!-- ÁREA DE TEXTO MAYOR Y BOTONERA SIMÉTRICA -->
+                        <!-- ÁREA DE TEXTO DUPLICADA DE TAMAÑO (340px) Y BOTONERA SIMÉTRICA -->
                         <div class="form-group" style="margin-bottom:20px; display:flex; flex-direction:column;">
-                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="min-height:180px;" placeholder="Escribe o pega las indicaciones médicas aquí..." required></textarea>
+                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="min-height:340px;" placeholder="Escribe o pega las indicaciones médicas aquí..." required></textarea>
                             
                             <!-- BARRA DE ACCIÓN: ADJUNTAR ARCHIVO (SIN IA) & TRANSCRIBIR RECETA -->
                             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex-wrap:wrap; gap:10px;">
