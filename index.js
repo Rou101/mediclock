@@ -40,125 +40,123 @@ app.get('/api/version', (req, res) => {
 });
 
 // ===========================================
-// API: PRO OCR RECETAS Y MEDICAMENTOS (Cloud Vision & Fail-safe Parser)
+// API: PRO OCR RECETAS Y MEDICAMENTOS (Google Cloud Vision Real)
 // ===========================================
 app.post('/api/pro/scan-prescription', async (req, res) => {
     try {
         const { imageBase64 } = req.body || {};
         if (!imageBase64) {
-            return res.status(400).json({ error: 'No image provided' });
+            return res.status(400).json({ success: false, error: 'No se recibió la imagen para analizar.' });
         }
 
         const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-        let rawText = '';
-        try {
-            // Attempt Google Auth Access Token & Vision API OCR
-            const client = await googleAuthClient.getClient();
-            const tokenResponse = await client.getAccessToken();
-            const accessToken = tokenResponse.token;
+        // Obtener Access Token de Google Cloud SDK
+        const client = await googleAuthClient.getClient();
+        const tokenResponse = await client.getAccessToken();
+        const accessToken = tokenResponse.token;
 
-            const visionUrl = 'https://vision.googleapis.com/v1/images:annotate';
-            const visionRes = await axios.post(visionUrl, {
-                requests: [
-                    {
-                        image: { content: cleanBase64 },
-                        features: [{ type: 'DOCUMENT_TEXT_DETECTION' }]
-                    }
-                ]
-            }, {
-                headers: {
-                    'Authorization': `Bearer ${accessToken}`,
-                    'Content-Type': 'application/json'
-                },
-                timeout: 8000
+        // Llamada a la API oficial de Google Cloud Vision (DOCUMENT_TEXT_DETECTION)
+        const visionUrl = 'https://vision.googleapis.com/v1/images:annotate';
+        const visionRes = await axios.post(visionUrl, {
+            requests: [
+                {
+                    image: { content: cleanBase64 },
+                    features: [{ type: 'DOCUMENT_TEXT_DETECTION' }]
+                }
+            ]
+        }, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            timeout: 10000
+        });
+
+        const fullAnnotation = visionRes.data?.responses?.[0]?.fullTextAnnotation;
+        const rawText = fullAnnotation ? fullAnnotation.text : (visionRes.data?.responses?.[0]?.textAnnotations?.[0]?.description || '');
+
+        console.log(`[OCR Real Google Vision - Texto Detectado]:\n${rawText}`);
+
+        if (!rawText || rawText.trim().length === 0) {
+            return res.json({
+                success: false,
+                error: 'No se logró detectar texto en la imagen. Por favor asegúrese de que la foto esté enfocada e iluminada.'
             });
-
-            const fullAnnotation = visionRes.data?.responses?.[0]?.fullTextAnnotation;
-            rawText = fullAnnotation ? fullAnnotation.text : (visionRes.data?.responses?.[0]?.textAnnotations?.[0]?.description || '');
-            console.log(`[OCR Receta Vision Extraído]:\n${rawText}`);
-        } catch (visionErr) {
-            console.error('[Vision API Fallback/Warn]:', visionErr.message || visionErr);
-            rawText = "DRA ROSA MELTROZO PROCTOLOGA 1 CIALIS DE 40 MG 10 DIAS CADA 12 HORAS";
         }
 
         let doctor = '';
         let medicamento = '';
         let dosis = '';
-        let tomasDia = 2; // Default
-        let duracion = '10 días';
+        let tomasDia = 2; // Predeterminado
+        let duracion = '30 días';
         let comidaRel = 'Sin relación específica con comidas';
 
         const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
 
-        // 1. Doctor Detection
+        // 1. Detección del Doctor
         const docLine = lines.find(l => /dr\b|dra\b|doctor|medico/i.test(l));
         if (docLine) doctor = docLine;
-        else if (rawText.includes('ROSA MELTROZO')) doctor = 'DRA ROSA MELTROZO (PROCTOLOGA)';
 
-        // 2. Frecuencia Detection
+        // 2. Detección de Frecuencia
         const freq6 = /cada\s*6\s*horas?/i.test(rawText);
         const freq8 = /cada\s*8\s*horas?/i.test(rawText);
         const freq12 = /cada\s*12\s*horas?/i.test(rawText);
-        const freq24 = /cada\s*24\s*horas?|1\s*al\s*dia|diaria/i.test(rawText);
+        const freq24 = /cada\s*24\s*horas?|1\s*al\s*d[ií]a|diaria/i.test(rawText);
 
         if (freq6) tomasDia = 4;
         else if (freq8) tomasDia = 3;
         else if (freq12) tomasDia = 2;
         else if (freq24) tomasDia = 1;
 
-        // 3. Duración (e.g. "10 DIAS", "14 DIAS", "7 DIAS")
+        // 3. Detección de Duración
         const diasMatch = rawText.match(/(\d+)\s*d[ií]as?/i);
         if (diasMatch) {
             duracion = `${diasMatch[1]} días`;
         }
 
-        // 4. Dosis Detection (e.g. "40 MG", "500 MG", "5 MG")
+        // 4. Detección de Dosis (ej. 500 MG, 5 MG, 40 MG, 20 MG)
         const dosisMatch = rawText.match(/(\d+\s*(mg|g|ml|comprimidos?|pastillas?))/i);
         if (dosisMatch) {
             dosis = dosisMatch[0].toUpperCase();
         }
 
-        // 5. Medicamento Detection
-        const knownMeds = ['CIALIS', 'ASPIRINA', 'LEVORIGOTAX', 'LOSARTAN', 'ATORVASTATINA', 'ENALAPRIL', 'METFORMINA', 'PARACETAMOL', 'IBUPROFENO', 'AMOXICILINA', 'OMEPRAZOL', 'KETOROLACO', 'VIAGRA', 'SILDENAFILO', 'TADALAFILO'];
+        // 5. Extracción Real del Medicamento
+        const knownMeds = ['ASPIRINA', 'LEVORIGOTAX', 'LOSARTAN', 'ATORVASTATINA', 'ENALAPRIL', 'METFORMINA', 'PARACETAMOL', 'IBUPROFENO', 'AMOXICILINA', 'OMEPRAZOL', 'KETOROLACO', 'CIALIS', 'VIAGRA', 'SILDENAFILO', 'TADALAFILO'];
         const foundKnown = knownMeds.find(km => rawText.toUpperCase().includes(km));
 
         if (foundKnown) {
             medicamento = foundKnown.charAt(0).toUpperCase() + foundKnown.slice(1).toLowerCase();
         } else {
+            // Filtrar líneas de encabezado para obtener la línea principal del remedio
             const medCandidates = lines.filter(l => 
-                !/dr\b|dra\b|proctologo|proctologa|cardiologo|cada|horas|mg\b|dias\b/i.test(l) && l.length > 3
+                !/dr\b|dra\b|proctologo|proctologa|cardiologo|cada|horas|mg\b|dias\b/i.test(l) && l.length > 2
             );
             if (medCandidates.length > 0) {
                 medicamento = medCandidates[0];
             } else {
-                medicamento = 'Cialis';
+                medicamento = '';
             }
         }
 
         return res.json({
             success: true,
             rawText,
-            doctor: doctor || 'DRA ROSA MELTROZO (PROCTOLOGA)',
-            medicamento: medicamento || 'Cialis',
-            dosis: dosis || '40 MG',
+            doctor: doctor || '',
+            medicamento: medicamento || '',
+            dosis: dosis || '',
             tomasDia,
-            duracion: duracion || '10 días',
+            duracion,
             comidaRel,
-            indicacion: doctor ? `Recetado por ${doctor}` : 'Recetado por DRA ROSA MELTROZO (PROCTOLOGA)'
+            indicacion: doctor ? `Recetado por ${doctor}` : ''
         });
 
     } catch (err) {
-        console.error('[OCR Error Fatal]:', err.message);
-        return res.json({
-            success: true,
-            doctor: 'DRA ROSA MELTROZO (PROCTOLOGA)',
-            medicamento: 'Cialis',
-            dosis: '40 MG',
-            tomasDia: 2,
-            duracion: '10 días',
-            comidaRel: 'Sin relación específica con comidas',
-            indicacion: 'Recetado por DRA ROSA MELTROZO (PROCTOLOGA)'
+        console.error('[OCR Error Server]:', err.response?.data || err.message);
+        return res.status(500).json({ 
+            success: false, 
+            error: 'Ocurrió un error en el servidor OCR de Google Vision.', 
+            details: err.message 
         });
     }
 });

@@ -763,39 +763,38 @@
                         });
                         const data = await res.json();
 
-                        const medVal = data.medicamento || "Cialis";
-                        const dosisVal = data.dosis || "40 MG";
-                        const tomasVal = data.tomasDia || 2;
-                        const indicVal = data.indicacion || "Recetado por DRA ROSA MELTROZO (PROCTOLOGA)";
-
-                        document.getElementById('m-nombre').value = medVal;
-                        document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
-                        document.getElementById('m-dosis').value = dosisVal;
-                        document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
-                        document.getElementById('m-tomas-dia').value = tomasVal.toString();
-                        document.getElementById('m-indicacion').value = indicVal;
-
-                        if (data.duracion) {
-                            const mDias = document.getElementById('m-dias');
-                            for (let opt of mDias.options) {
-                                if (opt.value.includes(data.duracion.split(' ')[0])) {
-                                    opt.selected = true;
-                                    break;
+                        if (data.success) {
+                            if (data.medicamento) {
+                                document.getElementById('m-nombre').value = data.medicamento;
+                                document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
+                            }
+                            if (data.dosis) {
+                                document.getElementById('m-dosis').value = data.dosis;
+                                document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
+                            }
+                            if (data.tomasDia) {
+                                document.getElementById('m-tomas-dia').value = data.tomasDia.toString();
+                                calcularHorariosProgramados();
+                            }
+                            if (data.duracion) {
+                                const mDias = document.getElementById('m-dias');
+                                for (let opt of mDias.options) {
+                                    if (opt.value.includes(data.duracion.split(' ')[0])) {
+                                        opt.selected = true;
+                                        break;
+                                    }
                                 }
                             }
+                            if (data.indicacion) {
+                                document.getElementById('m-indicacion').value = data.indicacion;
+                            }
+                            showToast(`✨ Prescripción leída: ${data.medicamento || 'Medicamento detectado'}`);
+                        } else {
+                            showToast(data.error || "No se logró procesar el texto de la imagen.");
                         }
-
-                        calcularHorariosProgramados();
-                        showToast(`✨ Prescripción leída: ${medVal} ${dosisVal}`);
                     } catch (err) {
                         console.error("Error en OCR:", err);
-                        document.getElementById('m-nombre').value = "Cialis";
-                        document.getElementById('m-dosis').value = "40 MG";
-                        document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
-                        document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
-                        document.getElementById('m-indicacion').value = "Recetado por DRA ROSA MELTROZO (PROCTOLOGA)";
-                        calcularHorariosProgramados();
-                        showToast("✨ Prescripción leída: Cialis 40 MG");
+                        showToast("Error de conexión al analizar foto.");
                     }
                 };
                 img.src = e.target.result;
