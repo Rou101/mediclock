@@ -234,15 +234,28 @@ Responde únicamente con el JSON.`;
 });
 
 // ===========================================
-// API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP (PACIENTE + TUTOR)
+// API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP (MULTI-MEDICAMENTO + TUTOR + DOCTOR CONTACT)
 // ===========================================
 app.post('/api/pro/prescribir', async (req, res) => {
     try {
-        const { paciente, phone, fechaEmision, tutorNombre, tutorPhone, med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion, fotoBase64 } = req.body || {};
+        const { paciente, phone, fechaEmision, tutorNombre, tutorPhone, medicamentos, med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion, fotoBase64, docContactActive, docPhone, docNotaEmergency } = req.body || {};
 
-        if (!paciente || !phone || !med) {
-            return res.status(400).json({ error: 'Faltan campos obligatorios (paciente, teléfono, medicamento)' });
+        if (!paciente || !phone) {
+            return res.status(400).json({ error: 'Faltan campos obligatorios (paciente y teléfono)' });
         }
+
+        // Si viene un solo medicamento en lugar del arreglo multi-medicamentos, convertirlo a arreglo
+        let medsList = Array.isArray(medicamentos) && medicamentos.length > 0 ? medicamentos : [{
+            nombre: med || 'Medicamento',
+            dosis: dosis || '',
+            cantPastillas: cantPastillas || 1,
+            tomasDia: parseInt(tomasDia) || 2,
+            horaInicio: horaInicio || '08:00',
+            comidaRel: comidaRel || 'Sin relación específica con comidas',
+            duracion: parseInt(duracion) || 10,
+            indicacion: indicacion || '',
+            descuentoPct: 15
+        }];
 
         const telLimpio = phone.replace(/\D/g, '');
         const telTutorLimpio = (tutorPhone || '').replace(/\D/g, '');
@@ -255,32 +268,46 @@ app.post('/api/pro/prescribir', async (req, res) => {
             fechaEmision: fechaEmision || new Date().toISOString().split('T')[0],
             tutorNombre: tutorNombre || '',
             tutorTelefono: telTutorLimpio ? '+' + telTutorLimpio : '',
-            nombre: med,
-            dosis: dosis || '',
-            cantPastillas: cantPastillas || '1 pastilla',
-            tomasDia: parseInt(tomasDia) || 2,
-            hora: horaInicio || '08:00',
-            indicacion: indicacion || '',
-            comidaRel: comidaRel || '',
-            duracion: duracion || '10 días',
+            medicamentos: medsList,
+            docContactActive: !!docContactActive,
+            docPhone: docPhone || '',
+            docNotaEmergency: docNotaEmergency || '',
             fotoReceta: fotoBase64 || '',
             doctor: 'Dr. Francisco Pérez',
             creadoEn: new Date().toISOString()
         });
 
-        // 2. Formatear mensaje para WhatsApp Paciente
-        const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision || 'Hoy'}* para tu tratamiento de *${med} (${dosis})*.
+        // 2. Formatear detalle de medicamentos
+        let medsDetalle = '';
+        medsList.forEach((m, idx) => {
+            const desc = m.descuentoPct || 15;
+            medsDetalle += `\n💊 *Medicamento ${idx + 1}:* ${m.nombre} (${m.dosis})
+   - *Tomas:* ${m.tomasDia} vez(veces) al día (${m.cantPastillas} unidad/es por toma)
+   - *Primera toma:* ${m.horaInicio} (${m.comidaRel})
+   - *Duración:* ${m.duracion} días
+   - 🛒 *Descuento Farmacia:* ${desc}% DCTO -> https://farmacia.cl/compra?med=${encodeURIComponent(m.nombre)}&cupo=MEDICLOCK${desc}`;
+            if (m.indicacion) {
+                medsDetalle += `\n   - 📝 *Nota:* ${m.indicacion}`;
+            }
+        });
 
-⏰ *Tomas al día:* ${tomasDia} toma(s) de ${cantPastillas} (Primera toma: ${horaInicio})
-🍽️ *Indicaciones:* ${comidaRel}${indicacion ? '\n📝 *Nota del Doctor:* ' + indicacion : ''}
+        // Bloque opcional de contacto del médico
+        let docContactoBloque = '';
+        if (docContactActive) {
+            docContactoBloque = `\n\n📞 *Contacto del Médico & Emergencias Centro Médico:*
+- Dr. Francisco Pérez (Cardiología)
+- Teléfono / Urgencias: ${docPhone || '+569 0000 0000'}
+- Recomendación: ${docNotaEmergency || 'Acudir al centro de urgencias más cercano en caso de síntoma agudo.'}`;
+        }
 
-🛒 *¿Necesitas comprar el medicamento?*
-Obtén 15% DCTO en Farmacia asociada comprando directamente aquí:
-https://farmacia.cl/compra?med=${encodeURIComponent(med)}&cupo=MEDICLOCK15
+        // 3. Formatear mensaje para WhatsApp Paciente
+        const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision || 'Hoy'}*.
+
+📋 *Detalle de Tratamiento:*${medsDetalle}${docContactoBloque}
 
 🔒 *Privacidad & Seguridad MediClock:* Datos cifrados bajo Google Cloud / Firebase. Sin uso de IA para lectura de datos sensibles. Responde *OK* para confirmar.`;
 
-        // 3. Despachar mensaje por WhatsApp API Meta al Paciente
+        // Despachar a Paciente
         await enviarWA('+' + telLimpio, paciente, mensajeWA);
 
         // 4. Despachar a Tutor si está presente
@@ -288,9 +315,8 @@ https://farmacia.cl/compra?med=${encodeURIComponent(med)}&cupo=MEDICLOCK15
             const mensajeTutor = `🔔 *MediClock Pro - Aviso a Tutor/Cuidador Responsable* 🔔
 Hola ${tutorNombre || 'Cuidador'}, el Dr. Francisco Pérez ha registrado el tratamiento médico de *${paciente}*:
 
-💊 *Medicamento:* ${med} (${dosis}) - ${cantPastillas} por toma, ${tomasDia} veces al día.
 📅 *Fecha Receta:* ${fechaEmision || 'Hoy'}
-⏱️ *Duración:* ${duracion}.
+📋 *Resumen de Medicamentos:*${medsDetalle}${docContactoBloque}
 
 🔒 *Privacidad & Seguridad:* Información protegida y cifrada en Google Cloud / Firebase. Sin uso de IA de lectura. Recibirás notificaciones si ${paciente} requiere asistencia con sus dosis.`;
             await enviarWA('+' + telTutorLimpio, tutorNombre || 'Tutor', mensajeTutor);

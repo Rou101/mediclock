@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>MediClock Pro v18.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
+    <title>MediClock Pro v19.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
     
     <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -211,15 +211,59 @@
         }
 
         .field-textarea {
-            min-height: 100px;
+            min-height: 90px;
             resize: vertical;
+        }
+
+        /* BOTONES AUXILIARES Y DIVERSOS */
+        .btn-aux {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px dashed var(--c-border);
+            color: var(--c-primary);
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-aux:hover {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: var(--c-primary);
+        }
+
+        .btn-add-med {
+            background: rgba(16, 185, 129, 0.12);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: var(--c-green);
+            width: 100%;
+            padding: 14px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 24px;
+        }
+
+        .btn-add-med:hover {
+            background: rgba(16, 185, 129, 0.22);
+            border-color: var(--c-green);
         }
 
         /* SECCIÓN ADJUNTAR FOTO RECETA */
         .attachment-box {
             border: 2px dashed var(--c-border);
             border-radius: var(--radius-lg);
-            padding: 24px;
+            padding: 20px;
             text-align: center;
             background: rgba(0, 0, 0, 0.2);
             transition: all 0.3s ease;
@@ -260,15 +304,15 @@
             background: rgba(56, 189, 248, 0.12);
             border: 1px solid rgba(56, 189, 248, 0.3);
             color: var(--c-primary);
-            padding: 10px 16px;
+            padding: 8px 14px;
             border-radius: var(--radius-md);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            margin-right: 10px;
-            margin-bottom: 10px;
+            gap: 6px;
+            margin-right: 8px;
+            margin-bottom: 8px;
         }
 
         /* MODAL POPUP REPORTE */
@@ -291,7 +335,7 @@
             background: #111827;
             border: 1px solid var(--c-primary);
             border-radius: var(--radius-xl);
-            max-width: 600px;
+            max-width: 650px;
             width: 100%;
             padding: 36px;
             box-shadow: 0 30px 80px rgba(0,0,0,0.8);
@@ -317,6 +361,16 @@
             transform: translateY(0);
             opacity: 1;
         }
+
+        /* CARD DE MEDICAMENTO DINÁMICO */
+        .med-block-card {
+            background: rgba(0, 0, 0, 0.25);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            margin-bottom: 20px;
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -327,7 +381,7 @@
             <div class="brand-icon">M</div>
             <div>
                 <span class="brand-title">MediClock Pro</span>
-                <span class="version-tag">v18.0 CHROME B2B</span>
+                <span class="version-tag">v19.0 CHROME B2B</span>
             </div>
         </div>
 
@@ -343,25 +397,25 @@
     <!-- CONTENEDOR PRINCIPAL 2 COLUMNAS WIDE -->
     <main class="desktop-container">
         
-        <!-- COLUMNA IZQUIERDA: DATOS PACIENTE, TUTOR Y RESPALDO FOTO -->
+        <!-- COLUMNA IZQUIERDA: FICHA PACIENTE, RESPALDO FOTO Y CONTACTO DOCTOR -->
         <section class="glass-card">
             <h2 class="card-header-title">
-                <span>👤</span> 1. Ficha del Paciente & Tutor Responsable
+                <span>👤</span> 1. Ficha del Paciente & tutor
             </h2>
 
             <form id="pro-prescription-form" onsubmit="activarTratamiento(event)">
                 
-                <!-- NOMBRE Y APELIDO PACIENTE -->
+                <!-- NOMBRE Y APELLIDO PACIENTE (SIN PLACEHOLDER) -->
                 <div class="form-group">
                     <label class="field-label">Nombre y Apellido del Paciente *</label>
-                    <input type="text" id="p-nombre" class="field-input" placeholder="Ej: Juan Carlos Pérez González" required>
+                    <input type="text" id="p-nombre" class="field-input" required>
                 </div>
 
                 <div class="form-row">
-                    <!-- TELÉFONO WHATSAPP PACIENTE -->
+                    <!-- TELÉFONO WHATSAPP PACIENTE (SIN PLACEHOLDER) -->
                     <div class="form-group" style="margin-bottom:0;">
                         <label class="field-label">WhatsApp del Paciente *</label>
-                        <input type="tel" id="p-phone" class="field-input" placeholder="+569 1234 5678" value="+56957838682" required>
+                        <input type="tel" id="p-phone" class="field-input" value="+56957838682" required>
                     </div>
 
                     <!-- FECHA DE EMISIÓN DE LA RECETA -->
@@ -371,29 +425,33 @@
                     </div>
                 </div>
 
-                <hr style="border:0; border-top:1px solid var(--c-border); margin:24px 0;">
+                <!-- SECCIÓN Y BOTÓN DE AGREGAR TUTOR O CUIDADOR -->
+                <div style="margin:20px 0;">
+                    <button type="button" class="btn-aux" id="btn-toggle-tutor" onclick="toggleTutorFields()">
+                        <span>+</span> Agregar Tutor o Cuidador Responsable
+                    </button>
+                </div>
 
-                <h3 style="font-size:15px; font-weight:700; color:var(--c-accent); margin-bottom:16px;">
-                    👨‍👩‍👦 Tutor o Cuidador Responsable (Opcional)
-                </h3>
-
-                <div class="form-row">
-                    <!-- NOMBRE DEL TUTOR -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Nombre del Tutor / Apoderado</label>
-                        <input type="text" id="tutor-nombre" class="field-input" placeholder="Ej: María Pérez (Hija / Cuidador)">
-                    </div>
-
-                    <!-- WHATSAPP DEL TUTOR -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">WhatsApp del Tutor</label>
-                        <input type="tel" id="tutor-phone" class="field-input" placeholder="+569 8765 4321">
+                <!-- CONTENEDOR COLAPSABLE DE TUTOR -->
+                <div id="tutor-fields-container" style="display:none; background:rgba(0,0,0,0.25); padding:18px; border-radius:var(--radius-lg); border:1px solid var(--c-border); margin-bottom:20px;">
+                    <h3 style="font-size:14px; font-weight:700; color:var(--c-accent); margin-bottom:14px;">
+                        👨‍👩‍👦 Datos del Tutor o Cuidador
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="field-label">Nombre del Tutor</label>
+                            <input type="text" id="tutor-nombre" class="field-input">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="field-label">WhatsApp del Tutor</label>
+                            <input type="tel" id="tutor-phone" class="field-input">
+                        </div>
                     </div>
                 </div>
 
-                <hr style="border:0; border-top:1px solid var(--c-border); margin:24px 0;">
+                <hr style="border:0; border-top:1px solid var(--c-border); margin:20px 0;">
 
-                <h3 style="font-size:15px; font-weight:700; color:var(--c-text); margin-bottom:16px;">
+                <h3 style="font-size:14px; font-weight:700; color:var(--c-text); margin-bottom:12px;">
                     📷 Respaldo Visual de la Receta (Adjunto)
                 </h3>
 
@@ -401,105 +459,65 @@
                 <input type="file" id="recipe-photo-file" accept="image/*" style="display:none;" onchange="previewRecipePhoto(this)">
                 <div class="attachment-box" onclick="document.getElementById('recipe-photo-file').click()">
                     <div id="photo-placeholder">
-                        <span style="font-size:24px; display:block; margin-bottom:8px;">📎</span>
-                        <span style="font-size:14px; font-weight:700; color:var(--c-primary);">Adjuntar Fotografía de la Receta Impresa / Caja</span>
-                        <span style="font-size:12px; color:var(--c-text-sub); display:block; margin-top:4px;">Haz clic para cargar imagen de respaldo para la ficha médica</span>
+                        <span style="font-size:22px; display:block; margin-bottom:6px;">📎</span>
+                        <span style="font-size:13px; font-weight:700; color:var(--c-primary);">Adjuntar Imagen de la Receta / Caja</span>
                     </div>
-                    <img id="attached-photo-preview" style="display:none; max-height:180px; margin:0 auto; border-radius:var(--radius-md); border:1px solid var(--c-primary);" alt="Receta adjunta">
+                    <img id="attached-photo-preview" style="display:none; max-height:160px; margin:0 auto; border-radius:var(--radius-md); border:1px solid var(--c-primary);" alt="Receta adjunta">
                 </div>
+
+                <hr style="border:0; border-top:1px solid var(--c-border); margin:24px 0;">
+
+                <!-- NUEVA SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS (ESPACIO INFERIOR FICHA) -->
+                <div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
+                        <h3 style="font-size:14px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:8px;">
+                            <span>📞</span> Compartir Contacto del Médico & Emergencias
+                        </h3>
+                        <input type="checkbox" id="toggle-doc-contact" style="width:20px; height:20px; cursor:pointer;" onchange="toggleDocContactFields(this)">
+                    </div>
+                    <p style="font-size:12px; color:var(--c-text-sub); margin-bottom:14px;">
+                        Activa esta casilla si deseas adjuntar tus datos de contacto directo o anexo de emergencias en el mensaje del paciente.
+                    </p>
+
+                    <div id="doc-contact-fields" style="display:none;">
+                        <div class="form-group">
+                            <label class="field-label">Teléfono de Contacto / Anexo Urgencias</label>
+                            <input type="text" id="doc-phone" class="field-input" value="+569 5783 8682">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="field-label">Indicación / Horario de Emergencias Centro Médico</label>
+                            <textarea id="doc-nota-emergency" class="field-textarea" style="min-height:70px;">Atención de urgencias 24/7 en Centro Médico. En caso de síntoma agudo acudir al servicio más cercano.</textarea>
+                        </div>
+                    </div>
+                </div>
+
         </section>
 
-        <!-- COLUMNA DERECHA: PRESCRIPCIÓN DEL MEDICAMENTO E ITINERARIO -->
+        <!-- COLUMNA DERECHA: PRESCRIPCIÓN DEL MEDICAMENTO E ITINERARIO (MULTI-MEDICAMENTO) -->
         <section class="glass-card">
             <h2 class="card-header-title">
-                <span>💊</span> 2. Prescripción del Tratamiento Médico
+                <span>💊</span> 2. Prescripción del Tratamiento (Multi-Medicamento)
             </h2>
 
-                <div class="form-row">
-                    <!-- NOMBRE MEDICAMENTO -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Nombre del Medicamento *</label>
-                        <input type="text" id="m-nombre" class="field-input" placeholder="Ej: Losartán / Aspirina / Cialis" required>
-                    </div>
+            <!-- CONTENEDOR DINÁMICO DE TARJETAS DE MEDICAMENTOS -->
+            <div id="meds-container">
+                <!-- Se insertan por JS -->
+            </div>
 
-                    <!-- DOSIS / CONCENTRACIÓN -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Dosis / Concentración *</label>
-                        <input type="text" id="m-dosis" class="field-input" placeholder="Ej: 500 MG / 50 MG / 40 MG" required>
-                    </div>
-                </div>
+            <!-- BOTÓN AGREGAR OTRO MEDICAMENTO -->
+            <button type="button" class="btn-add-med" onclick="addMedicationCard()">
+                <span>+</span> Agregar Otro Medicamento a la misma Receta
+            </button>
 
-                <div class="form-row">
-                    <!-- CANTIDAD PASTILLAS POR TOMA -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Cantidad Pastillas (Por Toma) *</label>
-                        <input type="text" id="m-cant-pastillas" class="field-input" value="1 pastilla" oninput="calcularHorariosProgramados()" required>
-                    </div>
+            <button type="submit" class="btn-submit">
+                <span>🚀</span> Emitir Prescripción & Despachar por WhatsApp
+            </button>
 
-                    <!-- CANTIDAD VECES AL DÍA -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Veces al Día *</label>
-                        <input type="number" id="m-tomas-dia" class="field-input" min="1" max="12" value="2" oninput="calcularHorariosProgramados()" required>
-                    </div>
-                </div>
-
-                <!-- SUGERENCIA HORARIO PRIMERA DOSIS AL DÍA SIGUIENTE -->
-                <div class="form-group">
-                    <label class="field-label">Sugerencia de Horario (Primera Dosis al Día Siguiente) *</label>
-                    <select id="m-hora-inicio" class="field-select" onchange="calcularHorariosProgramados()">
-                        <option value="08:00" selected>08:00 AM (Mañana / Al despertar)</option>
-                        <option value="09:00">09:00 AM (Mañana)</option>
-                        <option value="10:00">10:00 AM (Media Mañana)</option>
-                        <option value="12:00">12:00 PM (Mediodía / Almuerzo)</option>
-                        <option value="14:00">14:00 PM (Tarde)</option>
-                        <option value="20:00">20:00 PM (Noche / Cena)</option>
-                        <option value="22:00">22:00 PM (Antes de dormir)</option>
-                    </select>
-                </div>
-
-                <!-- PREVIEW DE HORARIOS -->
-                <div class="form-group">
-                    <label class="field-label">Itinerario Calculado (A partir de mañana):</label>
-                    <div id="schedule-preview-container" style="background:rgba(0,0,0,0.25); padding:16px; border-radius:var(--radius-md); border:1px solid var(--c-border);">
-                        <!-- Badges dinámicos -->
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <!-- RELACIÓN CON COMIDAS -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Relación con Comidas</label>
-                        <select id="m-comida-rel" class="field-select">
-                            <option value="Sin relación específica con comidas">Sin relación específica con comidas</option>
-                            <option value="En ayunas (30 min antes del desayuno)">En ayunas (30 min antes del desayuno)</option>
-                            <option value="Junto con las comidas">Junto con las comidas</option>
-                            <option value="Después de comer">Después de comer</option>
-                            <option value="Antes de dormir">Antes de dormir</option>
-                        </select>
-                    </div>
-
-                    <!-- DURACIÓN EN DÍAS -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Duración del Tratamiento *</label>
-                        <input type="text" id="m-dias" class="field-input" placeholder="Ej: 10 días, 30 días, 7 días" value="10 días" required>
-                    </div>
-                </div>
-
-                <!-- INDICACIONES ADICIONALES DEL DOCTOR -->
-                <div class="form-group">
-                    <label class="field-label">Indicaciones Adicionales del Médico</label>
-                    <textarea id="m-indicacion" class="field-textarea" placeholder="Escriba recomendaciones especiales para el paciente o tutor..."></textarea>
-                </div>
-
-                <button type="submit" class="btn-submit">
-                    <span>🚀</span> Emitir Prescripción & Despachar por WhatsApp
-                </button>
-
-                <div style="margin-top:16px; text-align:center; font-size:12px; color:var(--c-text-sub); display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <span>🔒</span>
-                    <span><strong>Privacidad Garantizada:</strong> Cero IA para lectura de recetas. Datos cifrados en Google Cloud / Firebase.</span>
-                    <a href="#" onclick="openPrivacyModal(event)" style="color:var(--c-primary); font-weight:700; text-decoration:underline; cursor:pointer;">Ver Política</a>
-                </div>
+            <div style="margin-top:16px; text-align:center; font-size:12px; color:var(--c-text-sub); display:flex; align-items:center; justify-content:center; gap:8px;">
+                <span>🔒</span>
+                <span><strong>Privacidad Garantizada:</strong> Cero IA para lectura de recetas. Datos cifrados en Google Cloud / Firebase.</span>
+                <a href="#" onclick="openPrivacyModal(event)" style="color:var(--c-primary); font-weight:700; text-decoration:underline; cursor:pointer;">Ver Política</a>
+            </div>
             </form>
         </section>
 
@@ -544,16 +562,15 @@
                 <button type="button" onclick="closeDispatchModal()" style="background:none; border:none; color:var(--c-text-sub); font-size:28px; cursor:pointer;">&times;</button>
             </div>
 
-            <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:20px; border:1px solid var(--c-border); font-size:14px; line-height:1.7; margin-bottom:24px;">
+            <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:20px; border:1px solid var(--c-border); font-size:14px; line-height:1.7; margin-bottom:24px; max-height:350px; overflow-y:auto;">
                 <p style="color:var(--c-primary); font-weight:700; font-size:15px; margin-bottom:10px;">✅ Registrado en Firestore & Notificado por WhatsApp</p>
                 <p><strong>Paciente:</strong> <span id="rep-paciente">--</span> (<span id="rep-phone">--</span>)</p>
                 <p><strong>Fecha Emisión:</strong> <span id="rep-fecha">--</span></p>
                 <p id="rep-tutor-container" style="display:none;"><strong>Tutor Responsable:</strong> <span id="rep-tutor">--</span></p>
-                <p><strong>Medicamento:</strong> <span id="rep-med">--</span> - <span id="rep-dosis">--</span></p>
-                <p><strong>Itinerario Dosis:</strong> <span id="rep-horarios">--</span></p>
-                <p><strong>Duración:</strong> <span id="rep-duracion">--</span></p>
-                <p><strong>Indicación:</strong> <span id="rep-indicacion">--</span></p>
-                <p style="margin-top:10px; font-size:12px; color:var(--c-green); font-weight:700;">🛒 Enlace e-commerce de Farmacia con 15% DCTO adjunto automáticamente</p>
+                <hr style="border:0; border-top:1px solid var(--c-border); margin:12px 0;">
+                <div id="rep-meds-summary">
+                    <!-- Resumen de medicamentos -->
+                </div>
             </div>
 
             <div style="display:flex; flex-direction:column; gap:12px;">
@@ -575,13 +592,14 @@
     <!-- SCRIPTS DE OPERACIÓN -->
     <script>
         let currentPhotoBase64 = '';
+        let medCardCount = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
-            // Establecer fecha de emisión por defecto a hoy (YYYY-MM-DD)
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('r-fecha').value = today;
 
-            calcularHorariosProgramados();
+            // Agregar la primera tarjeta de medicamento por defecto
+            addMedicationCard();
         });
 
         function showToast(msg) {
@@ -589,6 +607,150 @@
             document.getElementById('toast-msg').textContent = msg;
             toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        function toggleTutorFields() {
+            const container = document.getElementById('tutor-fields-container');
+            const btn = document.getElementById('btn-toggle-tutor');
+            if (container.style.display === 'none') {
+                container.style.display = 'block';
+                btn.style.borderColor = 'var(--c-accent)';
+                btn.style.color = 'var(--c-accent)';
+            } else {
+                container.style.display = 'none';
+                btn.style.borderColor = 'var(--c-border)';
+                btn.style.color = 'var(--c-primary)';
+            }
+        }
+
+        function toggleDocContactFields(chk) {
+            const container = document.getElementById('doc-contact-fields');
+            container.style.display = chk.checked ? 'block' : 'none';
+        }
+
+        function addMedicationCard() {
+            medCardCount++;
+            const container = document.getElementById('meds-container');
+            
+            const card = document.createElement('div');
+            card.className = 'med-block-card';
+            card.id = `med-card-${medCardCount}`;
+
+            card.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+                    <span style="font-size:14px; font-weight:800; color:var(--c-primary);">Medicamento #${medCardCount}</span>
+                    ${medCardCount > 1 ? `<button type="button" onclick="removeMedicationCard(${medCardCount})" style="background:none; border:none; color:#EF4444; font-weight:800; font-size:13px; cursor:pointer;">Eliminar</button>` : ''}
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Nombre del Medicamento *</label>
+                        <input type="text" class="field-input med-nombre" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Dosis / Concentración *</label>
+                        <input type="text" class="field-input med-dosis" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Pastillas por Toma (Número) *</label>
+                        <input type="number" class="field-input med-cant-pastillas" min="1" max="10" value="1" oninput="calcularHorariosCard(${medCardCount})" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Veces al Día (Número) *</label>
+                        <input type="number" class="field-input med-tomas-dia" min="1" max="12" value="2" oninput="calcularHorariosCard(${medCardCount})" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label">Sugerencia de Horario (Primera Dosis Día Siguiente) *</label>
+                    <select class="field-select med-hora-inicio" onchange="calcularHorariosCard(${medCardCount})">
+                        <option value="08:00" selected>08:00 AM (Mañana / Al despertar)</option>
+                        <option value="09:00">09:00 AM (Mañana)</option>
+                        <option value="10:00">10:00 AM (Media Mañana)</option>
+                        <option value="12:00">12:00 PM (Mediodía / Almuerzo)</option>
+                        <option value="14:00">14:00 PM (Tarde)</option>
+                        <option value="20:00">20:00 PM (Noche / Cena)</option>
+                        <option value="22:00">22:00 PM (Antes de dormir)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="field-label">Itinerario Calculado:</label>
+                    <div class="med-schedule-preview" style="background:rgba(0,0,0,0.2); padding:12px; border-radius:var(--radius-md); border:1px solid var(--c-border);">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Relación con Comidas</label>
+                        <select class="field-select med-comida-rel">
+                            <option value="Sin relación específica con comidas">Sin relación específica con comidas</option>
+                            <option value="En ayunas (30 min antes del desayuno)">En ayunas (30 min antes del desayuno)</option>
+                            <option value="Junto con las comidas">Junto con las comidas</option>
+                            <option value="Después de comer">Después de comer</option>
+                            <option value="Antes de dormir">Antes de dormir</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Duración en Días (Número) *</label>
+                        <input type="number" class="field-input med-dias" min="1" max="365" value="10" required>
+                    </div>
+                </div>
+
+                <div class="form-row" style="margin-top:14px;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Descuento % en Farmacia *</label>
+                        <input type="number" class="field-input med-descuento" min="0" max="100" value="15" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Indicaciones del Médico</label>
+                        <input type="text" class="field-input med-indicacion">
+                    </div>
+                </div>
+            `;
+
+            container.appendChild(card);
+            calcularHorariosCard(medCardCount);
+        }
+
+        function removeMedicationCard(id) {
+            const card = document.getElementById(`med-card-${id}`);
+            if (card) card.remove();
+        }
+
+        function calcularHorariosCard(id) {
+            const card = document.getElementById(`med-card-${id}`);
+            if (!card) return;
+
+            const tomasDia = Math.max(1, parseInt(card.querySelector('.med-tomas-dia').value) || 1);
+            const horaInicioStr = card.querySelector('.med-hora-inicio').value || "08:00";
+            const cantPastillas = card.querySelector('.med-cant-pastillas').value || "1";
+
+            const parts = horaInicioStr.split(':');
+            let startHour = parseInt(parts[0]) || 8;
+            let startMin = parseInt(parts[1]) || 0;
+
+            const intervalHours = 24 / tomasDia;
+            const previewContainer = card.querySelector('.med-schedule-preview');
+            previewContainer.innerHTML = '';
+
+            const formatMin = startMin < 10 ? '0' + startMin : startMin;
+
+            for (let i = 0; i < tomasDia; i++) {
+                let currentHour = Math.floor((startHour + (i * intervalHours))) % 24;
+                const formattedHour = currentHour < 10 ? '0' + currentHour : currentHour;
+                const ampm = currentHour >= 12 ? 'PM' : 'AM';
+                const timeString = `${formattedHour}:${formatMin} ${ampm}`;
+
+                const badge = document.createElement('span');
+                badge.className = 'schedule-badge';
+                badge.innerHTML = `Toma ${i+1}: <strong>${timeString}</strong> (${cantPastillas} pastilla/s)`;
+                previewContainer.appendChild(badge);
+            }
         }
 
         function previewRecipePhoto(input) {
@@ -602,38 +764,9 @@
                 const preview = document.getElementById('attached-photo-preview');
                 preview.src = currentPhotoBase64;
                 preview.style.display = 'block';
-                showToast("📷 Fotografía de respaldo adjuntada");
+                showToast("📷 Imagen de respaldo adjuntada");
             };
             reader.readAsDataURL(file);
-        }
-
-        function calcularHorariosProgramados() {
-            const tomasDia = Math.max(1, parseInt(document.getElementById('m-tomas-dia').value) || 1);
-            const horaInicioStr = document.getElementById('m-hora-inicio').value || "08:00";
-            const cantPastillas = document.getElementById('m-cant-pastillas')?.value.trim() || "1 pastilla";
-
-            const parts = horaInicioStr.split(':');
-            let startHour = parseInt(parts[0]) || 8;
-            let startMin = parseInt(parts[1]) || 0;
-
-            const intervalHours = 24 / tomasDia;
-            const previewContainer = document.getElementById('schedule-preview-container');
-            if (!previewContainer) return;
-            previewContainer.innerHTML = '';
-
-            const formatMin = startMin < 10 ? '0' + startMin : startMin;
-
-            for (let i = 0; i < tomasDia; i++) {
-                let currentHour = Math.floor((startHour + (i * intervalHours))) % 24;
-                const formattedHour = currentHour < 10 ? '0' + currentHour : currentHour;
-                const ampm = currentHour >= 12 ? 'PM' : 'AM';
-                const timeString = `${formattedHour}:${formatMin} ${ampm}`;
-
-                const badge = document.createElement('span');
-                badge.className = 'schedule-badge';
-                badge.innerHTML = `Toma ${i+1}: <strong>${timeString}</strong> <small style="opacity:0.8;">(${cantPastillas})</small>`;
-                previewContainer.appendChild(badge);
-            }
         }
 
         async function activarTratamiento(e) {
@@ -642,27 +775,47 @@
             const paciente = document.getElementById('p-nombre').value.trim();
             const phone = document.getElementById('p-phone').value.trim();
             const fechaEmision = document.getElementById('r-fecha').value;
+            
             const tutorNombre = document.getElementById('tutor-nombre').value.trim();
             const tutorPhone = document.getElementById('tutor-phone').value.trim();
 
-            const med = document.getElementById('m-nombre').value.trim();
-            const dosis = document.getElementById('m-dosis').value.trim();
-            const cantPastillas = document.getElementById('m-cant-pastillas').value.trim();
-            const tomasDia = document.getElementById('m-tomas-dia').value;
-            const horaInicio = document.getElementById('m-hora-inicio').value;
-            const comidaRel = document.getElementById('m-comida-rel').value;
-            const duracion = document.getElementById('m-dias').value.trim();
-            const indicacion = document.getElementById('m-indicacion').value.trim();
+            const docContactActive = document.getElementById('toggle-doc-contact').checked;
+            const docPhone = document.getElementById('doc-phone').value.trim();
+            const docNotaEmergency = document.getElementById('doc-nota-emergency').value.trim();
 
-            if (!paciente || !phone || !med) {
-                alert("Por favor complete los campos obligatorios.");
+            if (!paciente || !phone) {
+                alert("Por favor ingrese el nombre del paciente y su WhatsApp.");
                 return;
             }
 
-            const badges = document.querySelectorAll('#schedule-preview-container .schedule-badge');
-            const horariosList = Array.from(badges).map(b => b.textContent).join(', ');
+            // Recopilar lista de medicamentos
+            const medCards = document.querySelectorAll('.med-block-card');
+            const medicamentos = [];
 
-            showToast("🚀 Emitiendo prescripción y notificando...");
+            medCards.forEach(card => {
+                const nombre = card.querySelector('.med-nombre').value.trim();
+                const dosis = card.querySelector('.med-dosis').value.trim();
+                const cantPastillas = parseInt(card.querySelector('.med-cant-pastillas').value) || 1;
+                const tomasDia = parseInt(card.querySelector('.med-tomas-dia').value) || 2;
+                const horaInicio = card.querySelector('.med-hora-inicio').value;
+                const comidaRel = card.querySelector('.med-comida-rel').value;
+                const duracion = parseInt(card.querySelector('.med-dias').value) || 10;
+                const descuentoPct = parseInt(card.querySelector('.med-descuento').value) || 15;
+                const indicacion = card.querySelector('.med-indicacion').value.trim();
+
+                if (nombre) {
+                    medicamentos.push({
+                        nombre, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, descuentoPct, indicacion
+                    });
+                }
+            });
+
+            if (medicamentos.length === 0) {
+                alert("Por favor ingrese al menos un medicamento.");
+                return;
+            }
+
+            showToast("🚀 Emitiendo prescripción y notificado por WhatsApp...");
 
             try {
                 const res = await fetch('/api/pro/prescribir', {
@@ -670,7 +823,8 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         paciente, phone, fechaEmision, tutorNombre, tutorPhone,
-                        med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion,
+                        medicamentos,
+                        docContactActive, docPhone, docNotaEmergency,
                         fotoBase64: currentPhotoBase64
                     })
                 });
@@ -692,22 +846,23 @@
                 document.getElementById('rep-tutor-container').style.display = 'none';
             }
 
-            document.getElementById('rep-med').textContent = med;
-            document.getElementById('rep-dosis').textContent = dosis;
-            document.getElementById('rep-horarios').textContent = horariosList;
-            document.getElementById('rep-duracion').textContent = duracion;
-            document.getElementById('rep-indicacion').textContent = indicacion || comidaRel;
+            const repMedsSummary = document.getElementById('rep-meds-summary');
+            repMedsSummary.innerHTML = '';
+
+            let waMedsText = '';
+            medicamentos.forEach((m, idx) => {
+                const item = document.createElement('div');
+                item.style.marginBottom = '10px';
+                item.innerHTML = `<strong>${idx+1}. ${m.nombre} (${m.dosis})</strong>: ${m.tomasDia} toma(s)/día (${m.cantPastillas} unidad/es) por ${m.duracion} días [${m.descuentoPct}% DCTO]`;
+                repMedsSummary.appendChild(item);
+
+                waMedsText += `\n💊 *${m.nombre} (${m.dosis}):* ${m.tomasDia} tomas/día por ${m.duracion} días (${m.descuentoPct}% DCTO)`;
+            });
 
             const cleanPhone = phone.replace(/\D/g, '');
-            const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido tu receta con fecha *${fechaEmision}* para *${med} (${dosis})*.
+            const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision}*.
 
-⏰ *Tomas al día:* ${tomasDia} toma(s) de ${cantPastillas} (Primera toma: ${horaInicio})
-Horarios: ${horariosList}
-Indicaciones: ${comidaRel}${indicacion ? '\nNota del Doctor: ' + indicacion : ''}
-
-🛒 *¿Necesitas comprar el medicamento?*
-Obtén 15% DCTO en Farmacia asociada comprando directamente aquí:
-https://farmacia.cl/compra?med=${encodeURIComponent(med)}&cupo=MEDICLOCK15
+📋 *Detalle Tratamiento:*${waMedsText}
 
 Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirmar.`;
 
@@ -725,9 +880,13 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
             document.getElementById('photo-placeholder').style.display = 'block';
             currentPhotoBase64 = '';
             
+            // Limpiar medicamentos adicionales y dejar 1 limpio
+            document.getElementById('meds-container').innerHTML = '';
+            medCardCount = 0;
+            addMedicationCard();
+
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('r-fecha').value = today;
-            calcularHorariosProgramados();
         }
 
         function openPrivacyModal(e) {
