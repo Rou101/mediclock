@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>MediClock Pro v23.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
+    <title>MediClock Pro v25.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
     
     <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,7 +33,7 @@
             --radius-md: 10px;
             --radius-sm: 6px;
             --shadow-card: 0 16px 36px -10px rgba(0, 0, 0, 0.6);
-            --sidebar-width: 270px;
+            --sidebar-width: 280px;
         }
 
         * {
@@ -55,20 +55,20 @@
             background-attachment: fixed;
         }
 
-        /* BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL) */
+        /* BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B) */
         .vertical-sidebar {
             width: var(--sidebar-width);
             height: 100vh;
             position: fixed;
             top: 0;
             left: 0;
-            background: rgba(15, 22, 36, 0.95);
+            background: rgba(15, 22, 36, 0.96);
             backdrop-filter: blur(20px);
             border-right: 1px solid var(--c-border);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 28px 20px;
+            padding: 24px 18px;
             z-index: 500;
         }
 
@@ -80,21 +80,21 @@
         }
 
         .brand-icon {
-            width: 44px;
-            height: 44px;
+            width: 42px;
+            height: 42px;
             background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 24px;
+            font-size: 22px;
             color: #FFF;
             box-shadow: 0 4px 16px var(--c-primary-glow);
         }
 
         .brand-title {
-            font-size: 20px;
+            font-size: 19px;
             font-weight: 800;
             letter-spacing: -0.5px;
         }
@@ -108,25 +108,24 @@
             font-size: 10px;
             letter-spacing: 0.5px;
             display: inline-block;
-            margin-top: 4px;
+            margin-top: 3px;
             box-shadow: 0 0 12px rgba(16,185,129,0.4);
         }
 
-        /* FICHA DEL MÉDICO EN SIDEBAR */
+        /* FICHA DEL MÉDICO EN LA PARTE INFERIOR DEL SIDEBAR */
         .doctor-badge-sidebar {
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--c-border);
             border-radius: var(--radius-lg);
-            padding: 14px;
+            padding: 12px 14px;
             display: flex;
             align-items: center;
             gap: 12px;
-            margin-bottom: 24px;
         }
 
         .avatar-circle {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--c-primary);
             color: #000;
@@ -134,72 +133,76 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 13px;
             flex-shrink: 0;
         }
 
-        /* NAVEGACIÓN Y BOTONES LATERALES */
+        /* BOTONES PRINCIPALES SUPERIORES (MÁS GRANDES Y DEL MISMO TAMAÑO) */
         .sidebar-menu {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
-        .btn-sidebar {
+        .btn-sidebar-main {
+            width: 100%;
+            background: linear-gradient(135deg, #10B981, #059669);
+            border: none;
+            color: #FFF;
+            padding: 14px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-align: center;
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.25);
+            line-height: 1.3;
+        }
+
+        .btn-sidebar-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-sidebar-secondary {
+            background: rgba(56, 189, 248, 0.12);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            color: var(--c-primary);
+            box-shadow: none;
+        }
+
+        .btn-sidebar-secondary:hover {
+            background: rgba(56, 189, 248, 0.22);
+            border-color: var(--c-primary);
+        }
+
+        /* BOTONES INFERIORES SIN ÍCONOS (RECOMIÉNDANOS Y SEGURIDAD Y PRIVACIDAD ABAJO) */
+        .sidebar-footer-box {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-top: 1px solid var(--c-border);
+            padding-top: 16px;
+        }
+
+        .btn-sidebar-sub {
             width: 100%;
             background: rgba(255, 255, 255, 0.04);
             border: 1px solid var(--c-border);
-            color: var(--c-text);
-            padding: 12px 16px;
+            color: var(--c-text-sub);
+            padding: 10px 14px;
             border-radius: var(--radius-md);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 700;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-align: left;
+            text-align: center;
         }
 
-        .btn-sidebar:hover {
-            background: rgba(56, 189, 248, 0.12);
-            border-color: var(--c-primary);
-            color: var(--c-primary);
-            transform: translateX(3px);
-        }
-
-        /* REDES SOCIALES Y FOOTER SIDEBAR */
-        .sidebar-footer {
-            border-top: 1px solid var(--c-border);
-            padding-top: 18px;
-        }
-
-        .social-links {
-            display: flex;
-            gap: 12px;
-            margin-top: 10px;
-        }
-
-        .social-btn {
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--c-border);
-            color: var(--c-primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 16px;
-            text-decoration: none;
-            transition: all 0.2s ease;
-        }
-
-        .social-btn:hover {
-            background: var(--c-primary);
-            color: #000;
-            transform: translateY(-2px);
+        .btn-sidebar-sub:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--c-text);
         }
 
         /* ÁREA PRINCIPAL CONTENEDORA (DERECHA DEL SIDEBAR) */
@@ -289,6 +292,19 @@
             background: rgba(0, 0, 0, 0.55);
         }
 
+        /* ESTADO DESACTIVADO PARA EL CUADRO DE CONTACTO MÉDICO */
+        .doc-contact-container.disabled {
+            opacity: 0.5;
+            filter: grayscale(0.5);
+            transition: all 0.3s ease;
+        }
+        .doc-contact-container.disabled input,
+        .doc-contact-container.disabled textarea {
+            background: rgba(0, 0, 0, 0.2);
+            cursor: not-allowed;
+            border-color: rgba(255, 255, 255, 0.04);
+        }
+
         /* TEXTAREA GIGANTE EXPANSIVO DE INDICACIONES (OCUPA TODO EL ALTO DERECHO) */
         .field-textarea-giant-full {
             width: 100%;
@@ -363,10 +379,6 @@
             transform: translateY(-3px);
             border-color: var(--c-primary);
             background: rgba(56, 189, 248, 0.1);
-        }
-
-        .square-btn-icon {
-            font-size: 26px;
         }
 
         .square-btn-text {
@@ -471,7 +483,7 @@
             margin-bottom: 10px;
         }
 
-        /* MEDIA QUERIES RESPONSIVOS PARA SIDEBAR Y MÓVIL */
+        /* MEDIA QUERIES RESPONSIVOS */
         @media (max-width: 1024px) {
             .vertical-sidebar {
                 width: 100%;
@@ -515,17 +527,31 @@
 
     <!-- BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B) -->
     <aside class="vertical-sidebar">
+        <!-- SECCIÓN SUPERIOR CON NAVEGACIÓN Y BOTONES MÁS GRANDES -->
         <div>
             <!-- LOGO Y MARCA -->
             <div class="brand-box">
                 <div class="brand-icon">M</div>
                 <div>
                     <span class="brand-title">MediClock Pro</span>
-                    <div><span class="version-tag">v24.0 CHROME B2B</span></div>
+                    <div><span class="version-tag">v25.0 CHROME B2B</span></div>
                 </div>
             </div>
 
-            <!-- PERFIL DEL DOCTOR -->
+            <!-- BOTONES PRINCIPALES DE ACCIÓN (MÁS GRANDES Y DEL MISMO TAMAÑO) -->
+            <div class="sidebar-menu">
+                <button type="button" class="btn-sidebar-main" onclick="closeDispatchModal()">
+                    Nueva Prescripción
+                </button>
+                <button type="button" class="btn-sidebar-main btn-sidebar-secondary" onclick="openSearchModal()">
+                    Buscar Prescripciones Enviadas
+                </button>
+            </div>
+        </div>
+
+        <!-- SECCIÓN INFERIOR: PERFIL DEL DR. Y BOTONES SIN ÍCONOS ABAJO -->
+        <div class="sidebar-footer-box">
+            <!-- PERFIL DEL DOCTOR (UBICADO ABAJO) -->
             <div class="doctor-badge-sidebar">
                 <div class="avatar-circle">DR</div>
                 <div>
@@ -534,31 +560,13 @@
                 </div>
             </div>
 
-            <!-- NAVEGACIÓN Y ACCIONES RÁPIDAS -->
-            <div class="sidebar-menu">
-                <button type="button" class="btn-sidebar" onclick="closeDispatchModal()">
-                    <span>✨</span> Nueva Prescripción
-                </button>
-                <button type="button" class="btn-sidebar" onclick="openPrivacyModal(event)">
-                    <span>🔒</span> Seguridad & Privacidad
-                </button>
-                <button type="button" class="btn-sidebar" onclick="openRecomendarModal()">
-                    <span>⭐</span> Recomiéndanos
-                </button>
-                <button type="button" class="btn-sidebar" onclick="abrirDifusionWhatsApp()" style="background:rgba(16, 185, 129, 0.12); border-color:rgba(16, 185, 129, 0.3); color:var(--c-green);">
-                    <span>📢</span> Difusión WhatsApp
-                </button>
-            </div>
-        </div>
-
-        <!-- REDES SOCIALES Y FOOTER -->
-        <div class="sidebar-footer">
-            <div style="font-size:11px; font-weight:700; color:var(--c-text-sub); text-transform:uppercase; letter-spacing:0.5px;">Síguenos en Redes</div>
-            <div class="social-links">
-                <a href="https://instagram.com" target="_blank" class="social-btn" title="Instagram">📷</a>
-                <a href="https://linkedin.com" target="_blank" class="social-btn" title="LinkedIn">💼</a>
-                <a href="https://wa.me/56957838682" target="_blank" class="social-btn" title="WhatsApp Business Directo">💬</a>
-            </div>
+            <!-- BOTONES SECUNDARIOS EN LA PARTE INFERIOR (SIN ÍCONOS) -->
+            <button type="button" class="btn-sidebar-sub" onclick="openRecomendarModal()">
+                Recomiéndanos
+            </button>
+            <button type="button" class="btn-sidebar-sub" onclick="openPrivacyModal(event)">
+                Seguridad & Privacidad
+            </button>
         </div>
     </aside>
 
@@ -625,23 +633,23 @@
 
                     <hr style="border:0; border-top:1px solid var(--c-border); margin:20px 0;">
 
-                    <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS (SIEMPRE DESPLEGADA PERMANENTE) -->
-                    <div style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
+                    <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS (DESACTIVADA POR DEFECTO CON APARIENCIA VISUAL CLARA) -->
+                    <div id="doc-contact-wrapper" class="doc-contact-container disabled" style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                             <h3 style="font-size:13px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:6px;">
                                 <span>📞</span> Compartir Contacto del Médico & Emergencias
                             </h3>
-                            <input type="checkbox" id="toggle-doc-contact" checked style="width:18px; height:18px; cursor:pointer;">
+                            <input type="checkbox" id="toggle-doc-contact" style="width:18px; height:18px; cursor:pointer;" onchange="toggleDocContactFields(this)">
                         </div>
 
                         <div id="doc-contact-fields" style="display:block;">
                             <div class="form-group">
                                 <label class="field-label">Teléfono de Contacto / Anexo Urgencias</label>
-                                <input type="text" id="doc-phone" class="field-input">
+                                <input type="text" id="doc-phone" class="field-input" disabled>
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
                                 <label class="field-label">Indicación de Emergencias</label>
-                                <textarea id="doc-nota-emergency" class="field-textarea" style="min-height:65px;"></textarea>
+                                <textarea id="doc-nota-emergency" class="field-textarea" style="min-height:65px;" disabled></textarea>
                             </div>
                         </div>
                     </div>
@@ -666,13 +674,11 @@
                         <div class="square-actions-grid">
                             <!-- BOTÓN CUADRADO 1: DESCUENTO FARMACIA -->
                             <button type="button" class="square-btn square-btn-desc active" id="main-btn-desc" onclick="toggleDescuentoGlobal()">
-                                <span class="square-btn-icon">🏷️</span>
                                 <span class="square-btn-text" id="main-desc-text">Descuento Farmacia (15% DCTO)</span>
                             </button>
 
                             <!-- BOTÓN CUADRADO 2 (PRINCIPAL): EMITIR POR WHATSAPP -->
                             <button type="submit" class="square-btn square-btn-submit">
-                                <span class="square-btn-icon">🚀</span>
                                 <span class="square-btn-text">Emitir por WhatsApp</span>
                             </button>
                         </div>
@@ -687,6 +693,36 @@
 
             </main>
         </form>
+    </div>
+
+    <!-- MODAL DE BUSCAR / CORROBORAR PRESCRIPCIONES ENVIADAS (SOLO LECTURA) -->
+    <div class="modal-overlay" id="search-modal">
+        <div class="modal-card" style="max-width:700px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--c-border); padding-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background:rgba(56, 189, 248, 0.15); color:var(--c-primary); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px;">🔍</div>
+                    <div>
+                        <h3 style="font-size:18px; font-weight:800;">Prescripciones Enviadas</h3>
+                        <span style="font-size:11px; color:var(--c-primary); font-weight:700;">🔒 Modo Corroboración de Datos (Solo Lectura - No editable)</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeSearchModal()" style="background:none; border:none; color:var(--c-text-sub); font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="margin-bottom:16px;">
+                <input type="text" id="search-input" class="field-input" placeholder="Buscar por nombre de paciente o fecha..." onkeyup="filtrarPrescripcionesHistoricas()">
+            </div>
+
+            <div id="search-results-list" style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:16px; border:1px solid var(--c-border); max-height:350px; overflow-y:auto; font-size:13px;">
+                <!-- Se listan dinámicamente -->
+            </div>
+
+            <div style="margin-top:16px;">
+                <button type="button" onclick="closeSearchModal()" style="width:100%; background:rgba(255,255,255,0.08); color:var(--c-text); border:1px solid var(--c-border); padding:12px; border-radius:var(--radius-md); font-weight:800; cursor:pointer;">
+                    Cerrar Consulta
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL DE POLÍTICA DE CONFIDENCIALIDAD Y SEGURIDAD -->
@@ -732,10 +768,10 @@
                 <p style="margin-bottom:12px; font-weight:600;">¿Te resulta útil MediClock Pro en tu consulta? Comparte esta plataforma con tus colegas médicos o centros de salud.</p>
                 <div style="display:flex; flex-direction:column; gap:10px;">
                     <button type="button" onclick="abrirDifusionWhatsApp()" style="background:linear-gradient(135deg, #10B981, #059669); color:#FFF; border:none; padding:14px; border-radius:var(--radius-md); font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                        💬 Compartir por WhatsApp a Colegas / Lista de Contactos
+                        Compartir por WhatsApp a Colegas / Lista de Contactos
                     </button>
                     <button type="button" onclick="copiarEnlacePlataforma()" style="background:rgba(255,255,255,0.06); color:var(--c-text); border:1px solid var(--c-border); padding:12px; border-radius:var(--radius-md); font-weight:700; cursor:pointer;">
-                        📋 Copiar Enlace Directo de la Plataforma
+                        Copiar Enlace Directo de la Plataforma
                     </button>
                 </div>
             </div>
@@ -784,6 +820,7 @@
         let currentFileType = 'image';
         let contactCount = 0;
         let descuentoGlobalActivo = true;
+        let prescripcionesHistorial = JSON.parse(localStorage.getItem('mediclock_history') || '[]');
 
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
@@ -798,8 +835,21 @@
         }
 
         function toggleDocContactFields(chk) {
-            const container = document.getElementById('doc-contact-fields');
-            container.style.display = chk.checked ? 'block' : 'none';
+            const wrapper = document.getElementById('doc-contact-wrapper');
+            const docPhone = document.getElementById('doc-phone');
+            const docNota = document.getElementById('doc-nota-emergency');
+
+            if (chk.checked) {
+                wrapper.classList.remove('disabled');
+                docPhone.disabled = false;
+                docNota.disabled = false;
+                showToast("📞 Compartir contacto del médico activado");
+            } else {
+                wrapper.classList.add('disabled');
+                docPhone.disabled = true;
+                docNota.disabled = true;
+                showToast("📞 Contacto del médico desactivado");
+            }
         }
 
         function addContactRow() {
@@ -847,11 +897,11 @@
             if (descuentoGlobalActivo) {
                 btn.classList.add('active');
                 txt.textContent = "Descuento Farmacia (15% DCTO)";
-                showToast("🏷️ Descuento de farmacia activado");
+                showToast("Descuento de farmacia activado");
             } else {
                 btn.classList.remove('active');
                 txt.textContent = "+ Agregar Descuento Farmacia";
-                showToast("🏷️ Descuento desactivado");
+                showToast("Descuento desactivado");
             }
         }
 
@@ -870,14 +920,14 @@
                     const pdfBox = document.getElementById('attached-pdf-preview');
                     document.getElementById('pdf-file-name').textContent = file.name;
                     pdfBox.style.display = 'block';
-                    showToast("📄 Documento Receta PDF de Clínica adjuntado");
+                    showToast("Documento Receta PDF adjuntado");
                 } else {
                     currentFileType = 'image';
                     document.getElementById('attached-pdf-preview').style.display = 'none';
                     const preview = document.getElementById('attached-photo-preview');
                     preview.src = currentFileBase64;
                     preview.style.display = 'block';
-                    showToast("📷 Imagen de receta adjuntada");
+                    showToast("Imagen de receta adjuntada");
                 }
             };
             reader.readAsDataURL(file);
@@ -897,11 +947,10 @@
             }
 
             if (!indicacionesCopied) {
-                alert("Por favor pegue o ingrese las indicaciones de la receta.");
+                alert("Por favor ingrese o pegue las indicaciones de la receta.");
                 return;
             }
 
-            // Recopilar contactos adicionales (Enfermera, Cuidador, etc.)
             const contactosAdicionales = [];
             const contactRows = document.querySelectorAll('.contact-item-row');
             contactRows.forEach(row => {
@@ -929,7 +978,20 @@
                 indicacion: indicacionesCopied
             }];
 
-            showToast("🚀 Emitiendo prescripción y despachando WhatsApp...");
+            showToast("Emitiendo prescripción y despachando WhatsApp...");
+
+            const nuevaPrescripcionObj = {
+                id: 'REC-' + Date.now().toString().slice(-6),
+                paciente, phone, fechaEmision,
+                contactosAdicionales,
+                indicaciones: indicacionesCopied,
+                descuento: descuentoGlobalActivo,
+                archivoAdjunto: !!currentFileBase64,
+                creadoEn: new Date().toLocaleString()
+            };
+
+            prescripcionesHistorial.unshift(nuevaPrescripcionObj);
+            localStorage.setItem('mediclock_history', JSON.stringify(prescripcionesHistorial.slice(0, 50)));
 
             try {
                 const res = await fetch('/api/pro/prescribir', {
@@ -966,12 +1028,12 @@
             }
 
             const repMedsSummary = document.getElementById('rep-meds-summary');
-            repMedsSummary.innerHTML = `<div><strong>📝 Indicaciones de la Receta:</strong><br><pre style="white-space:pre-wrap; font-family:inherit;">${indicacionesCopied}</pre></div>`;
+            repMedsSummary.innerHTML = `<div><strong>Indicaciones de la Receta:</strong><br><pre style="white-space:pre-wrap; font-family:inherit;">${indicacionesCopied}</pre></div>`;
 
             const cleanPhone = phone.replace(/\D/g, '');
             const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision}*.
 
-📝 *Indicaciones:*
+Indicaciones:
 ${indicacionesCopied}
 
 Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirmar.`;
@@ -1016,18 +1078,66 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
         }
 
         function abrirDifusionWhatsApp() {
-            const promoText = `Hola colega 👋 Te recomiendo *MediClock Pro*, la plataforma médica para emitir y notificar recetas médicas directamente por WhatsApp a tus pacientes sin usar IA en datos sensibles:
+            const promoText = `Hola colega 👋 Te recomiendo MediClock Pro, la plataforma médica para emitir y notificar recetas médicas directamente por WhatsApp a tus pacientes sin usar IA en datos sensibles:
 
 👉 https://mediclock-961339509446.us-central1.run.app/pro.html`;
 
             const waShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(promoText)}`;
             window.open(waShareUrl, '_blank');
-            showToast("📢 Abriendo difusión / compartir en WhatsApp");
+            showToast("Abriendo difusión en WhatsApp");
         }
 
         function copiarEnlacePlataforma() {
             navigator.clipboard.writeText("https://mediclock-961339509446.us-central1.run.app/pro.html");
-            showToast("📋 Enlace de MediClock Pro copiado al portapapeles");
+            showToast("Enlace copiado al portapapeles");
+        }
+
+        /* BUSCAR / CORROBORAR PRESCRIPCIONES ENVIADAS (SOLO LECTURA) */
+        function openSearchModal() {
+            document.getElementById('search-modal').style.display = 'flex';
+            filtrarPrescripcionesHistoricas();
+        }
+
+        function closeSearchModal() {
+            document.getElementById('search-modal').style.display = 'none';
+        }
+
+        function filtrarPrescripcionesHistoricas() {
+            const query = (document.getElementById('search-input').value || '').toLowerCase();
+            const container = document.getElementById('search-results-list');
+            container.innerHTML = '';
+
+            const filtrados = prescripcionesHistorial.filter(item => 
+                item.paciente.toLowerCase().includes(query) || 
+                item.fechaEmision.includes(query) ||
+                (item.indicaciones && item.indicaciones.toLowerCase().includes(query))
+            );
+
+            if (filtrados.length === 0) {
+                container.innerHTML = '<div style="color:var(--c-text-sub); text-align:center; padding:20px;">No se encontraron prescripciones enviadas registradas.</div>';
+                return;
+            }
+
+            filtrados.forEach(item => {
+                const div = document.createElement('div');
+                div.style.background = 'rgba(255,255,255,0.03)';
+                div.style.border = '1px solid var(--c-border)';
+                div.style.borderRadius = 'var(--radius-md)';
+                div.style.padding = '14px';
+                div.style.marginBottom = '10px';
+
+                div.innerHTML = `
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                        <span style="font-weight:800; color:var(--c-primary);">${item.paciente}</span>
+                        <span style="font-size:11px; color:var(--c-text-sub);">${item.fechaEmision} (${item.creadoEn})</span>
+                    </div>
+                    <div style="font-size:12px; color:var(--c-text-sub); margin-bottom:6px;">WhatsApp: ${item.phone} ${item.descuento ? ' | Descuento Farmacia: Activado' : ''}</div>
+                    <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:var(--radius-sm); font-size:12px; max-height:80px; overflow-y:auto; font-family:inherit;">
+                        <pre style="white-space:pre-wrap; margin:0; font-family:inherit;">${item.indicaciones}</pre>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
         }
     </script>
 </body>
