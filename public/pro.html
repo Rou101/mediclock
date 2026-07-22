@@ -521,7 +521,7 @@
                 <div class="brand-icon">M</div>
                 <div>
                     <span class="brand-title">MediClock Pro</span>
-                    <div><span class="version-tag">v23.0 B2B SIDEBAR</span></div>
+                    <div><span class="version-tag">v24.0 CHROME B2B</span></div>
                 </div>
             </div>
 
@@ -605,7 +605,7 @@
                     <hr style="border:0; border-top:1px solid var(--c-border); margin:16px 0;">
 
                     <h3 style="font-size:13px; font-weight:700; color:var(--c-text); margin-bottom:10px;">
-                        📎 Respaldo de Receta (Imagen o Documento PDF de Clínica)
+                        📎 Respaldo de Receta
                     </h3>
 
                     <!-- ADJUNTAR FOTO O DOCUMENTO PDF -->
@@ -614,7 +614,6 @@
                         <div id="photo-placeholder">
                             <span style="font-size:20px; display:block; margin-bottom:4px;">📂</span>
                             <span style="font-size:12px; font-weight:700; color:var(--c-primary);">Adjuntar Archivo de Receta (Imagen o PDF)</span>
-                            <span style="font-size:11px; color:var(--c-text-sub); display:block; margin-top:2px;">Formatos admitidos: PDF de clínica o foto</span>
                         </div>
                         <img id="attached-photo-preview" style="display:none; max-height:140px; margin:0 auto; border-radius:var(--radius-md); border:1px solid var(--c-primary);" alt="Receta adjunta">
                         <div id="attached-pdf-preview" style="display:none; text-align:center; padding:8px;">
@@ -626,25 +625,22 @@
 
                     <hr style="border:0; border-top:1px solid var(--c-border); margin:20px 0;">
 
-                    <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS -->
+                    <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS (SIEMPRE DESPLEGADA PERMANENTE) -->
                     <div style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                             <h3 style="font-size:13px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:6px;">
                                 <span>📞</span> Compartir Contacto del Médico & Emergencias
                             </h3>
-                            <input type="checkbox" id="toggle-doc-contact" style="width:18px; height:18px; cursor:pointer;" onchange="toggleDocContactFields(this)">
+                            <input type="checkbox" id="toggle-doc-contact" checked style="width:18px; height:18px; cursor:pointer;">
                         </div>
-                        <p style="font-size:11px; color:var(--c-text-sub); margin-bottom:10px;">
-                            Activa esta casilla si deseas incluir tus datos de contacto directo o anexo de emergencias en el WhatsApp del paciente.
-                        </p>
 
-                        <div id="doc-contact-fields" style="display:none;">
+                        <div id="doc-contact-fields" style="display:block;">
                             <div class="form-group">
                                 <label class="field-label">Teléfono de Contacto / Anexo Urgencias</label>
                                 <input type="text" id="doc-phone" class="field-input">
                             </div>
                             <div class="form-group" style="margin-bottom:0;">
-                                <label class="field-label">Indicación / Horario de Emergencias Centro Médico</label>
+                                <label class="field-label">Indicación de Emergencias</label>
                                 <textarea id="doc-nota-emergency" class="field-textarea" style="min-height:65px;"></textarea>
                             </div>
                         </div>
@@ -652,16 +648,16 @@
 
                 </section>
 
-                <!-- COLUMNA DERECHA REFORMADA: INDICACIONES DEL MÉDICO (EXPANSIVO 100% ALTO EQUILIBRADO) -->
+                <!-- COLUMNA DERECHA REFORMADA: INDICACIONES DEL MÉDICO (SIN PLACEHOLDER, EXPANSIVO 100% ALTO) -->
                 <section class="glass-card" style="display:flex; flex-direction:column; justify-content:space-between;">
-                    <div>
+                    <div style="flex:1; display:flex; flex-direction:column;">
                         <h2 class="card-header-title">
                             <span>📝</span> 2. Indicaciones del Médico
                         </h2>
 
-                        <!-- ÁREA GIGANTE EXPANSIVA DE TEXTO COPIADO DESDE OTRA PLATAFORMA -->
+                        <!-- ÁREA GIGANTE EXPANSIVA DE TEXTO (100% LIMPIA SIN PLACEHOLDER) -->
                         <div class="form-group" style="margin-bottom:0; flex:1; display:flex; flex-direction:column;">
-                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" placeholder="Copia y pega aquí directamente el texto de las indicaciones o receta desde el software de la clínica..." required></textarea>
+                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="flex:1; min-height:300px;" required></textarea>
                         </div>
                     </div>
 
