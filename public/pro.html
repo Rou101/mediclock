@@ -494,10 +494,44 @@
                 <button type="submit" class="btn-submit">
                     <span>🚀</span> Emitir Prescripción & Despachar por WhatsApp
                 </button>
+
+                <div style="margin-top:16px; text-align:center; font-size:12px; color:var(--c-text-sub); display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <span>🔒</span>
+                    <span><strong>Privacidad Garantizada:</strong> Cero IA para lectura de recetas. Datos cifrados en Google Cloud / Firebase.</span>
+                    <a href="#" onclick="openPrivacyModal(event)" style="color:var(--c-primary); font-weight:700; text-decoration:underline; cursor:pointer;">Ver Política</a>
+                </div>
             </form>
         </section>
 
     </main>
+
+    <!-- MODAL DE POLÍTICA DE CONFIDENCIALIDAD Y SEGURIDAD -->
+    <div class="modal-overlay" id="privacy-modal">
+        <div class="modal-card" style="max-width:650px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom:1px solid var(--c-border); padding-bottom:12px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="background:rgba(56, 189, 248, 0.15); color:var(--c-primary); width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:18px;">🔒</div>
+                    <h3 style="font-size:20px; font-weight:800;">Política de Confidencialidad & Seguridad de Datos</h3>
+                </div>
+                <button type="button" onclick="closePrivacyModal()" style="background:none; border:none; color:var(--c-text-sub); font-size:28px; cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:24px; border:1px solid var(--c-border); font-size:14px; line-height:1.7; margin-bottom:24px; max-height:400px; overflow-y:auto;">
+                <h4 style="color:var(--c-primary); font-weight:700; margin-bottom:8px;">1. Cero Procesamiento de IA en Datos Sensibles</h4>
+                <p style="margin-bottom:14px;">MediClock Pro no utiliza Inteligencia Artificial ni motores OCR para la lectura de recetas médicas o fichas de pacientes. Toda la información es ingresada y validada exclusivamente por el médico tratante en su box de consulta.</p>
+
+                <h4 style="color:var(--c-primary); font-weight:700; margin-bottom:8px;">2. Cifrado & Infraestructura Certificada Google Cloud</h4>
+                <p style="margin-bottom:14px;">Los datos de tratamientos, pacientes y tutores se almacenan en <strong>Firebase Firestore (Google Cloud Platform)</strong>, utilizando cifrado de estándar militar <strong>AES-256 en reposo</strong> y protocolos de transporte seguro <strong>TLS/SSL de 256 bits</strong> en tránsito.</p>
+
+                <h4 style="color:var(--c-primary); font-weight:700; margin-bottom:8px;">3. Ley de Protección de Datos Personales & Secreto Médico</h4>
+                <p style="margin-bottom:14px;">Garantizamos la estricta confidencialidad médica. No vendemos, cedemos ni transferimos información sensible de salud a terceros. Las notificaciones a pacientes y tutores se envían de forma directa y privada a través de la infraestructura oficial de WhatsApp Cloud API.</p>
+            </div>
+
+            <button type="button" onclick="closePrivacyModal()" style="width:100%; background:var(--c-primary); color:#000; border:none; padding:14px; border-radius:var(--radius-md); font-weight:800; cursor:pointer;">
+                Entendido y Aceptar
+            </button>
+        </div>
+    </div>
 
     <!-- MODAL EMERGENTE DE REPORTE -->
     <div class="modal-overlay" id="dispatch-modal">
@@ -694,6 +728,15 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('r-fecha').value = today;
             calcularHorariosProgramados();
+        }
+
+        function openPrivacyModal(e) {
+            if (e) e.preventDefault();
+            document.getElementById('privacy-modal').style.display = 'flex';
+        }
+
+        function closePrivacyModal() {
+            document.getElementById('privacy-modal').style.display = 'none';
         }
     </script>
 </body>

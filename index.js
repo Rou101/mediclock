@@ -269,7 +269,7 @@ app.post('/api/pro/prescribir', async (req, res) => {
         });
 
         // 2. Formatear mensaje para WhatsApp Paciente
-        const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta (${fechaEmision || 'Hoy'}) para tu tratamiento de *${med} (${dosis})*.
+        const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision || 'Hoy'}* para tu tratamiento de *${med} (${dosis})*.
 
 ⏰ *Tomas al día:* ${tomasDia} toma(s) de ${cantPastillas} (Primera toma: ${horaInicio})
 🍽️ *Indicaciones:* ${comidaRel}${indicacion ? '\n📝 *Nota del Doctor:* ' + indicacion : ''}
@@ -278,19 +278,21 @@ app.post('/api/pro/prescribir', async (req, res) => {
 Obtén 15% DCTO en Farmacia asociada comprando directamente aquí:
 https://farmacia.cl/compra?med=${encodeURIComponent(med)}&cupo=MEDICLOCK15
 
-Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Responde *OK* para confirmar.`;
+🔒 *Privacidad & Seguridad MediClock:* Datos cifrados bajo Google Cloud / Firebase. Sin uso de IA para lectura de datos sensibles. Responde *OK* para confirmar.`;
 
         // 3. Despachar mensaje por WhatsApp API Meta al Paciente
         await enviarWA('+' + telLimpio, paciente, mensajeWA);
 
         // 4. Despachar a Tutor si está presente
         if (telTutorLimpio) {
-            const mensajeTutor = `🔔 *MediClock Pro - Aviso a Tutor/Cuidador* 🔔
-Hola ${tutorNombre || 'Cuidador'}, se ha registrado el tratamiento médico de *${paciente}*:
-💊 *Medicamento:* ${med} (${dosis}) - ${cantPastillas} por toma, ${tomasDia} veces al día.
-📅 *Duración:* ${duracion}.
+            const mensajeTutor = `🔔 *MediClock Pro - Aviso a Tutor/Cuidador Responsable* 🔔
+Hola ${tutorNombre || 'Cuidador'}, el Dr. Francisco Pérez ha registrado el tratamiento médico de *${paciente}*:
 
-Recibirás notificaciones y alertas de cumplimiento de ${paciente}.`;
+💊 *Medicamento:* ${med} (${dosis}) - ${cantPastillas} por toma, ${tomasDia} veces al día.
+📅 *Fecha Receta:* ${fechaEmision || 'Hoy'}
+⏱️ *Duración:* ${duracion}.
+
+🔒 *Privacidad & Seguridad:* Información protegida y cifrada en Google Cloud / Firebase. Sin uso de IA de lectura. Recibirás notificaciones si ${paciente} requiere asistencia con sus dosis.`;
             await enviarWA('+' + telTutorLimpio, tutorNombre || 'Tutor', mensajeTutor);
         }
 
