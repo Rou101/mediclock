@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>MediClock Pro v22.0 - Plataforma Médica de Prescripción & Adherencia</title>
+    <title>MediClock Pro v23.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
     
     <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -33,6 +33,7 @@
             --radius-md: 10px;
             --radius-sm: 6px;
             --shadow-card: 0 16px 36px -10px rgba(0, 0, 0, 0.6);
+            --sidebar-width: 270px;
         }
 
         * {
@@ -48,43 +49,46 @@
             color: var(--c-text);
             min-height: 100vh;
             display: flex;
-            flex-direction: column;
             background-image: 
                 radial-gradient(circle at 10% 10%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
                 radial-gradient(circle at 90% 90%, rgba(129, 140, 248, 0.05) 0%, transparent 40%);
             background-attachment: fixed;
         }
 
-        /* HEADER CHROME Y RESPONSIVO */
-        .chrome-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 16px 32px;
-            background: rgba(17, 24, 39, 0.9);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--c-border);
-            position: sticky;
+        /* BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL) */
+        .vertical-sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            position: fixed;
             top: 0;
-            z-index: 100;
+            left: 0;
+            background: rgba(15, 22, 36, 0.95);
+            backdrop-filter: blur(20px);
+            border-right: 1px solid var(--c-border);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 28px 20px;
+            z-index: 500;
         }
 
         .brand-box {
             display: flex;
             align-items: center;
             gap: 12px;
+            margin-bottom: 24px;
         }
 
         .brand-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
             border-radius: var(--radius-md);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 22px;
+            font-size: 24px;
             color: #FFF;
             box-shadow: 0 4px 16px var(--c-primary-glow);
         }
@@ -101,24 +105,28 @@
             font-weight: 800;
             padding: 3px 10px;
             border-radius: 16px;
-            font-size: 11px;
+            font-size: 10px;
             letter-spacing: 0.5px;
+            display: inline-block;
+            margin-top: 4px;
             box-shadow: 0 0 12px rgba(16,185,129,0.4);
         }
 
-        .doctor-badge {
+        /* FICHA DEL MÉDICO EN SIDEBAR */
+        .doctor-badge-sidebar {
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-lg);
+            padding: 14px;
             display: flex;
             align-items: center;
-            gap: 10px;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 6px 14px;
-            border-radius: 30px;
-            border: 1px solid var(--c-border);
+            gap: 12px;
+            margin-bottom: 24px;
         }
 
         .avatar-circle {
-            width: 32px;
-            height: 32px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: var(--c-primary);
             color: #000;
@@ -126,18 +134,92 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
+            flex-shrink: 0;
         }
 
-        /* CONTENEDOR PRINCIPAL RESPONSIVO */
-        .desktop-container {
-            max-width: 1360px;
+        /* NAVEGACIÓN Y BOTONES LATERALES */
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .btn-sidebar {
             width: 100%;
-            margin: 24px auto;
-            padding: 0 24px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid var(--c-border);
+            color: var(--c-text);
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: left;
+        }
+
+        .btn-sidebar:hover {
+            background: rgba(56, 189, 248, 0.12);
+            border-color: var(--c-primary);
+            color: var(--c-primary);
+            transform: translateX(3px);
+        }
+
+        /* REDES SOCIALES Y FOOTER SIDEBAR */
+        .sidebar-footer {
+            border-top: 1px solid var(--c-border);
+            padding-top: 18px;
+        }
+
+        .social-links {
+            display: flex;
+            gap: 12px;
+            margin-top: 10px;
+        }
+
+        .social-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--c-border);
+            color: var(--c-primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .social-btn:hover {
+            background: var(--c-primary);
+            color: #000;
+            transform: translateY(-2px);
+        }
+
+        /* ÁREA PRINCIPAL CONTENEDORA (DERECHA DEL SIDEBAR) */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            width: calc(100% - var(--sidebar-width));
+            min-height: 100vh;
+            padding: 32px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .desktop-container {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
             display: grid;
-            grid-template-columns: 1fr 1.1fr;
-            gap: 24px;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+            align-items: stretch;
         }
 
         /* TARJETAS GLASSMORPHIC ELEGANTES */
@@ -150,6 +232,7 @@
             backdrop-filter: blur(12px);
             display: flex;
             flex-direction: column;
+            height: 100%;
         }
 
         .card-header-title {
@@ -206,35 +289,31 @@
             background: rgba(0, 0, 0, 0.55);
         }
 
-        .field-select option {
-            background: #111827;
-            color: #FFF;
-        }
-
-        /* TEXTAREA GIGANTE PARA INDICACIONES DEL MÉDICO (MITAD SUPERIOR DERECHA) */
-        .field-textarea-giant {
+        /* TEXTAREA GIGANTE EXPANSIVO DE INDICACIONES (OCUPA TODO EL ALTO DERECHO) */
+        .field-textarea-giant-full {
             width: 100%;
-            min-height: 180px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid var(--c-primary-glow);
+            flex: 1;
+            min-height: 380px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1px solid rgba(56, 189, 248, 0.3);
             color: var(--c-text);
-            padding: 16px;
-            border-radius: var(--radius-md);
-            font-size: 14px;
+            padding: 18px;
+            border-radius: var(--radius-lg);
+            font-size: 15px;
             font-weight: 500;
-            line-height: 1.6;
+            line-height: 1.7;
             outline: none;
-            resize: vertical;
+            resize: none;
             transition: all 0.2s ease;
         }
 
-        .field-textarea-giant:focus {
+        .field-textarea-giant-full:focus {
             border-color: var(--c-primary);
             box-shadow: 0 0 0 4px var(--c-primary-glow);
-            background: rgba(0, 0, 0, 0.6);
+            background: rgba(0, 0, 0, 0.65);
         }
 
-        /* BOTONES AUXILIARES Y SIMÉTRICOS */
+        /* BOTONES AUXILIARES */
         .btn-aux {
             background: rgba(255, 255, 255, 0.05);
             border: 1px dashed var(--c-border);
@@ -255,16 +334,16 @@
             border-color: var(--c-primary);
         }
 
-        /* GRID DE BOTONES CUADRADOS SIMÉTRICOS AL PIE DE LA COLUMNA DERECHA */
+        /* GRID DE BOTONES CUADRADOS SIMÉTRICOS (50% / 50%) AL PIE */
         .square-actions-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr 1.2fr;
-            gap: 14px;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
             margin-top: 20px;
         }
 
         .square-btn {
-            height: 90px;
+            height: 95px;
             background: rgba(0, 0, 0, 0.35);
             border: 1px solid var(--c-border);
             border-radius: var(--radius-lg);
@@ -273,7 +352,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
-            padding: 10px;
+            padding: 12px;
             cursor: pointer;
             transition: all 0.25s ease;
             text-align: center;
@@ -287,11 +366,11 @@
         }
 
         .square-btn-icon {
-            font-size: 24px;
+            font-size: 26px;
         }
 
         .square-btn-text {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 800;
             line-height: 1.2;
         }
@@ -307,7 +386,7 @@
             color: var(--c-green);
         }
 
-        /* BOTÓN CUADRADO PRINCIPAL DE DISPARO WHATSAPP */
+        /* BOTÓN CUADRADO PRINCIPAL DE ENVÍO POR WHATSAPP */
         .square-btn-submit {
             background: linear-gradient(135deg, #10B981, #059669);
             border: none;
@@ -335,22 +414,6 @@
         .attachment-box:hover {
             border-color: var(--c-primary);
             background: rgba(56, 189, 248, 0.04);
-        }
-
-        /* BADGES ITINERARIO SUGERIDO */
-        .schedule-badge {
-            background: rgba(56, 189, 248, 0.12);
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            color: var(--c-primary);
-            padding: 6px 12px;
-            border-radius: var(--radius-md);
-            font-size: 11px;
-            font-weight: 700;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            margin-right: 6px;
-            margin-bottom: 6px;
         }
 
         /* MODAL POPUP REPORTE */
@@ -400,15 +463,6 @@
             opacity: 1;
         }
 
-        .med-block-card {
-            background: rgba(0, 0, 0, 0.25);
-            border: 1px solid var(--c-border);
-            border-radius: var(--radius-lg);
-            padding: 18px;
-            margin-bottom: 18px;
-            position: relative;
-        }
-
         .contact-item-row {
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid var(--c-border);
@@ -417,16 +471,27 @@
             margin-bottom: 10px;
         }
 
-        /* MEDIA QUERIES RESPONSIVOS */
+        /* MEDIA QUERIES RESPONSIVOS PARA SIDEBAR Y MÓVIL */
         @media (max-width: 1024px) {
+            .vertical-sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                border-right: none;
+                border-bottom: 1px solid var(--c-border);
+                padding: 16px 20px;
+            }
+            .main-content {
+                margin-left: 0;
+                width: 100%;
+                padding: 20px 16px;
+            }
             .desktop-container {
                 grid-template-columns: 1fr;
-                margin: 16px auto;
-                padding: 0 16px;
                 gap: 20px;
             }
-            .glass-card {
-                padding: 20px;
+            .field-textarea-giant-full {
+                min-height: 220px;
             }
         }
 
@@ -434,182 +499,199 @@
             .form-row {
                 grid-template-columns: 1fr;
                 gap: 12px;
-                margin-bottom: 12px;
             }
             .square-actions-grid {
                 grid-template-columns: 1fr;
                 gap: 10px;
             }
             .square-btn {
-                height: 70px;
+                height: 75px;
                 flex-direction: row;
-                justify-content: center;
-            }
-            .glass-card {
-                padding: 16px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- HEADER ESCRITORIO CHROME Y RESPONSIVO CON CONTROLES -->
-    <header class="chrome-header">
-        <div class="brand-box">
-            <div class="brand-icon">M</div>
-            <div>
-                <div style="display:flex; align-items:center; gap:8px;">
+    <!-- BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B) -->
+    <aside class="vertical-sidebar">
+        <div>
+            <!-- LOGO Y MARCA -->
+            <div class="brand-box">
+                <div class="brand-icon">M</div>
+                <div>
                     <span class="brand-title">MediClock Pro</span>
-                    <span class="version-tag">v22.0 CHROME B2B</span>
+                    <div><span class="version-tag">v23.0 B2B SIDEBAR</span></div>
                 </div>
-                <div style="font-size:11px; color:var(--c-text-sub); font-weight:600;">Plataforma Médica de Prescripción & Adherencia</div>
             </div>
-        </div>
 
-        <div style="display:flex; align-items:center; gap:14px;">
-            <button type="button" class="btn-aux" onclick="closeDispatchModal()" style="padding:8px 14px; font-size:12px;">
-                <span>✨</span> Nueva Receta
-            </button>
-            <button type="button" class="btn-aux" onclick="openPrivacyModal(event)" style="padding:8px 14px; font-size:12px;">
-                <span>🔒</span> Privacidad
-            </button>
-
-            <div class="doctor-badge">
+            <!-- PERFIL DEL DOCTOR -->
+            <div class="doctor-badge-sidebar">
                 <div class="avatar-circle">DR</div>
                 <div>
-                    <div style="font-size:13px; font-weight:700;">Dr. Francisco Pérez</div>
+                    <div style="font-size:13px; font-weight:800;">Dr. Francisco Pérez</div>
                     <div style="font-size:11px; color:var(--c-text-sub);">Cardiología | Box #4</div>
                 </div>
             </div>
+
+            <!-- NAVEGACIÓN Y ACCIONES RÁPIDAS -->
+            <div class="sidebar-menu">
+                <button type="button" class="btn-sidebar" onclick="closeDispatchModal()">
+                    <span>✨</span> Nueva Prescripción
+                </button>
+                <button type="button" class="btn-sidebar" onclick="openPrivacyModal(event)">
+                    <span>🔒</span> Seguridad & Privacidad
+                </button>
+                <button type="button" class="btn-sidebar" onclick="openRecomendarModal()">
+                    <span>⭐</span> Recomiéndanos
+                </button>
+                <button type="button" class="btn-sidebar" onclick="abrirDifusionWhatsApp()" style="background:rgba(16, 185, 129, 0.12); border-color:rgba(16, 185, 129, 0.3); color:var(--c-green);">
+                    <span>📢</span> Difusión WhatsApp
+                </button>
+            </div>
         </div>
-    </header>
 
-    <!-- CONTENEDOR PRINCIPAL RESPONSIVO (DESKTOP / TABLET / CELULAR) -->
-    <main class="desktop-container">
-        
-        <!-- COLUMNA IZQUIERDA: FICHA PACIENTE, CONTACTOS ADICIONALES Y ADJUNTO PDF/IMAGEN -->
-        <section class="glass-card">
-            <h2 class="card-header-title">
-                <span>👤</span> 1. Ficha del Paciente & Contactos Responsables
-            </h2>
+        <!-- REDES SOCIALES Y FOOTER -->
+        <div class="sidebar-footer">
+            <div style="font-size:11px; font-weight:700; color:var(--c-text-sub); text-transform:uppercase; letter-spacing:0.5px;">Síguenos en Redes</div>
+            <div class="social-links">
+                <a href="https://instagram.com" target="_blank" class="social-btn" title="Instagram">📷</a>
+                <a href="https://linkedin.com" target="_blank" class="social-btn" title="LinkedIn">💼</a>
+                <a href="https://wa.me/56957838682" target="_blank" class="social-btn" title="WhatsApp Business Directo">💬</a>
+            </div>
+        </div>
+    </aside>
 
-            <form id="pro-prescription-form" onsubmit="activarTratamiento(event)">
+    <!-- ÁREA PRINCIPAL DERECHA DEL SIDEBAR -->
+    <div class="main-content">
+        <form id="pro-prescription-form" onsubmit="activarTratamiento(event)" style="display:flex; flex-direction:column; width:100%;">
+            
+            <main class="desktop-container">
                 
-                <!-- NOMBRE Y APELLIDO PACIENTE (100% LIMPIO) -->
-                <div class="form-group">
-                    <label class="field-label">Nombre y Apellido del Paciente *</label>
-                    <input type="text" id="p-nombre" class="field-input" required>
-                </div>
-
-                <div class="form-row">
-                    <!-- TELÉFONO WHATSAPP PACIENTE (100% LIMPIO) -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">WhatsApp del Paciente *</label>
-                        <input type="tel" id="p-phone" class="field-input" required>
+                <!-- COLUMNA IZQUIERDA: FICHA PACIENTE, CONTACTOS Y ADJUNTO PDF/FOTO -->
+                <section class="glass-card">
+                    <h2 class="card-header-title">
+                        <span>👤</span> 1. Ficha del Paciente & Contactos
+                    </h2>
+                    
+                    <!-- NOMBRE Y APELLIDO PACIENTE (LIMPIO) -->
+                    <div class="form-group">
+                        <label class="field-label">Nombre y Apellido del Paciente *</label>
+                        <input type="text" id="p-nombre" class="field-input" required>
                     </div>
 
-                    <!-- FECHA DE EMISIÓN DE LA RECETA -->
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Fecha de Emisión *</label>
-                        <input type="date" id="r-fecha" class="field-input" required>
-                    </div>
-                </div>
-
-                <!-- SECCIÓN DE CONTACTOS ADICIONALES (ENFERMERA, TUTOR, CUIDADOR) -->
-                <div style="margin:16px 0;">
-                    <div id="contacts-container">
-                        <!-- Lista dinámica de personas adicionales -->
-                    </div>
-                    <button type="button" class="btn-aux" onclick="addContactRow()">
-                        <span>+</span> Agregar Persona / Contacto Adicional (Enfermera, Cuidador, etc.)
-                    </button>
-                </div>
-
-                <hr style="border:0; border-top:1px solid var(--c-border); margin:16px 0;">
-
-                <h3 style="font-size:13px; font-weight:700; color:var(--c-text); margin-bottom:10px;">
-                    📎 Respaldo de Receta (Imagen o Documento PDF de Clínica)
-                </h3>
-
-                <!-- ADJUNTAR FOTO O DOCUMENTO PDF -->
-                <input type="file" id="recipe-photo-file" accept="image/*,application/pdf,.pdf" style="display:none;" onchange="previewRecipeFile(this)">
-                <div class="attachment-box" onclick="document.getElementById('recipe-photo-file').click()">
-                    <div id="photo-placeholder">
-                        <span style="font-size:20px; display:block; margin-bottom:4px;">📂</span>
-                        <span style="font-size:12px; font-weight:700; color:var(--c-primary);">Adjuntar Archivo de Receta (Imagen o PDF)</span>
-                        <span style="font-size:11px; color:var(--c-text-sub); display:block; margin-top:2px;">Formatos admitidos: PDF de clínica o foto</span>
-                    </div>
-                    <img id="attached-photo-preview" style="display:none; max-height:140px; margin:0 auto; border-radius:var(--radius-md); border:1px solid var(--c-primary);" alt="Receta adjunta">
-                    <div id="attached-pdf-preview" style="display:none; text-align:center; padding:8px;">
-                        <span style="font-size:28px;">📄</span>
-                        <div id="pdf-file-name" style="font-size:12px; font-weight:700; color:var(--c-green); margin-top:2px;">Receta_Medica.pdf</div>
-                        <span style="font-size:10px; color:var(--c-text-sub);">Documento PDF listo para adjuntar</span>
-                    </div>
-                </div>
-
-                <hr style="border:0; border-top:1px solid var(--c-border); margin:20px 0;">
-
-                <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS -->
-                <div style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-                        <h3 style="font-size:13px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:6px;">
-                            <span>📞</span> Compartir Contacto del Médico & Emergencias
-                        </h3>
-                        <input type="checkbox" id="toggle-doc-contact" style="width:18px; height:18px; cursor:pointer;" onchange="toggleDocContactFields(this)">
-                    </div>
-                    <p style="font-size:11px; color:var(--c-text-sub); margin-bottom:10px;">
-                        Activa esta casilla si deseas incluir tus datos de contacto directo o anexo de emergencias en el WhatsApp del paciente.
-                    </p>
-
-                    <div id="doc-contact-fields" style="display:none;">
-                        <div class="form-group">
-                            <label class="field-label">Teléfono de Contacto / Anexo Urgencias</label>
-                            <input type="text" id="doc-phone" class="field-input">
-                        </div>
+                    <div class="form-row">
+                        <!-- TELÉFONO WHATSAPP PACIENTE (LIMPIO) -->
                         <div class="form-group" style="margin-bottom:0;">
-                            <label class="field-label">Indicación / Horario de Emergencias Centro Médico</label>
-                            <textarea id="doc-nota-emergency" class="field-textarea" style="min-height:65px;"></textarea>
+                            <label class="field-label">WhatsApp del Paciente *</label>
+                            <input type="tel" id="p-phone" class="field-input" required>
+                        </div>
+
+                        <!-- FECHA DE EMISIÓN DE LA RECETA -->
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="field-label">Fecha de Emisión *</label>
+                            <input type="date" id="r-fecha" class="field-input" required>
                         </div>
                     </div>
-                </div>
 
-        </section>
+                    <!-- SECCIÓN DE CONTACTOS ADICIONALES (ENFERMERA, TUTOR, CUIDADOR) -->
+                    <div style="margin:16px 0;">
+                        <div id="contacts-container"></div>
+                        <button type="button" class="btn-aux" onclick="addContactRow()">
+                            <span>+</span> Agregar Persona / Contacto Adicional (Enfermera, Cuidador, etc.)
+                        </button>
+                    </div>
 
-        <!-- COLUMNA DERECHA REFORMADA: INDICACIONES GIGANTES EN PARTE SUPERIOR + BOTONES CUADRADOS ABAJO -->
-        <section class="glass-card">
-            <h2 class="card-header-title">
-                <span>💊</span> 2. Prescripción del Tratamiento & Indicaciones
-            </h2>
+                    <hr style="border:0; border-top:1px solid var(--c-border); margin:16px 0;">
 
-            <!-- CONTENEDOR DE TARJETAS DE MEDICAMENTOS -->
-            <div id="meds-container">
-                <!-- Se insertan por JS -->
-            </div>
+                    <h3 style="font-size:13px; font-weight:700; color:var(--c-text); margin-bottom:10px;">
+                        📎 Respaldo de Receta (Imagen o Documento PDF de Clínica)
+                    </h3>
 
-            <!-- BOTONERA DE ACCIÓN SIMÉTRICA CON 2 BOTONES CUADRADOS ELEGANTES AL PIE -->
-            <div class="square-actions-grid" style="grid-template-columns: 1fr 1fr;">
-                <!-- BOTÓN CUADRADO 1: DESCUENTO FARMACIA -->
-                <button type="button" class="square-btn square-btn-desc active" id="main-btn-desc" onclick="toggleDescuentoGlobal()">
-                    <span class="square-btn-icon">🏷️</span>
-                    <span class="square-btn-text" id="main-desc-text">Descuento Farmacia (15% DCTO)</span>
-                </button>
+                    <!-- ADJUNTAR FOTO O DOCUMENTO PDF -->
+                    <input type="file" id="recipe-photo-file" accept="image/*,application/pdf,.pdf" style="display:none;" onchange="previewRecipeFile(this)">
+                    <div class="attachment-box" onclick="document.getElementById('recipe-photo-file').click()">
+                        <div id="photo-placeholder">
+                            <span style="font-size:20px; display:block; margin-bottom:4px;">📂</span>
+                            <span style="font-size:12px; font-weight:700; color:var(--c-primary);">Adjuntar Archivo de Receta (Imagen o PDF)</span>
+                            <span style="font-size:11px; color:var(--c-text-sub); display:block; margin-top:2px;">Formatos admitidos: PDF de clínica o foto</span>
+                        </div>
+                        <img id="attached-photo-preview" style="display:none; max-height:140px; margin:0 auto; border-radius:var(--radius-md); border:1px solid var(--c-primary);" alt="Receta adjunta">
+                        <div id="attached-pdf-preview" style="display:none; text-align:center; padding:8px;">
+                            <span style="font-size:28px;">📄</span>
+                            <div id="pdf-file-name" style="font-size:12px; font-weight:700; color:var(--c-green); margin-top:2px;">Receta_Medica.pdf</div>
+                            <span style="font-size:10px; color:var(--c-text-sub);">Documento PDF listo para adjuntar</span>
+                        </div>
+                    </div>
 
-                <!-- BOTÓN CUADRADO 2 (PRINCIPAL): EMITIR Y DESPACHAR POR WHATSAPP -->
-                <button type="submit" class="square-btn square-btn-submit">
-                    <span class="square-btn-icon">🚀</span>
-                    <span class="square-btn-text">Emitir & Despachar WhatsApp</span>
-                </button>
-            </div>
+                    <hr style="border:0; border-top:1px solid var(--c-border); margin:20px 0;">
 
-            <div style="margin-top:16px; text-align:center; font-size:11px; color:var(--c-text-sub); display:flex; align-items:center; justify-content:center; gap:6px;">
-                <span>🔒</span>
-                <span><strong>Privacidad Garantizada:</strong> Cero IA para lectura de recetas. Datos cifrados en Google Cloud.</span>
-                <a href="#" onclick="openPrivacyModal(event)" style="color:var(--c-primary); font-weight:700; text-decoration:underline; cursor:pointer;">Ver Política</a>
-            </div>
-            </form>
-        </section>
+                    <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS -->
+                    <div style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                            <h3 style="font-size:13px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:6px;">
+                                <span>📞</span> Compartir Contacto del Médico & Emergencias
+                            </h3>
+                            <input type="checkbox" id="toggle-doc-contact" style="width:18px; height:18px; cursor:pointer;" onchange="toggleDocContactFields(this)">
+                        </div>
+                        <p style="font-size:11px; color:var(--c-text-sub); margin-bottom:10px;">
+                            Activa esta casilla si deseas incluir tus datos de contacto directo o anexo de emergencias en el WhatsApp del paciente.
+                        </p>
 
-    </main>
+                        <div id="doc-contact-fields" style="display:none;">
+                            <div class="form-group">
+                                <label class="field-label">Teléfono de Contacto / Anexo Urgencias</label>
+                                <input type="text" id="doc-phone" class="field-input">
+                            </div>
+                            <div class="form-group" style="margin-bottom:0;">
+                                <label class="field-label">Indicación / Horario de Emergencias Centro Médico</label>
+                                <textarea id="doc-nota-emergency" class="field-textarea" style="min-height:65px;"></textarea>
+                            </div>
+                        </div>
+                    </div>
+
+                </section>
+
+                <!-- COLUMNA DERECHA REFORMADA: INDICACIONES DEL MÉDICO (EXPANSIVO 100% ALTO EQUILIBRADO) -->
+                <section class="glass-card" style="display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <h2 class="card-header-title">
+                            <span>📝</span> 2. Indicaciones del Médico
+                        </h2>
+
+                        <!-- ÁREA GIGANTE EXPANSIVA DE TEXTO COPIADO DESDE OTRA PLATAFORMA -->
+                        <div class="form-group" style="margin-bottom:0; flex:1; display:flex; flex-direction:column;">
+                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" placeholder="Copia y pega aquí directamente el texto de las indicaciones o receta desde el software de la clínica..." required></textarea>
+                        </div>
+                    </div>
+
+                    <div>
+                        <!-- BOTONERA DE ACCIÓN SIMÉTRICA DE 2 BOTONES CUADRADOS AL PIE (50% / 50%) -->
+                        <div class="square-actions-grid">
+                            <!-- BOTÓN CUADRADO 1: DESCUENTO FARMACIA -->
+                            <button type="button" class="square-btn square-btn-desc active" id="main-btn-desc" onclick="toggleDescuentoGlobal()">
+                                <span class="square-btn-icon">🏷️</span>
+                                <span class="square-btn-text" id="main-desc-text">Descuento Farmacia (15% DCTO)</span>
+                            </button>
+
+                            <!-- BOTÓN CUADRADO 2 (PRINCIPAL): EMITIR POR WHATSAPP -->
+                            <button type="submit" class="square-btn square-btn-submit">
+                                <span class="square-btn-icon">🚀</span>
+                                <span class="square-btn-text">Emitir por WhatsApp</span>
+                            </button>
+                        </div>
+
+                        <div style="margin-top:16px; text-align:center; font-size:11px; color:var(--c-text-sub); display:flex; align-items:center; justify-content:center; gap:6px;">
+                            <span>🔒</span>
+                            <span><strong>Privacidad Garantizada:</strong> Cero IA para lectura de recetas. Datos cifrados en Google Cloud.</span>
+                            <a href="#" onclick="openPrivacyModal(event)" style="color:var(--c-primary); font-weight:700; text-decoration:underline; cursor:pointer;">Ver Política</a>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </form>
+    </div>
 
     <!-- MODAL DE POLÍTICA DE CONFIDENCIALIDAD Y SEGURIDAD -->
     <div class="modal-overlay" id="privacy-modal">
@@ -636,6 +718,31 @@
             <button type="button" onclick="closePrivacyModal()" style="width:100%; background:var(--c-primary); color:#000; border:none; padding:12px; border-radius:var(--radius-md); font-weight:800; cursor:pointer;">
                 Entendido y Aceptar
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL RECOMIÉNDANOS -->
+    <div class="modal-overlay" id="recomendar-modal">
+        <div class="modal-card" style="max-width:550px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; border-bottom:1px solid var(--c-border); padding-bottom:10px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background:rgba(16, 185, 129, 0.15); color:var(--c-green); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px;">⭐</div>
+                    <h3 style="font-size:18px; font-weight:800;">Recomienda MediClock Pro</h3>
+                </div>
+                <button type="button" onclick="closeRecomendarModal()" style="background:none; border:none; color:var(--c-text-sub); font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:20px; border:1px solid var(--c-border); font-size:13px; line-height:1.6; margin-bottom:20px;">
+                <p style="margin-bottom:12px; font-weight:600;">¿Te resulta útil MediClock Pro en tu consulta? Comparte esta plataforma con tus colegas médicos o centros de salud.</p>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <button type="button" onclick="abrirDifusionWhatsApp()" style="background:linear-gradient(135deg, #10B981, #059669); color:#FFF; border:none; padding:14px; border-radius:var(--radius-md); font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                        💬 Compartir por WhatsApp a Colegas / Lista de Contactos
+                    </button>
+                    <button type="button" onclick="copiarEnlacePlataforma()" style="background:rgba(255,255,255,0.06); color:var(--c-text); border:1px solid var(--c-border); padding:12px; border-radius:var(--radius-md); font-weight:700; cursor:pointer;">
+                        📋 Copiar Enlace Directo de la Plataforma
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -679,15 +786,12 @@
     <script>
         let currentFileBase64 = '';
         let currentFileType = 'image';
-        let medCardCount = 0;
         let contactCount = 0;
         let descuentoGlobalActivo = true;
 
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('r-fecha').value = today;
-
-            addMedicationCard();
         });
 
         function showToast(msg) {
@@ -739,95 +843,6 @@
             if (row) row.remove();
         }
 
-        function addMedicationCard() {
-            medCardCount++;
-            const container = document.getElementById('meds-container');
-            
-            const card = document.createElement('div');
-            card.className = 'med-block-card';
-            card.id = `med-card-${medCardCount}`;
-
-            card.innerHTML = `
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                    <span style="font-size:13px; font-weight:800; color:var(--c-primary);">Medicamento #${medCardCount}</span>
-                    ${medCardCount > 1 ? `<button type="button" onclick="removeMedicationCard(${medCardCount})" style="background:none; border:none; color:#EF4444; font-weight:800; font-size:12px; cursor:pointer;">Eliminar</button>` : ''}
-                </div>
-
-                <!-- Fila 1: Nombre & Dosis -->
-                <div class="form-row">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Nombre del Medicamento *</label>
-                        <input type="text" class="field-input med-nombre" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Dosis / Concentración *</label>
-                        <input type="text" class="field-input med-dosis" required>
-                    </div>
-                </div>
-
-                <!-- Fila 2: Pastillas por toma & Veces al día -->
-                <div class="form-row">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Pastillas por Toma (Número) *</label>
-                        <input type="number" class="field-input med-cant-pastillas" min="1" max="10" value="1" oninput="calcularHorariosCard(${medCardCount})" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Veces al Día (Número) *</label>
-                        <input type="number" class="field-input med-tomas-dia" min="1" max="12" value="2" oninput="calcularHorariosCard(${medCardCount})" required>
-                    </div>
-                </div>
-
-                <!-- Fila 3: Horario Sugerido Primera Dosis -->
-                <div class="form-group">
-                    <label class="field-label">Horario Sugerido (Primera Dosis Día Siguiente) *</label>
-                    <select class="field-select med-hora-inicio" onchange="calcularHorariosCard(${medCardCount})">
-                        <option value="08:00" selected>08:00 AM (Mañana / Al despertar)</option>
-                        <option value="09:00">09:00 AM (Mañana)</option>
-                        <option value="10:00">10:00 AM (Media Mañana)</option>
-                        <option value="12:00">12:00 PM (Mediodía / Almuerzo)</option>
-                        <option value="14:00">14:00 PM (Tarde)</option>
-                        <option value="20:00">20:00 PM (Noche / Cena)</option>
-                        <option value="22:00">22:00 PM (Antes de dormir)</option>
-                    </select>
-                </div>
-
-                <!-- Preview de Horarios Calculados -->
-                <div class="form-group">
-                    <label class="field-label">Itinerario Calculado:</label>
-                    <div class="med-schedule-preview" style="background:rgba(0,0,0,0.2); padding:10px; border-radius:var(--radius-md); border:1px solid var(--c-border);">
-                    </div>
-                </div>
-
-                <!-- Fila 4: Relación con Comidas & Duración en Días -->
-                <div class="form-row">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Relación con Comidas</label>
-                        <select class="field-select med-comida-rel">
-                            <option value="Sin relación específica con comidas">Sin relación específica con comidas</option>
-                            <option value="En ayunas (30 min antes del desayuno)">En ayunas (30 min antes del desayuno)</option>
-                            <option value="Junto con las comidas">Junto con las comidas</option>
-                            <option value="Después de comer">Después de comer</option>
-                            <option value="Antes de dormir">Antes de dormir</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Duración en Días (Número) *</label>
-                        <input type="number" class="field-input med-dias" min="1" max="365" value="10" required>
-                    </div>
-                </div>
-
-                <!-- Fila 5: INDICACIONES DEL MÉDICO (ÁREA GIGANTE AMPLIADA) -->
-                <div class="form-group" style="margin-bottom:0;">
-                    <label class="field-label" style="color:var(--c-primary);">📝 Indicaciones & Notas del Médico *</label>
-                    <textarea class="field-textarea-giant med-indicacion"></textarea>
-                </div>
-            `;
-
-            container.appendChild(card);
-            calcularHorariosCard(medCardCount);
-        }
-
         function toggleDescuentoGlobal() {
             const btn = document.getElementById('main-btn-desc');
             const txt = document.getElementById('main-desc-text');
@@ -841,42 +856,6 @@
                 btn.classList.remove('active');
                 txt.textContent = "+ Agregar Descuento Farmacia";
                 showToast("🏷️ Descuento desactivado");
-            }
-        }
-
-        function removeMedicationCard(id) {
-            const card = document.getElementById(`med-card-${id}`);
-            if (card) card.remove();
-        }
-
-        function calcularHorariosCard(id) {
-            const card = document.getElementById(`med-card-${id}`);
-            if (!card) return;
-
-            const tomasDia = Math.max(1, parseInt(card.querySelector('.med-tomas-dia').value) || 1);
-            const horaInicioStr = card.querySelector('.med-hora-inicio').value || "08:00";
-            const cantPastillas = card.querySelector('.med-cant-pastillas').value || "1";
-
-            const parts = horaInicioStr.split(':');
-            let startHour = parseInt(parts[0]) || 8;
-            let startMin = parseInt(parts[1]) || 0;
-
-            const intervalHours = 24 / tomasDia;
-            const previewContainer = card.querySelector('.med-schedule-preview');
-            previewContainer.innerHTML = '';
-
-            const formatMin = startMin < 10 ? '0' + startMin : startMin;
-
-            for (let i = 0; i < tomasDia; i++) {
-                let currentHour = Math.floor((startHour + (i * intervalHours))) % 24;
-                const formattedHour = currentHour < 10 ? '0' + currentHour : currentHour;
-                const ampm = currentHour >= 12 ? 'PM' : 'AM';
-                const timeString = `${formattedHour}:${formatMin} ${ampm}`;
-
-                const badge = document.createElement('span');
-                badge.className = 'schedule-badge';
-                badge.innerHTML = `Toma ${i+1}: <strong>${timeString}</strong> (${cantPastillas} unidad/es)`;
-                previewContainer.appendChild(badge);
             }
         }
 
@@ -914,6 +893,17 @@
             const paciente = document.getElementById('p-nombre').value.trim();
             const phone = document.getElementById('p-phone').value.trim();
             const fechaEmision = document.getElementById('r-fecha').value;
+            const indicacionesCopied = document.getElementById('m-indicaciones-copied').value.trim();
+
+            if (!paciente || !phone) {
+                alert("Por favor ingrese el nombre del paciente y su WhatsApp.");
+                return;
+            }
+
+            if (!indicacionesCopied) {
+                alert("Por favor pegue o ingrese las indicaciones de la receta.");
+                return;
+            }
 
             // Recopilar contactos adicionales (Enfermera, Cuidador, etc.)
             const contactosAdicionales = [];
@@ -931,38 +921,17 @@
             const docPhone = document.getElementById('doc-phone').value.trim();
             const docNotaEmergency = document.getElementById('doc-nota-emergency').value.trim();
 
-            if (!paciente || !phone) {
-                alert("Por favor ingrese el nombre del paciente y su WhatsApp.");
-                return;
-            }
-
-            // Recopilar lista de medicamentos
-            const medCards = document.querySelectorAll('.med-block-card');
-            const medicamentos = [];
-
-            medCards.forEach(card => {
-                const nombre = card.querySelector('.med-nombre').value.trim();
-                const dosis = card.querySelector('.med-dosis').value.trim();
-                const cantPastillas = parseInt(card.querySelector('.med-cant-pastillas').value) || 1;
-                const tomasDia = parseInt(card.querySelector('.med-tomas-dia').value) || 2;
-                const horaInicio = card.querySelector('.med-hora-inicio').value;
-                const comidaRel = card.querySelector('.med-comida-rel').value;
-                const duracion = parseInt(card.querySelector('.med-dias').value) || 10;
-                const indicacion = card.querySelector('.med-indicacion').value.trim();
-
-                if (nombre) {
-                    medicamentos.push({
-                        nombre, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion,
-                        descuentoAplicado: descuentoGlobalActivo,
-                        indicacion
-                    });
-                }
-            });
-
-            if (medicamentos.length === 0) {
-                alert("Por favor ingrese al menos un medicamento.");
-                return;
-            }
+            const medicamentos = [{
+                nombre: 'Receta Médica Copiada',
+                dosis: '',
+                cantPastillas: 1,
+                tomasDia: 1,
+                horaInicio: '08:00',
+                comidaRel: '',
+                duracion: 10,
+                descuentoAplicado: descuentoGlobalActivo,
+                indicacion: indicacionesCopied
+            }];
 
             showToast("🚀 Emitiendo prescripción y despachando WhatsApp...");
 
@@ -1001,22 +970,13 @@
             }
 
             const repMedsSummary = document.getElementById('rep-meds-summary');
-            repMedsSummary.innerHTML = '';
-
-            let waMedsText = '';
-            medicamentos.forEach((m, idx) => {
-                const item = document.createElement('div');
-                item.style.marginBottom = '8px';
-                item.innerHTML = `<strong>${idx+1}. ${m.nombre} (${m.dosis})</strong>: ${m.tomasDia} toma(s)/día (${m.cantPastillas} unidad/es) por ${m.duracion} días ${m.descuentoAplicado ? '[Descuento Farmacia Activado]' : ''}`;
-                repMedsSummary.appendChild(item);
-
-                waMedsText += `\n💊 *${m.nombre} (${m.dosis}):* ${m.tomasDia} tomas/día por ${m.duracion} días`;
-            });
+            repMedsSummary.innerHTML = `<div><strong>📝 Indicaciones de la Receta:</strong><br><pre style="white-space:pre-wrap; font-family:inherit;">${indicacionesCopied}</pre></div>`;
 
             const cleanPhone = phone.replace(/\D/g, '');
             const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision}*.
 
-📋 *Detalle Tratamiento:*${waMedsText}
+📝 *Indicaciones:*
+${indicacionesCopied}
 
 Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirmar.`;
 
@@ -1038,10 +998,6 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
             document.getElementById('contacts-container').innerHTML = '';
             contactCount = 0;
 
-            document.getElementById('meds-container').innerHTML = '';
-            medCardCount = 0;
-            addMedicationCard();
-
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('r-fecha').value = today;
         }
@@ -1053,6 +1009,29 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
 
         function closePrivacyModal() {
             document.getElementById('privacy-modal').style.display = 'none';
+        }
+
+        function openRecomendarModal() {
+            document.getElementById('recomendar-modal').style.display = 'flex';
+        }
+
+        function closeRecomendarModal() {
+            document.getElementById('recomendar-modal').style.display = 'none';
+        }
+
+        function abrirDifusionWhatsApp() {
+            const promoText = `Hola colega 👋 Te recomiendo *MediClock Pro*, la plataforma médica para emitir y notificar recetas médicas directamente por WhatsApp a tus pacientes sin usar IA en datos sensibles:
+
+👉 https://mediclock-961339509446.us-central1.run.app/pro.html`;
+
+            const waShareUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(promoText)}`;
+            window.open(waShareUrl, '_blank');
+            showToast("📢 Abriendo difusión / compartir en WhatsApp");
+        }
+
+        function copiarEnlacePlataforma() {
+            navigator.clipboard.writeText("https://mediclock-961339509446.us-central1.run.app/pro.html");
+            showToast("📋 Enlace de MediClock Pro copiado al portapapeles");
         }
     </script>
 </body>

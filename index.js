@@ -283,18 +283,23 @@ app.post('/api/pro/prescribir', async (req, res) => {
             creadoEn: new Date().toISOString()
         });
 
-        // 4. Formatear detalle de medicamentos
+        // 4. Formatear detalle de medicamentos / indicaciones del médico
         let medsDetalle = '';
-        medsList.forEach((m, idx) => {
-            const descTag = m.descuentoAplicado ? '\n   - 🛒 *Descuento Farmacia Asociada Activado:* https://farmacia.cl/compra?med=' + encodeURIComponent(m.nombre) + '&cupo=MEDICLOCK15' : '';
-            medsDetalle += `\n💊 *Medicamento ${idx + 1}:* ${m.nombre} (${m.dosis})
-   - *Tomas:* ${m.tomasDia} vez(veces) al día (${m.cantPastillas} unidad/es por toma)
-   - *Primera toma:* ${m.horaInicio} (${m.comidaRel})
-   - *Duración:* ${m.duracion} días${descTag}`;
-            if (m.indicacion) {
-                medsDetalle += `\n   - 📝 *Nota:* ${m.indicacion}`;
-            }
-        });
+        const isFreeFormText = medsList.length === 1 && (!medsList[0].nombre || medsList[0].nombre === 'Medicamento' || medsList[0].nombre === 'Receta Médica');
+        
+        if (isFreeFormText) {
+            const descTag = medsList[0].descuentoAplicado ? '\n\n🛒 *Descuento Farmacia Asociada Activado (15% DCTO):*\nhttps://farmacia.cl/compra?cupo=MEDICLOCK15' : '';
+            medsDetalle = `\n📝 *Indicaciones de la Receta Copiada:*
+${medsList[0].indicacion || 'Sin indicaciones adicionales'}${descTag}`;
+        } else {
+            medsList.forEach((m, idx) => {
+                const descTag = m.descuentoAplicado ? '\n   - 🛒 *Descuento Farmacia Asociada Activado:* https://farmacia.cl/compra?med=' + encodeURIComponent(m.nombre) + '&cupo=MEDICLOCK15' : '';
+                medsDetalle += `\n💊 *Medicamento ${idx + 1}:* ${m.nombre} ${m.dosis ? '(' + m.dosis + ')' : ''}${descTag}`;
+                if (m.indicacion) {
+                    medsDetalle += `\n   - 📝 *Indicaciones:* ${m.indicacion}`;
+                }
+            });
+        }
 
         // Bloque opcional de contacto del médico
         let docContactoBloque = '';
