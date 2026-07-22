@@ -714,11 +714,10 @@
             }
         }
 
-        // PROCESAR FOTO DE RECETA O CAJA TOMADA POR EL MÉDICO
+        // PROCESAR FOTO DE RECETA O CAJA TOMADA POR EL MÉDICO CON CLOUD VISION OCR REAL
         function procesarFotoArchivo(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
-            const fileName = file.name.toLowerCase();
 
             const imgPreview = document.getElementById('captured-preview');
             const placeholder = document.getElementById('scanner-placeholder');
@@ -727,43 +726,44 @@
             imgPreview.style.display = 'block';
             imgPreview.src = URL.createObjectURL(file);
 
-            showToast("Analizando foto de Receta Médica / Caja...");
+            showToast("🔍 Escaneando receta manuscrita o impresa con IA...");
 
-            // Lógica inteligente de OCR e identificación de recetas
-            setTimeout(() => {
-                let detectedName = "";
-                let detectedDosis = "";
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64 = e.target.result;
+                try {
+                    const res = await fetch('/api/pro/scan-prescription', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ imageBase64: base64 })
+                    });
+                    const data = await res.json();
 
-                if (fileName.includes("receta") || fileName.includes("prescrip")) {
-                    detectedName = "Losartán 50mg / Levorigotax 5mg";
-                    detectedDosis = "Según receta médica";
-                    showToast("✨ ¡Receta médica escaneada! Medicamentos extraídos");
-                } else if (fileName.includes("levorigotax") || fileName.includes("levo")) {
-                    detectedName = "Levorigotax (Levocetirizina)";
-                    detectedDosis = "5 mg (1 comprimido)";
-                    showToast(`Identificado: ${detectedName}`);
-                } else if (fileName.includes("losartan")) {
-                    detectedName = "Losartán Potásico";
-                    detectedDosis = "50 mg";
-                    showToast(`Identificado: ${detectedName}`);
-                } else {
-                    const userPrompt = prompt("Foto capturada. Confirme o ingrese el nombre del medicamento o receta:", "Levorigotax 5mg");
-                    if (userPrompt) {
-                        detectedName = userPrompt;
-                        detectedDosis = "5 mg / Según prescripción";
+                    if (data.success && data.medicamento) {
+                        document.getElementById('m-nombre').value = data.medicamento;
+                        document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
+                        
+                        if (data.dosis) {
+                            document.getElementById('m-dosis').value = data.dosis;
+                            document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
+                        }
+                        if (data.tomasDia) {
+                            document.getElementById('m-tomas-dia').value = data.tomasDia.toString();
+                            calcularHorariosProgramados();
+                        }
+                        if (data.indicacion) {
+                            document.getElementById('m-indicacion').value = data.indicacion;
+                        }
+                        showToast(`✨ Prescripción identificada: ${data.medicamento} ${data.dosis}`);
                     } else {
-                        detectedName = "Levorigotax";
-                        detectedDosis = "5 mg";
+                        showToast("Foto cargada. Complete el nombre del medicamento.");
                     }
-                    showToast(`Identificado: ${detectedName}`);
+                } catch (err) {
+                    console.error("Error en OCR:", err);
+                    showToast("Foto cargada. Complete el nombre del medicamento.");
                 }
-
-                document.getElementById('m-nombre').value = detectedName;
-                document.getElementById('m-dosis').value = detectedDosis;
-                document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
-                document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
-
-            }, 750);
+            };
+            reader.readAsDataURL(file);
         }
 
         function activarTratamiento(e) {

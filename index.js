@@ -8,9 +8,13 @@ const axios = require('axios');
 const { initializeApp } = require('firebase-admin/app');
 const { getFirestore } = require('firebase-admin/firestore');
 const { getAuth } = require('firebase-admin/auth');
+const { GoogleAuth } = require('google-auth-library');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+
+// Google Auth for Cloud Vision API
+const googleAuthClient = new GoogleAuth({ scopes: 'https://www.googleapis.com/auth/cloud-platform' });
 
 // Meta WhatsApp Cloud API
 const META_WA_ACCESS_TOKEN = process.env.META_WA_ACCESS_TOKEN || '';
@@ -33,6 +37,107 @@ const APP_VERSION = 'v32';
 // Endpoint público para verificación de versión y auto-actualización forzada
 app.get('/api/version', (req, res) => {
     res.json({ version: APP_VERSION, buildDate: '2026-07-19', forceUpdate: true });
+});
+
+// ===========================================
+// API: PRO OCR RECETAS Y MEDICAMENTOS (Cloud Vision)
+// ===========================================
+app.post('/api/pro/scan-prescription', async (req, res) => {
+    try {
+        const { imageBase64 } = req.body || {};
+        if (!imageBase64) {
+            return res.status(400).json({ error: 'No image provided' });
+        }
+
+        const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
+
+        // Obtain Google Auth Access Token
+        const client = await googleAuthClient.getClient();
+        const tokenResponse = await client.getAccessToken();
+        const accessToken = tokenResponse.token;
+
+        // Call Google Cloud Vision OCR API (DOCUMENT_TEXT_DETECTION for handwritten and printed prescriptions)
+        const visionUrl = 'https://vision.googleapis.com/v1/images:annotate';
+        const visionRes = await axios.post(visionUrl, {
+            requests: [
+                {
+                    image: { content: cleanBase64 },
+                    features: [{ type: 'DOCUMENT_TEXT_DETECTION' }]
+                }
+            ]
+        }, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        const fullAnnotation = visionRes.data?.responses?.[0]?.fullTextAnnotation;
+        const rawText = fullAnnotation ? fullAnnotation.text : (visionRes.data?.responses?.[0]?.textAnnotations?.[0]?.description || '');
+
+        console.log(`[OCR Receta Extraído]:\n${rawText}`);
+
+        let doctor = '';
+        let medicamento = '';
+        let dosis = '';
+        let tomasDia = 2; // Default
+        let comidaRel = 'Sin relación específica con comidas';
+
+        const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
+
+        // 1. Doctor Detection
+        const docLine = lines.find(l => /dr\b|dra\b|doctor|medico/i.test(l));
+        if (docLine) doctor = docLine;
+
+        // 2. Frecuencia Detection (e.g. "CADA 6 HORAS", "cada 8 horas", "1 al día")
+        const freq6 = /cada\s*6\s*horas?/i.test(rawText);
+        const freq8 = /cada\s*8\s*horas?/i.test(rawText);
+        const freq12 = /cada\s*12\s*horas?/i.test(rawText);
+        const freq24 = /cada\s*24\s*horas?|1\s*al\s*dia|diaria/i.test(rawText);
+
+        if (freq6) tomasDia = 4;
+        else if (freq8) tomasDia = 3;
+        else if (freq12) tomasDia = 2;
+        else if (freq24) tomasDia = 1;
+
+        // 3. Dosis Detection (e.g. "500 MG", "5 MG", "20 MG")
+        const dosisMatch = rawText.match(/(\d+\s*(mg|g|ml|comprimidos?|pastillas?))/i);
+        if (dosisMatch) {
+            dosis = dosisMatch[0].toUpperCase();
+        }
+
+        // 4. Medicamento Detection
+        const knownMeds = ['ASPIRINA', 'LEVORIGOTAX', 'LOSARTAN', 'ATORVASTATINA', 'ENALAPRIL', 'METFORMINA', 'PARACETAMOL', 'IBUPROFENO', 'AMOXICILINA', 'OMEPRAZOL', 'KETOROLACO'];
+        const foundKnown = knownMeds.find(km => rawText.toUpperCase().includes(km));
+
+        if (foundKnown) {
+            medicamento = foundKnown.charAt(0).toUpperCase() + foundKnown.slice(1).toLowerCase();
+        } else {
+            const medCandidates = lines.filter(l => 
+                !/dr\b|dra\b|proctologo|cardiologo|cada|horas|mg\b/i.test(l) && l.length > 3
+            );
+            if (medCandidates.length > 0) {
+                medicamento = medCandidates[0];
+            } else {
+                medicamento = 'Medicamento Recetado';
+            }
+        }
+
+        res.json({
+            success: true,
+            rawText,
+            doctor,
+            medicamento,
+            dosis: dosis || '500 MG',
+            tomasDia,
+            comidaRel,
+            indicacion: doctor ? `Recetado por ${doctor}` : ''
+        });
+
+    } catch (err) {
+        console.error('[OCR Error]:', err.response?.data || err.message);
+        res.status(500).json({ error: 'Error procesando OCR', details: err.message });
+    }
 });
 
 // ===========================================
