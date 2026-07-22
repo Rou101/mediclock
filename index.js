@@ -128,7 +128,6 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
         if (foundKnown) {
             medicamento = foundKnown.charAt(0).toUpperCase() + foundKnown.slice(1).toLowerCase();
         } else {
-            // Filtrar líneas de encabezado para obtener la línea principal del remedio
             const medCandidates = lines.filter(l => 
                 !/dr\b|dra\b|proctologo|proctologa|cardiologo|cada|horas|mg\b|dias\b/i.test(l) && l.length > 2
             );
@@ -158,6 +157,63 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
             error: 'Ocurrió un error en el servidor OCR de Google Vision.', 
             details: err.message 
         });
+    }
+});
+
+// ===========================================
+// API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP
+// ===========================================
+app.post('/api/pro/prescribir', async (req, res) => {
+    try {
+        const { paciente, phone, med, dosis, tomasDia, horaInicio, comidaRel, duracion, indicacion } = req.body || {};
+
+        if (!paciente || !phone || !med) {
+            return res.status(400).json({ error: 'Faltan campos obligatorios (paciente, teléfono, medicamento)' });
+        }
+
+        const telLimpio = phone.replace(/\D/g, '');
+
+        // 1. Guardar en Firestore para que el paciente lo vea en su app
+        const grupoDoc = db.collection('grupos').doc('default_pro');
+        const medRef = await grupoDoc.collection('medicamentos').add({
+            familiar: paciente,
+            telefono: '+' + telLimpio,
+            nombre: med,
+            dosis: dosis || '',
+            frecuencia: 'diaria',
+            tomasDia: parseInt(tomasDia) || 2,
+            hora: horaInicio || '08:00',
+            indicacion: indicacion || '',
+            comidaRel: comidaRel || '',
+            duracion: duracion || '30 días',
+            doctor: 'Dr. Francisco Pérez',
+            creadoEn: new Date().toISOString()
+        });
+
+        // 2. Formatear mensaje para WhatsApp
+        const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha prescrito tu tratamiento de *${med} (${dosis})*.
+
+⏰ *Tomas al día:* ${tomasDia} toma(s) (Primera toma: ${horaInicio})
+🍽️ *Indicaciones:* ${comidaRel}${indicacion ? '\n📝 *Nota del Doctor:* ' + indicacion : ''}
+
+🛒 *¿Necesitas comprar el medicamento?*
+Obtén 15% DCTO en Farmacia asociada comprando directamente aquí:
+https://farmacia.cl/compra?med=${encodeURIComponent(med)}&cupo=MEDICLOCK15
+
+Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Responde *OK* para confirmar la primera toma.`;
+
+        // 3. Despachar mensaje por WhatsApp API Meta
+        await enviarWA('+' + telLimpio, paciente, mensajeWA);
+
+        res.json({
+            success: true,
+            id: medRef.id,
+            mensaje: 'Prescripción registrada y despachada por WhatsApp'
+        });
+
+    } catch (err) {
+        console.error('[Error en Prescripción PRO]:', err);
+        res.status(500).json({ error: 'Error procesando la prescripción', details: err.message });
     }
 });
 

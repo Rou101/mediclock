@@ -802,14 +802,16 @@
             reader.readAsDataURL(file);
         }
 
-        function activarTratamiento(e) {
+        async function activarTratamiento(e) {
             e.preventDefault();
             const paciente = document.getElementById('p-nombre').value.trim();
             const phone = document.getElementById('p-phone').value.trim();
             const med = document.getElementById('m-nombre').value.trim();
             const dosis = document.getElementById('m-dosis').value.trim();
             const tomasDia = document.getElementById('m-tomas-dia').value;
+            const horaInicio = document.getElementById('m-hora-inicio').value;
             const comidaRel = document.getElementById('m-comida-rel').value;
+            const duracion = document.getElementById('m-dias').value;
             const indicacion = document.getElementById('m-indicacion').value.trim();
 
             if (!paciente || !phone || !med) {
@@ -817,24 +819,22 @@
                 return;
             }
 
-            // Obtener lista de horarios formateada
             const badges = document.querySelectorAll('#schedule-badges-container .schedule-time-badge');
             const horariosList = Array.from(badges).map(b => b.textContent).join(', ');
 
-            // Limpiar teléfono
-            const cleanPhone = phone.replace(/\D/g, '');
-            const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha prescrito tu tratamiento de *${med} (${dosis})*.
+            showToast("🚀 Guardando prescripción y despachando WhatsApp...");
 
-Horarios de toma: ${horariosList}
-Indicaciones: ${comidaRel}${indicacion ? '\nNota del Doctor: ' + indicacion : ''}
-
-🛒 *¿Necesitas comprar el medicamento?*
-Obtén 15% DCTO en Farmacia asociada comprando directamente aquí:
-https://farmacia.cl/compra?med=${encodeURIComponent(med)}&cupo=MEDICLOCK15
-
-Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Por favor responde OK para confirmar la primera toma.`;
-            
-            const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textMsg)}`;
+            try {
+                const res = await fetch('/api/pro/prescribir', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ paciente, phone, med, dosis, tomasDia, horaInicio, comidaRel, duracion, indicacion })
+                });
+                const data = await res.json();
+                console.log("Prescripción enviada:", data);
+            } catch (err) {
+                console.error("Error enviando prescripción backend:", err);
+            }
 
             // Ocultar placeholder si existía
             const noPatients = document.getElementById('no-patients-placeholder');
@@ -856,7 +856,7 @@ Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. P
                     <span class="status-pill status-green">
                         <span class="status-dot"></span> 100% Prescrito
                     </span>
-                    <span style="font-size:11px; color:var(--c-text-sub);">WhatsApp Despachado</span>
+                    <span style="font-size:11px; color:var(--c-text-sub);">WhatsApp Servidor Enviado 💬</span>
                 </div>
             `;
             list.prepend(newRow);
@@ -865,9 +865,7 @@ Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. P
             const statTotal = document.getElementById('stat-total');
             if (statTotal) statTotal.textContent = parseInt(statTotal.textContent || "0") + 1;
 
-            // Abrir WhatsApp en nueva pestaña
-            window.open(waUrl, '_blank');
-            showToast("Prescripción enviada por WhatsApp");
+            showToast("✨ Prescripción activada y enviada al paciente");
         }
 
         function filterPatients(risk) {
