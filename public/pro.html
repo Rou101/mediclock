@@ -667,13 +667,28 @@
                 <!-- COLUMNA DERECHA REFORMADA: INDICACIONES DEL MÉDICO (SIN PLACEHOLDER, EXPANSIVO 100% ALTO) -->
                 <section class="glass-card" style="display:flex; flex-direction:column; justify-content:space-between;">
                     <div style="flex:1; display:flex; flex-direction:column;">
-                        <h2 class="card-header-title">
-                            <span>📝</span> 2. Indicaciones del Médico
-                        </h2>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                            <h2 class="card-header-title" style="margin-bottom:0;">
+                                <span>📝</span> 2. Indicaciones del Médico
+                            </h2>
+                            <button type="button" class="btn-green-light" style="padding:8px 16px; font-size:13px; margin:0;" onclick="parseMedsWithAI()">
+                                ✨ Ordenar con IA
+                            </button>
+                        </div>
 
                         <!-- ÁREA GIGANTE EXPANSIVA DE TEXTO (100% LIMPIA SIN PLACEHOLDER) -->
-                        <div class="form-group" style="margin-bottom:0; flex:1; display:flex; flex-direction:column;">
-                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="flex:1; min-height:300px;" required></textarea>
+                        <div class="form-group" style="margin-bottom:16px; flex:0.4; display:flex; flex-direction:column; min-height:150px;">
+                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="flex:1; min-height:100px;" required></textarea>
+                        </div>
+                        
+                        <!-- CONTENEDOR DE MEDICAMENTOS ESTRUCTURADOS (OCULTO INICIALMENTE) -->
+                        <div id="structured-meds-container" style="flex:0.6; overflow-y:auto; padding-right:8px; display:none;">
+                            <h3 style="font-size:14px; font-weight:700; color:var(--c-text); margin-bottom:12px; border-bottom:1px solid var(--c-border); padding-bottom:8px;">
+                                💊 Estructura de Recordatorios (Generada por IA)
+                            </h3>
+                            <div id="ai-meds-list" style="display:flex; flex-direction:column; gap:12px;">
+                                <!-- Aquí se inyectan las cajitas -->
+                            </div>
                         </div>
                     </div>
 
@@ -938,6 +953,68 @@
             reader.readAsDataURL(file);
         }
 
+        let structuredMeds = [];
+
+        async function parseMedsWithAI() {
+            const rawText = document.getElementById('m-indicaciones-copied').value.trim();
+            if (!rawText) {
+                alert("Por favor pega las indicaciones primero.");
+                return;
+            }
+
+            const btn = document.querySelector('button[onclick="parseMedsWithAI()"]');
+            btn.innerHTML = '✨ Procesando...';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch('/api/pro/parse-meds', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ texto: rawText })
+                });
+                
+                const data = await res.json();
+                if (data.success && data.medicamentos) {
+                    structuredMeds = data.medicamentos;
+                    renderStructuredMeds();
+                    document.getElementById('structured-meds-container').style.display = 'block';
+                    showToast("Medicamentos estructurados con éxito");
+                } else {
+                    alert("No se pudo extraer la información. Por favor revisa el texto.");
+                }
+            } catch (err) {
+                console.error("Error parseando meds:", err);
+                alert("Error de conexión al usar IA.");
+            } finally {
+                btn.innerHTML = '✨ Ordenar con IA';
+                btn.disabled = false;
+            }
+        }
+
+        function renderStructuredMeds() {
+            const container = document.getElementById('ai-meds-list');
+            container.innerHTML = '';
+            
+            structuredMeds.forEach((med, idx) => {
+                const div = document.createElement('div');
+                div.style.background = 'rgba(255,255,255,0.02)';
+                div.style.border = '1px solid var(--c-border)';
+                div.style.padding = '12px';
+                div.style.borderRadius = 'var(--radius-md)';
+                div.style.fontSize = '12px';
+                
+                div.innerHTML = `
+                    <div style="font-weight:700; color:var(--c-primary); margin-bottom:4px;">${med.nombre}</div>
+                    <div style="color:var(--c-text); display:flex; gap:16px; align-items:center;">
+                        <span>⏱️ Cada <b>${med.frecuencia_horas}</b> hrs</span>
+                        <span>🗓️ Por <b>${med.duracion_dias}</b> días</span>
+                        <span>🔔 Inicio sug: <b>${med.hora_sugerida}</b></span>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
         async function activarTratamiento(e) {
             e.preventDefault();
             
@@ -973,21 +1050,27 @@
                 }
             });
 
+            // Si hay meds estructurados usamos esos, si no creamos uno genérico
+            let medicamentos = [];
+            if (structuredMeds.length > 0) {
+                medicamentos = structuredMeds;
+            } else {
+                medicamentos = [{
+                    nombre: 'Receta Médica Copiada',
+                    dosis: '',
+                    cantPastillas: 1,
+                    tomasDia: 1,
+                    horaInicio: '08:00',
+                    comidaRel: '',
+                    duracion: 10,
+                    descuentoAplicado: descuentoGlobalActivo,
+                    indicacion: indicacionesCopied
+                }];
+            }
+
             const docContactActive = document.getElementById('toggle-doc-contact').checked;
             const docPhone = document.getElementById('doc-phone').value.trim();
             const docNotaEmergency = document.getElementById('doc-nota-emergency').value.trim();
-
-            const medicamentos = [{
-                nombre: 'Receta Médica Copiada',
-                dosis: '',
-                cantPastillas: 1,
-                tomasDia: 1,
-                horaInicio: '08:00',
-                comidaRel: '',
-                duracion: 10,
-                descuentoAplicado: descuentoGlobalActivo,
-                indicacion: indicacionesCopied
-            }];
 
             showToast("Emitiendo prescripción y despachando WhatsApp...");
 
@@ -1065,6 +1148,14 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
             document.getElementById('attached-photo-preview').style.display = 'none';
             document.getElementById('attached-pdf-preview').style.display = 'none';
             document.getElementById('photo-placeholder').style.display = 'block';
+            
+            // Reset IA meds
+            structuredMeds = [];
+            document.getElementById('structured-meds-container').style.display = 'none';
+            document.getElementById('ai-meds-list').innerHTML = '';
+
+            showToast("Listo para nueva prescripción");
+            
             currentFileBase64 = '';
             
             document.getElementById('contacts-container').innerHTML = '';

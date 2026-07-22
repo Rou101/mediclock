@@ -234,6 +234,64 @@ Responde únicamente con el JSON.`;
 });
 
 // ===========================================
+// API: PRO PARSE MEDS (Gemini Text-to-JSON)
+// ===========================================
+app.post('/api/pro/parse-meds', async (req, res) => {
+    try {
+        const { texto } = req.body;
+        if (!texto) return res.status(400).json({ error: 'No text provided' });
+
+        const prompt = `Analiza las siguientes indicaciones médicas y extrae los medicamentos recetados. 
+ESTRICTAMENTE devuelve un arreglo en formato JSON puro (sin comillas invertidas ni bloques markdown, SOLO el array JSON válido).
+El formato de cada objeto debe ser:
+{
+  "nombre": "Nombre del medicamento y dosis (ej. Losartan 50mg)",
+  "frecuencia_horas": número (ej. 12 para cada 12 hrs, 24 para diario, por defecto 24),
+  "duracion_dias": número (ej. 30, por defecto 30),
+  "hora_sugerida": "string HH:MM (asume 08:00 si no se indica o no es clara)"
+}
+
+Indicaciones:
+"""
+${texto}
+"""`;
+
+        const authClient = new GoogleAuth({
+            scopes: ['https://www.googleapis.com/auth/cloud-platform']
+        });
+        const accessToken = await authClient.getAccessToken();
+        const geminiUrl = 'https://us-central1-aiplatform.googleapis.com/v1/projects/mediclock-recordatorios/locations/us-central1/publishers/google/models/gemini-1.5-flash:generateContent';
+
+        const geminiRes = await axios.post(geminiUrl, {
+            contents: [ { role: 'user', parts: [ { text: prompt } ] } ],
+            generationConfig: { temperature: 0.1 }
+        }, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        let textOutput = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
+        // Limpiar cualquier markdown accidental
+        textOutput = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+        
+        let medsArray = [];
+        try {
+            medsArray = JSON.parse(textOutput);
+        } catch (e) {
+            console.error('[Parse Meds JSON Error]:', textOutput);
+            return res.json({ success: false, error: 'La IA no devolvió un JSON válido' });
+        }
+
+        return res.json({ success: true, medicamentos: medsArray });
+    } catch (err) {
+        console.error('[Parse Meds Error]:', err.response?.data || err.message);
+        return res.json({ success: false, error: err.message });
+    }
+});
+
+// ===========================================
 // API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP (MULTI-MEDICAMENTO + MULTI-CONTACTOS + PDF + FARMACIA)
 // ===========================================
 app.post('/api/pro/prescribir', async (req, res) => {
@@ -268,6 +326,9 @@ app.post('/api/pro/prescribir', async (req, res) => {
 
         // 3. Guardar en Firestore para paciente, tutores y contactos
         const grupoDoc = db.collection('grupos').doc('default_pro');
+        
+        const isFreeFormText = medsList.length === 1 && (!medsList[0].nombre || medsList[0].nombre === 'Medicamento' || medsList[0].nombre === 'Receta Médica Copiada');
+        
         const medRef = await grupoDoc.collection('medicamentos').add({
             familiar: paciente,
             telefono: '+' + telLimpio,
@@ -280,45 +341,52 @@ app.post('/api/pro/prescribir', async (req, res) => {
             archivoReceta: fotoBase64 || '',
             archivoTipo: archivoTipo || 'image',
             doctor: 'Dr. Francisco Pérez',
+            estado_paciente: isFreeFormText ? 'activo' : 'pendiente_activacion',
             creadoEn: new Date().toISOString()
         });
 
         // 4. Formatear detalle de medicamentos / indicaciones del médico
         let medsDetalle = '';
-        const isFreeFormText = medsList.length === 1 && (!medsList[0].nombre || medsList[0].nombre === 'Medicamento' || medsList[0].nombre === 'Receta Médica');
+        let whatsappInstructions = '';
         
         if (isFreeFormText) {
             const descTag = medsList[0].descuentoAplicado ? '\n\n🛒 *Descuento Farmacia Asociada Activado (15% DCTO):*\nhttps://farmacia.cl/compra?cupo=MEDICLOCK15' : '';
             medsDetalle = `\n📝 *Indicaciones de la Receta Copiada:*
 ${medsList[0].indicacion || 'Sin indicaciones adicionales'}${descTag}`;
+            whatsappInstructions = `🔒 *Privacidad & Seguridad MediClock:* Datos cifrados bajo Google Cloud / Firebase. Sin uso de IA para lectura de datos sensibles. Responde *OK* para confirmar.`;
         } else {
             medsList.forEach((m, idx) => {
-                const descTag = m.descuentoAplicado ? '\n   - 🛒 *Descuento Farmacia Asociada Activado:* https://farmacia.cl/compra?med=' + encodeURIComponent(m.nombre) + '&cupo=MEDICLOCK15' : '';
-                medsDetalle += `\n💊 *Medicamento ${idx + 1}:* ${m.nombre} ${m.dosis ? '(' + m.dosis + ')' : ''}${descTag}`;
-                if (m.indicacion) {
-                    medsDetalle += `\n   - 📝 *Indicaciones:* ${m.indicacion}`;
-                }
+                const frec = m.frecuencia_horas ? `Cada ${m.frecuencia_horas} hrs` : '';
+                const dur = m.duracion_dias ? `por ${m.duracion_dias} días` : '';
+                medsDetalle += `\n💊 *${m.nombre}* (${frec} ${dur})`;
             });
+            
+            const horaSugerida = medsList[0]?.hora_sugerida || '08:00';
+            whatsappInstructions = `⚙️ *Para activar tus recordatorios automáticos responde:*
+*1* - Empezar a las ${horaSugerida} (Sugerido)
+*2* - Empezar AHORA mismo
+
+🔑 _Si usas la app MediClock, tu código de receta es: ${medRef.id}_`;
         }
 
         // Bloque opcional de contacto del médico
         let docContactoBloque = '';
         if (docContactActive) {
-            docContactoBloque = `\n\n📞 *Contacto del Médico & Emergencias Centro Médico:*
-- Dr. Francisco Pérez (Cardiología)
+            docContactoBloque = `\n\n📞 *Contacto del Médico & Emergencias:*
+- Dr. Francisco Pérez
 - Teléfono / Urgencias: ${docPhone || '+569 5783 8682'}
 - Recomendación: ${docNotaEmergency || 'Atención de urgencias 24/7 en centro médico.'}`;
         }
 
         // Si hay PDF adjunto del software de la clínica
-        let pdfAviso = archivoTipo === 'pdf' ? '\n\n📄 *Receta Digital PDF Adjunta desde Software de Clínica.*' : '';
+        let pdfAviso = archivoTipo === 'pdf' ? '\n\n📄 *Receta Digital PDF Adjunta.*' : '';
 
         // 5. Formatear mensaje para WhatsApp Paciente
-        const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision || 'Hoy'}*.
+        const mensajeWA = `Hola ${paciente} 👋 Tu médico ha emitido tu receta.
 
 📋 *Detalle de Tratamiento:*${medsDetalle}${pdfAviso}${docContactoBloque}
 
-🔒 *Privacidad & Seguridad MediClock:* Datos cifrados bajo Google Cloud / Firebase. Sin uso de IA para lectura de datos sensibles. Responde *OK* para confirmar.`;
+${whatsappInstructions}`;
 
         // Despachar a Paciente
         await enviarWA('+' + telLimpio, paciente, mensajeWA);
@@ -979,6 +1047,7 @@ app.post('/api/meta-webhook', async (req, res) => {
             const fechaChile = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' });
             const gruposSnap = await db.collection('grupos').get();
             let medConfirmado = null;
+            let activacionExitosa = false;
 
             for (const grupoDoc of gruposSnap.docs) {
                 const medsSnap = await grupoDoc.ref.collection('medicamentos').get();
@@ -989,6 +1058,17 @@ app.post('/api/meta-webhook', async (req, res) => {
                     const telDB = (med.telefono || '').replace(/\D/g, ''); 
                     
                     if (telDB === numero) {
+                        
+                        // 1. CHEQUEO DE ACTIVACIÓN DE RECETA (ONBOARDING)
+                        if (med.estado_paciente === 'pendiente_activacion') {
+                            if (texto === '1' || texto === '2' || texto.includes('empezar') || texto === 'ok') {
+                                await med._ref.update({ estado_paciente: 'activo' });
+                                await enviarWA('+' + telDB, med.familiar, `✅ ¡Excelente! Tus recordatorios han sido activados.\nRecibirás tu primer aviso a la hora programada.\n\nCódigo de sincronización familiar: *${med.id}*`);
+                                activacionExitosa = true;
+                                break;
+                            }
+                        }
+
                         const horasList = med.horas && med.horas.length > 0 ? med.horas : [med.hora || '08:00'];
                         // Buscar una hora pendiente para hoy
                         let horaPendiente = null;
@@ -1066,13 +1146,17 @@ app.post('/api/meta-webhook', async (req, res) => {
                         }
                     }
                 }
-                if (medConfirmado) break;
+                if (medConfirmado || activacionExitosa) break;
+            }
+
+            if (!medConfirmado && !activacionExitosa && texto.length > 0) {
+                console.log(`[Webhook Meta] Mensaje de ${numero} no procesado o sin tareas pendientes.`);
             }
 
             if (medConfirmado) {
                 const extra = esVoz ? ' Escuché tu nota de voz.' : esFoto ? ' Vi la foto que enviaste.' : '';
                 await enviarWA(numero, medConfirmado.familiar, `✅ ¡Perfecto!${extra} Registré que tomaste tu *${medConfirmado.nombre}*. ¡Salud! 💪`);
-            } else {
+            } else if (!activacionExitosa) {
                 await enviarWA(numero, 'Usuario', `Responde *"Listo"*, *"Ok"*, o envía una 📷 foto o 🎤 nota de voz para confirmar tu medicamento.`);
             }
         }
