@@ -273,8 +273,15 @@ ${texto}
         });
 
         let textOutput = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
-        // Limpiar cualquier markdown accidental
-        textOutput = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+        
+        // Extracción robusta de JSON Array ignorando texto conversacional
+        const startIndex = textOutput.indexOf('[');
+        const endIndex = textOutput.lastIndexOf(']');
+        if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+            textOutput = textOutput.substring(startIndex, endIndex + 1);
+        } else {
+            textOutput = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+        }
         
         let medsArray = [];
         try {
