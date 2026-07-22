@@ -234,54 +234,70 @@ Responde únicamente con el JSON.`;
 });
 
 // ===========================================
-// API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP
+// API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP (PACIENTE + TUTOR)
 // ===========================================
 app.post('/api/pro/prescribir', async (req, res) => {
     try {
-        const { paciente, phone, med, dosis, tomasDia, horaInicio, comidaRel, duracion, indicacion } = req.body || {};
+        const { paciente, phone, fechaEmision, tutorNombre, tutorPhone, med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion, fotoBase64 } = req.body || {};
 
         if (!paciente || !phone || !med) {
             return res.status(400).json({ error: 'Faltan campos obligatorios (paciente, teléfono, medicamento)' });
         }
 
         const telLimpio = phone.replace(/\D/g, '');
+        const telTutorLimpio = (tutorPhone || '').replace(/\D/g, '');
 
-        // 1. Guardar en Firestore para que el paciente lo vea en su app
+        // 1. Guardar en Firestore para paciente y tutor
         const grupoDoc = db.collection('grupos').doc('default_pro');
         const medRef = await grupoDoc.collection('medicamentos').add({
             familiar: paciente,
             telefono: '+' + telLimpio,
+            fechaEmision: fechaEmision || new Date().toISOString().split('T')[0],
+            tutorNombre: tutorNombre || '',
+            tutorTelefono: telTutorLimpio ? '+' + telTutorLimpio : '',
             nombre: med,
             dosis: dosis || '',
-            frecuencia: 'diaria',
+            cantPastillas: cantPastillas || '1 pastilla',
             tomasDia: parseInt(tomasDia) || 2,
             hora: horaInicio || '08:00',
             indicacion: indicacion || '',
             comidaRel: comidaRel || '',
-            duracion: duracion || '30 días',
+            duracion: duracion || '10 días',
+            fotoReceta: fotoBase64 || '',
             doctor: 'Dr. Francisco Pérez',
             creadoEn: new Date().toISOString()
         });
 
-        // 2. Formatear mensaje para WhatsApp
-        const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha prescrito tu tratamiento de *${med} (${dosis})*.
+        // 2. Formatear mensaje para WhatsApp Paciente
+        const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta (${fechaEmision || 'Hoy'}) para tu tratamiento de *${med} (${dosis})*.
 
-⏰ *Tomas al día:* ${tomasDia} toma(s) (Primera toma: ${horaInicio})
+⏰ *Tomas al día:* ${tomasDia} toma(s) de ${cantPastillas} (Primera toma: ${horaInicio})
 🍽️ *Indicaciones:* ${comidaRel}${indicacion ? '\n📝 *Nota del Doctor:* ' + indicacion : ''}
 
 🛒 *¿Necesitas comprar el medicamento?*
 Obtén 15% DCTO en Farmacia asociada comprando directamente aquí:
 https://farmacia.cl/compra?med=${encodeURIComponent(med)}&cupo=MEDICLOCK15
 
-Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Responde *OK* para confirmar la primera toma.`;
+Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Responde *OK* para confirmar.`;
 
-        // 3. Despachar mensaje por WhatsApp API Meta
+        // 3. Despachar mensaje por WhatsApp API Meta al Paciente
         await enviarWA('+' + telLimpio, paciente, mensajeWA);
+
+        // 4. Despachar a Tutor si está presente
+        if (telTutorLimpio) {
+            const mensajeTutor = `🔔 *MediClock Pro - Aviso a Tutor/Cuidador* 🔔
+Hola ${tutorNombre || 'Cuidador'}, se ha registrado el tratamiento médico de *${paciente}*:
+💊 *Medicamento:* ${med} (${dosis}) - ${cantPastillas} por toma, ${tomasDia} veces al día.
+📅 *Duración:* ${duracion}.
+
+Recibirás notificaciones y alertas de cumplimiento de ${paciente}.`;
+            await enviarWA('+' + telTutorLimpio, tutorNombre || 'Tutor', mensajeTutor);
+        }
 
         res.json({
             success: true,
             id: medRef.id,
-            mensaje: 'Prescripción registrada y despachada por WhatsApp'
+            mensaje: 'Prescripción registrada y despachada por WhatsApp a Paciente y Tutor'
         });
 
     } catch (err) {
