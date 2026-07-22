@@ -40,7 +40,7 @@ app.get('/api/version', (req, res) => {
 });
 
 // ===========================================
-// API: PRO OCR RECETAS Y MEDICAMENTOS (Google Cloud Vision Real)
+// API: PRO OCR RECETAS (Gemini 1.5 Flash Vision Multimodal IA + Cloud Vision Fallback)
 // ===========================================
 app.post('/api/pro/scan-prescription', async (req, res) => {
     try {
@@ -51,25 +51,35 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
 
         const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-        let rawText = '';
-        try {
-            // Obtener Access Token de Google Cloud SDK
-            const client = await googleAuthClient.getClient();
-            const tokenResponse = await client.getAccessToken();
-            const accessToken = tokenResponse.token;
+        // Obtener Access Token de Google Cloud SDK
+        const client = await googleAuthClient.getClient();
+        const tokenResponse = await client.getAccessToken();
+        const accessToken = tokenResponse.token;
 
-            // Llamada a la API oficial de Google Cloud Vision (DOCUMENT_TEXT_DETECTION y TEXT_DETECTION)
-            const visionUrl = 'https://vision.googleapis.com/v1/images:annotate';
-            const visionRes = await axios.post(visionUrl, {
-                requests: [
-                    {
-                        image: { content: cleanBase64 },
-                        features: [
-                            { type: 'DOCUMENT_TEXT_DETECTION' },
-                            { type: 'TEXT_DETECTION' }
-                        ]
-                    }
-                ]
+        // INTENTO 1: GEMINI 1.5 FLASH MULTIMODAL VISION IA
+        try {
+            const geminiUrl = 'https://us-central1-aiplatform.googleapis.com/v1/projects/mediclock-recordatorios/locations/us-central1/publishers/google/models/gemini-1.5-flash:generateContent';
+            const prompt = `Analiza esta receta médica o caja de medicamento. Extrae exactamente en JSON válido:
+{
+  "doctor": "Nombre del médico si aparece",
+  "paciente": "Nombre del paciente si aparece",
+  "medicamento": "Nombre del medicamento principal",
+  "dosis": "Gramaje o dosis ej. 500 MG",
+  "tomasDia": 4,
+  "duracion": "Cantidad de días ej. 15 días",
+  "indicacion": "Nota o indicación médica especial"
+}
+Responde únicamente con el JSON.`;
+
+            const geminiRes = await axios.post(geminiUrl, {
+                contents: [{
+                    role: 'user',
+                    parts: [
+                        { inlineData: { mimeType: 'image/jpeg', data: cleanBase64 } },
+                        { text: prompt }
+                    ]
+                }],
+                generationConfig: { temperature: 0.1, maxOutputTokens: 600 }
             }, {
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
@@ -78,17 +88,53 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
                 timeout: 15000
             });
 
-            const fullAnnotation = visionRes.data?.responses?.[0]?.fullTextAnnotation;
-            rawText = fullAnnotation ? fullAnnotation.text : (visionRes.data?.responses?.[0]?.textAnnotations?.[0]?.description || '');
+            const textOutput = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+            console.log(`[Gemini Multimodal Vision AI Output]:\n${textOutput}`);
 
-            console.log(`[OCR Real Google Vision - Texto Detectado]:\n${rawText}`);
-        } catch (visionErr) {
-            console.error('[Vision API Error]:', visionErr.response?.data || visionErr.message);
-            return res.json({
-                success: false,
-                error: 'El servicio de IA de Google no logró procesar la imagen en este intento. Por favor reintente o capture la foto más cerca.'
-            });
+            const jsonMatch = textOutput.match(/\{[\s\S]*\}/);
+            if (jsonMatch) {
+                const parsed = JSON.parse(jsonMatch[0]);
+                return res.json({
+                    success: true,
+                    rawText: textOutput,
+                    doctor: parsed.doctor || '',
+                    paciente: parsed.paciente || '',
+                    medicamento: parsed.medicamento || '',
+                    dosis: parsed.dosis || '',
+                    tomasDia: parseInt(parsed.tomasDia) || 2,
+                    duracion: parsed.duracion || '10 días',
+                    comidaRel: 'Sin relación específica con comidas',
+                    indicacion: parsed.indicacion || (parsed.doctor ? `Recetado por ${parsed.doctor}` : '')
+                });
+            }
+        } catch (geminiErr) {
+            console.error('[Gemini AI Fallback -> Cloud Vision OCR]:', geminiErr.response?.data || geminiErr.message);
         }
+
+        // INTENTO 2: GOOGLE CLOUD VISION OCR (FALLBACK)
+        const visionUrl = 'https://vision.googleapis.com/v1/images:annotate';
+        const visionRes = await axios.post(visionUrl, {
+            requests: [
+                {
+                    image: { content: cleanBase64 },
+                    features: [
+                        { type: 'DOCUMENT_TEXT_DETECTION' },
+                        { type: 'TEXT_DETECTION' }
+                    ]
+                }
+            ]
+        }, {
+            headers: {
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json'
+            },
+            timeout: 15000
+        });
+
+        const fullAnnotation = visionRes.data?.responses?.[0]?.fullTextAnnotation;
+        const rawText = fullAnnotation ? fullAnnotation.text : (visionRes.data?.responses?.[0]?.textAnnotations?.[0]?.description || '');
+
+        console.log(`[OCR Real Google Vision - Texto Detectado]:\n${rawText}`);
 
         if (!rawText || rawText.trim().length === 0) {
             return res.json({
@@ -116,8 +162,7 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
         if (pacienteLine) {
             paciente = pacienteLine.replace(/paciente:|para:|nombre:|sr\(a\):|pt:/i, '').trim();
         } else {
-            // Intentar detectar una línea con nombre propio si contiene 'juan', 'maria', etc.
-            const nameLine = lines.find(l => /juan|perez|maria|gonzalez|rodriguez|carlos|pedro|ana|jose/i.test(l) && !/dr\b|dra\b/i.test(l));
+            const nameLine = lines.find(l => /juan|perez|maria|gonzalez|rodriguez|rodrigo|bustamante|carlos|pedro|ana|jose/i.test(l) && !/dr\b|dra\b/i.test(l));
             if (nameLine) paciente = nameLine;
         }
 
