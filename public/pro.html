@@ -586,21 +586,15 @@
                 <!-- Se insertan por JS -->
             </div>
 
-            <!-- BOTONERA DE ACCIÓN SIMÉTRICA CON BOTONES CUADRADOS ELEGANTE AL PIE -->
-            <div class="square-actions-grid">
+            <!-- BOTONERA DE ACCIÓN SIMÉTRICA CON 2 BOTONES CUADRADOS ELEGANTES AL PIE -->
+            <div class="square-actions-grid" style="grid-template-columns: 1fr 1fr;">
                 <!-- BOTÓN CUADRADO 1: DESCUENTO FARMACIA -->
                 <button type="button" class="square-btn square-btn-desc active" id="main-btn-desc" onclick="toggleDescuentoGlobal()">
                     <span class="square-btn-icon">🏷️</span>
                     <span class="square-btn-text" id="main-desc-text">Descuento Farmacia (15% DCTO)</span>
                 </button>
 
-                <!-- BOTÓN CUADRADO 2: AGREGAR REMEDIO -->
-                <button type="button" class="square-btn" onclick="addMedicationCard()">
-                    <span class="square-btn-icon">➕</span>
-                    <span class="square-btn-text">Agregar Otro Medicamento</span>
-                </button>
-
-                <!-- BOTÓN CUADRADO 3 (PRINCIPAL): EMITIR Y DESPACHAR POR WHATSAPP -->
+                <!-- BOTÓN CUADRADO 2 (PRINCIPAL): EMITIR Y DESPACHAR POR WHATSAPP -->
                 <button type="submit" class="square-btn square-btn-submit">
                     <span class="square-btn-icon">🚀</span>
                     <span class="square-btn-text">Emitir & Despachar WhatsApp</span>
