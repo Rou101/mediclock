@@ -51,14 +51,10 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
 
         const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-        // Obtener Access Token de Google Cloud SDK
-        const client = await googleAuthClient.getClient();
-        const tokenResponse = await client.getAccessToken();
-        const accessToken = tokenResponse.token;
-
-        // INTENTO 1: GEMINI 1.5 FLASH MULTIMODAL VISION IA
+        // INTENTO 1: GEMINI 3.5 FLASH MULTIMODAL VISION IA
         try {
-            const geminiUrl = 'https://us-central1-aiplatform.googleapis.com/v1/projects/mediclock-recordatorios/locations/us-central1/publishers/google/models/gemini-1.5-flash:generateContent';
+            const apiKey = process.env.GEMINI_API_KEY;
+            const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
             const prompt = `Analiza esta receta médica o caja de medicamento. Extrae exactamente en JSON válido:
 {
   "doctor": "Nombre del médico si aparece",
@@ -82,7 +78,6 @@ Responde únicamente con el JSON.`;
                 generationConfig: { temperature: 0.1, maxOutputTokens: 600 }
             }, {
                 headers: {
-                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
                 },
                 timeout: 15000
@@ -256,18 +251,14 @@ Indicaciones:
 ${texto}
 """`;
 
-        const authClient = new GoogleAuth({
-            scopes: ['https://www.googleapis.com/auth/cloud-platform']
-        });
-        const accessToken = await authClient.getAccessToken();
-        const geminiUrl = 'https://us-central1-aiplatform.googleapis.com/v1/projects/mediclock-recordatorios/locations/us-central1/publishers/google/models/gemini-1.5-flash:generateContent';
+        const apiKey = process.env.GEMINI_API_KEY;
+        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
 
         const geminiRes = await axios.post(geminiUrl, {
             contents: [ { role: 'user', parts: [ { text: prompt } ] } ],
             generationConfig: { temperature: 0.1 }
         }, {
             headers: {
-                'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             }
         });
