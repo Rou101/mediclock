@@ -55,21 +55,23 @@
             background-attachment: fixed;
         }
 
-        /* BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B) */
+        /* BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B FLOTANTE) */
         .vertical-sidebar {
             width: var(--sidebar-width);
-            height: 100vh;
+            height: calc(100vh - 48px);
             position: fixed;
-            top: 0;
-            left: 0;
+            top: 24px;
+            left: 24px;
             background: rgba(15, 22, 36, 0.96);
             backdrop-filter: blur(20px);
-            border-right: 1px solid var(--c-border);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-xl);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             padding: 24px 18px;
             z-index: 500;
+            box-shadow: var(--shadow-card);
         }
 
         .brand-box {
@@ -205,12 +207,12 @@
             color: var(--c-text);
         }
 
-        /* ÁREA PRINCIPAL CONTENEDORA (DERECHA DEL SIDEBAR - EXPANSIVA Y SIN ESPACIOS VACÍOS) */
+        /* ÁREA PRINCIPAL CONTENEDORA (DERECHA DEL SIDEBAR - EXPANSIVA Y CON TRIPLE MARGEN) */
         .main-content {
-            margin-left: var(--sidebar-width);
-            width: calc(100% - var(--sidebar-width));
+            margin-left: calc(var(--sidebar-width) + 24px); /* Espacio del sidebar flotante + su margen izquierdo */
+            width: calc(100% - var(--sidebar-width) - 24px);
             min-height: 100vh;
-            padding: 16px; /* MARGEN FINO ELEGANTE (VERDE EN LA CAPTURA) */
+            padding: 48px; /* TRIPLE DEL MARGEN ANTERIOR (16px * 3 = 48px) */
             display: flex;
             flex-direction: column;
         }
@@ -218,11 +220,11 @@
         .desktop-container {
             width: 100%; /* EXPANSIÓN HORIZONTAL COMPLETA SIN ESPACIOS LATERALES ROJOS */
             flex: 1;
-            min-height: calc(100vh - 32px); /* EXPANSIÓN VERTICAL HASTA EL ALINEAMIENTO DEL SIDEBAR */
+            min-height: calc(100vh - 96px); /* EXPANSIÓN VERTICAL (100vh - 48px top - 48px bottom) */
             margin: 0;
             display: grid;
             grid-template-columns: 1fr 1.1fr;
-            gap: 16px; /* ESPACIO FINO ENTRE CUADRADOS */
+            gap: 48px; /* TRIPLE ESPACIO ENTRE CUADRADOS */
             align-items: stretch;
         }
 
@@ -491,18 +493,22 @@
                 width: 100%;
                 height: auto;
                 position: relative;
-                border-right: none;
+                top: 0;
+                left: 0;
+                border: none;
                 border-bottom: 1px solid var(--c-border);
+                border-radius: 0;
                 padding: 16px 20px;
+                box-shadow: none;
             }
             .main-content {
                 margin-left: 0;
                 width: 100%;
-                padding: 20px 16px;
+                padding: 24px 16px;
             }
             .desktop-container {
                 grid-template-columns: 1fr;
-                gap: 20px;
+                gap: 24px;
             }
             .field-textarea-giant-full {
                 min-height: 220px;
@@ -536,7 +542,7 @@
                 <div class="brand-icon">M</div>
                 <div>
                     <span class="brand-title">MediClock Pro</span>
-                    <div><span class="version-tag">v26.0 CHROME B2B</span></div>
+                    <div><span class="version-tag">v27.0 CHROME B2B</span></div>
                 </div>
             </div>
 
@@ -786,7 +792,7 @@
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div style="background:var(--c-green-dim); color:var(--c-green); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px;">✓</div>
-                    <h3 style="font-size:20px; font-weight:800;">Reporte de Prescripción Médica</h3>
+                    <h3 style="font-size:20px; font-weight:800;">¡Enviado con Éxito!</h3>
                 </div>
                 <button type="button" onclick="closeDispatchModal()" style="background:none; border:none; color:var(--c-text-sub); font-size:24px; cursor:pointer;">&times;</button>
             </div>
@@ -802,11 +808,8 @@
 
             <div style="display:flex; flex-direction:column; gap:10px;">
                 <button type="button" onclick="closeDispatchModal()" style="background:linear-gradient(135deg, #10B981, #059669); color:#FFF; border:none; padding:14px; border-radius:var(--radius-md); font-weight:800; font-size:15px; cursor:pointer; box-shadow:0 6px 20px rgba(16,185,129,0.35);">
-                    ✓ Prescripción Despachada (Nueva Prescripción)
+                    ✓ Cerrar y Nueva Prescripción
                 </button>
-                <a id="rep-wa-link" target="_blank" style="background:rgba(255,255,255,0.06); color:var(--c-text-sub); text-align:center; padding:10px; border-radius:var(--radius-md); font-weight:600; font-size:12px; text-decoration:none; display:block; border:1px solid var(--c-border);">
-                    📱 Abrir en WhatsApp Web (Copia de respaldo opcional)
-                </a>
             </div>
         </div>
     </div>
