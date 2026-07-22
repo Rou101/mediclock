@@ -234,17 +234,17 @@ Responde únicamente con el JSON.`;
 });
 
 // ===========================================
-// API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP (MULTI-MEDICAMENTO + TUTOR + DOCTOR CONTACT)
+// API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP (MULTI-MEDICAMENTO + MULTI-CONTACTOS + PDF + FARMACIA)
 // ===========================================
 app.post('/api/pro/prescribir', async (req, res) => {
     try {
-        const { paciente, phone, fechaEmision, tutorNombre, tutorPhone, medicamentos, med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion, fotoBase64, docContactActive, docPhone, docNotaEmergency } = req.body || {};
+        const { paciente, phone, fechaEmision, tutorNombre, tutorPhone, contactosAdicionales, medicamentos, med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion, fotoBase64, archivoTipo, docContactActive, docPhone, docNotaEmergency } = req.body || {};
 
         if (!paciente || !phone) {
             return res.status(400).json({ error: 'Faltan campos obligatorios (paciente y teléfono)' });
         }
 
-        // Si viene un solo medicamento en lugar del arreglo multi-medicamentos, convertirlo a arreglo
+        // 1. Procesar lista de medicamentos
         let medsList = Array.isArray(medicamentos) && medicamentos.length > 0 ? medicamentos : [{
             nombre: med || 'Medicamento',
             dosis: dosis || '',
@@ -254,38 +254,43 @@ app.post('/api/pro/prescribir', async (req, res) => {
             comidaRel: comidaRel || 'Sin relación específica con comidas',
             duracion: parseInt(duracion) || 10,
             indicacion: indicacion || '',
-            descuentoPct: 15
+            descuentoAplicado: true
         }];
 
         const telLimpio = phone.replace(/\D/g, '');
         const telTutorLimpio = (tutorPhone || '').replace(/\D/g, '');
 
-        // 1. Guardar en Firestore para paciente y tutor
+        // 2. Procesar lista de contactos adicionales (Enfermera, Cuidador, etc.)
+        let contactosList = Array.isArray(contactosAdicionales) ? contactosAdicionales.filter(c => c.nombre && c.telefono) : [];
+        if (tutorNombre && telTutorLimpio) {
+            contactosList.unshift({ nombre: tutorNombre, rol: 'Tutor / Apoderado', telefono: telTutorLimpio });
+        }
+
+        // 3. Guardar en Firestore para paciente, tutores y contactos
         const grupoDoc = db.collection('grupos').doc('default_pro');
         const medRef = await grupoDoc.collection('medicamentos').add({
             familiar: paciente,
             telefono: '+' + telLimpio,
             fechaEmision: fechaEmision || new Date().toISOString().split('T')[0],
-            tutorNombre: tutorNombre || '',
-            tutorTelefono: telTutorLimpio ? '+' + telTutorLimpio : '',
+            contactosAdicionales: contactosList,
             medicamentos: medsList,
             docContactActive: !!docContactActive,
             docPhone: docPhone || '',
             docNotaEmergency: docNotaEmergency || '',
-            fotoReceta: fotoBase64 || '',
+            archivoReceta: fotoBase64 || '',
+            archivoTipo: archivoTipo || 'image',
             doctor: 'Dr. Francisco Pérez',
             creadoEn: new Date().toISOString()
         });
 
-        // 2. Formatear detalle de medicamentos
+        // 4. Formatear detalle de medicamentos
         let medsDetalle = '';
         medsList.forEach((m, idx) => {
-            const desc = m.descuentoPct || 15;
+            const descTag = m.descuentoAplicado ? '\n   - 🛒 *Descuento Farmacia Asociada Activado:* https://farmacia.cl/compra?med=' + encodeURIComponent(m.nombre) + '&cupo=MEDICLOCK15' : '';
             medsDetalle += `\n💊 *Medicamento ${idx + 1}:* ${m.nombre} (${m.dosis})
    - *Tomas:* ${m.tomasDia} vez(veces) al día (${m.cantPastillas} unidad/es por toma)
    - *Primera toma:* ${m.horaInicio} (${m.comidaRel})
-   - *Duración:* ${m.duracion} días
-   - 🛒 *Descuento Farmacia:* ${desc}% DCTO -> https://farmacia.cl/compra?med=${encodeURIComponent(m.nombre)}&cupo=MEDICLOCK${desc}`;
+   - *Duración:* ${m.duracion} días${descTag}`;
             if (m.indicacion) {
                 medsDetalle += `\n   - 📝 *Nota:* ${m.indicacion}`;
             }
@@ -296,36 +301,42 @@ app.post('/api/pro/prescribir', async (req, res) => {
         if (docContactActive) {
             docContactoBloque = `\n\n📞 *Contacto del Médico & Emergencias Centro Médico:*
 - Dr. Francisco Pérez (Cardiología)
-- Teléfono / Urgencias: ${docPhone || '+569 0000 0000'}
-- Recomendación: ${docNotaEmergency || 'Acudir al centro de urgencias más cercano en caso de síntoma agudo.'}`;
+- Teléfono / Urgencias: ${docPhone || '+569 5783 8682'}
+- Recomendación: ${docNotaEmergency || 'Atención de urgencias 24/7 en centro médico.'}`;
         }
 
-        // 3. Formatear mensaje para WhatsApp Paciente
+        // Si hay PDF adjunto del software de la clínica
+        let pdfAviso = archivoTipo === 'pdf' ? '\n\n📄 *Receta Digital PDF Adjunta desde Software de Clínica.*' : '';
+
+        // 5. Formatear mensaje para WhatsApp Paciente
         const mensajeWA = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision || 'Hoy'}*.
 
-📋 *Detalle de Tratamiento:*${medsDetalle}${docContactoBloque}
+📋 *Detalle de Tratamiento:*${medsDetalle}${pdfAviso}${docContactoBloque}
 
 🔒 *Privacidad & Seguridad MediClock:* Datos cifrados bajo Google Cloud / Firebase. Sin uso de IA para lectura de datos sensibles. Responde *OK* para confirmar.`;
 
         // Despachar a Paciente
         await enviarWA('+' + telLimpio, paciente, mensajeWA);
 
-        // 4. Despachar a Tutor si está presente
-        if (telTutorLimpio) {
-            const mensajeTutor = `🔔 *MediClock Pro - Aviso a Tutor/Cuidador Responsable* 🔔
-Hola ${tutorNombre || 'Cuidador'}, el Dr. Francisco Pérez ha registrado el tratamiento médico de *${paciente}*:
+        // 6. Despachar a todos los contactos adicionales (Tutor, Enfermera, Cuidador)
+        for (const cont of contactosList) {
+            const numContLimpio = cont.telefono.replace(/\D/g, '');
+            if (numContLimpio) {
+                const mensajeContacto = `🔔 *MediClock Pro - Aviso a ${cont.rol || 'Contacto Responsable'}* 🔔
+Hola ${cont.nombre}, el Dr. Francisco Pérez ha registrado el tratamiento médico de *${paciente}*:
 
 📅 *Fecha Receta:* ${fechaEmision || 'Hoy'}
 📋 *Resumen de Medicamentos:*${medsDetalle}${docContactoBloque}
 
-🔒 *Privacidad & Seguridad:* Información protegida y cifrada en Google Cloud / Firebase. Sin uso de IA de lectura. Recibirás notificaciones si ${paciente} requiere asistencia con sus dosis.`;
-            await enviarWA('+' + telTutorLimpio, tutorNombre || 'Tutor', mensajeTutor);
+🔒 *Privacidad & Seguridad:* Información protegida en Google Cloud / Firebase. Recibirás notificaciones y alertas si ${paciente} requiere asistencia con sus dosis.`;
+                await enviarWA('+' + numContLimpio, cont.nombre, mensajeContacto);
+            }
         }
 
         res.json({
             success: true,
             id: medRef.id,
-            mensaje: 'Prescripción registrada y despachada por WhatsApp a Paciente y Tutor'
+            mensaje: 'Prescripción registrada y despachada por WhatsApp a Paciente y todos los contactos registrados'
         });
 
     } catch (err) {

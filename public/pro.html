@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>MediClock Pro v19.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
+    <title>MediClock Pro v20.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
     
     <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -215,7 +215,7 @@
             resize: vertical;
         }
 
-        /* BOTONES AUXILIARES Y DIVERSOS */
+        /* BOTONES AUXILIARES */
         .btn-aux {
             background: rgba(255, 255, 255, 0.06);
             border: 1px dashed var(--c-border);
@@ -259,7 +259,28 @@
             border-color: var(--c-green);
         }
 
-        /* SECCIÓN ADJUNTAR FOTO RECETA */
+        .btn-descuento-farmacia {
+            background: rgba(245, 158, 11, 0.12);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            color: var(--c-yellow);
+            padding: 10px 16px;
+            border-radius: var(--radius-md);
+            font-size: 12px;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-descuento-farmacia.active {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: var(--c-green);
+            color: var(--c-green);
+        }
+
+        /* SECCIÓN ADJUNTAR ARCHIVO / PDF RECETA */
         .attachment-box {
             border: 2px dashed var(--c-border);
             border-radius: var(--radius-lg);
@@ -362,7 +383,6 @@
             opacity: 1;
         }
 
-        /* CARD DE MEDICAMENTO DINÁMICO */
         .med-block-card {
             background: rgba(0, 0, 0, 0.25);
             border: 1px solid var(--c-border);
@@ -370,6 +390,14 @@
             padding: 20px;
             margin-bottom: 20px;
             position: relative;
+        }
+
+        .contact-item-row {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--c-border);
+            padding: 14px;
+            border-radius: var(--radius-md);
+            margin-bottom: 12px;
         }
     </style>
 </head>
@@ -381,7 +409,7 @@
             <div class="brand-icon">M</div>
             <div>
                 <span class="brand-title">MediClock Pro</span>
-                <span class="version-tag">v19.0 CHROME B2B</span>
+                <span class="version-tag">v20.0 CHROME B2B</span>
             </div>
         </div>
 
@@ -397,10 +425,10 @@
     <!-- CONTENEDOR PRINCIPAL 2 COLUMNAS WIDE -->
     <main class="desktop-container">
         
-        <!-- COLUMNA IZQUIERDA: FICHA PACIENTE, RESPALDO FOTO Y CONTACTO DOCTOR -->
+        <!-- COLUMNA IZQUIERDA: FICHA PACIENTE, CONTACTOS ADICIONALES Y ADJUNTO PDF/IMAGEN -->
         <section class="glass-card">
             <h2 class="card-header-title">
-                <span>👤</span> 1. Ficha del Paciente & tutor
+                <span>👤</span> 1. Ficha del Paciente & Contactos Responsables
             </h2>
 
             <form id="pro-prescription-form" onsubmit="activarTratamiento(event)">
@@ -425,49 +453,41 @@
                     </div>
                 </div>
 
-                <!-- SECCIÓN Y BOTÓN DE AGREGAR TUTOR O CUIDADOR -->
+                <!-- SECCIÓN DE CONTACTOS ADICIONALES (ENFERMERA, TUTOR, CUIDADOR) -->
                 <div style="margin:20px 0;">
-                    <button type="button" class="btn-aux" id="btn-toggle-tutor" onclick="toggleTutorFields()">
-                        <span>+</span> Agregar Tutor o Cuidador Responsable
-                    </button>
-                </div>
-
-                <!-- CONTENEDOR COLAPSABLE DE TUTOR -->
-                <div id="tutor-fields-container" style="display:none; background:rgba(0,0,0,0.25); padding:18px; border-radius:var(--radius-lg); border:1px solid var(--c-border); margin-bottom:20px;">
-                    <h3 style="font-size:14px; font-weight:700; color:var(--c-accent); margin-bottom:14px;">
-                        👨‍👩‍👦 Datos del Tutor o Cuidador
-                    </h3>
-                    <div class="form-row">
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="field-label">Nombre del Tutor</label>
-                            <input type="text" id="tutor-nombre" class="field-input">
-                        </div>
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="field-label">WhatsApp del Tutor</label>
-                            <input type="tel" id="tutor-phone" class="field-input">
-                        </div>
+                    <div id="contacts-container">
+                        <!-- Lista dinámica de personas adicionales -->
                     </div>
+                    <button type="button" class="btn-aux" onclick="addContactRow()">
+                        <span>+</span> Agregar Persona / Contacto Adicional (Enfermera, Cuidador, etc.)
+                    </button>
                 </div>
 
                 <hr style="border:0; border-top:1px solid var(--c-border); margin:20px 0;">
 
                 <h3 style="font-size:14px; font-weight:700; color:var(--c-text); margin-bottom:12px;">
-                    📷 Respaldo Visual de la Receta (Adjunto)
+                    📎 Respaldo de Receta (Imagen o Documento PDF de Clínica)
                 </h3>
 
-                <!-- ADJUNTAR FOTO SIN OCR -->
-                <input type="file" id="recipe-photo-file" accept="image/*" style="display:none;" onchange="previewRecipePhoto(this)">
+                <!-- ADJUNTAR FOTO O DOCUMENTO PDF -->
+                <input type="file" id="recipe-photo-file" accept="image/*,application/pdf,.pdf" style="display:none;" onchange="previewRecipeFile(this)">
                 <div class="attachment-box" onclick="document.getElementById('recipe-photo-file').click()">
                     <div id="photo-placeholder">
-                        <span style="font-size:22px; display:block; margin-bottom:6px;">📎</span>
-                        <span style="font-size:13px; font-weight:700; color:var(--c-primary);">Adjuntar Imagen de la Receta / Caja</span>
+                        <span style="font-size:24px; display:block; margin-bottom:6px;">📂</span>
+                        <span style="font-size:13px; font-weight:700; color:var(--c-primary);">Adjuntar Archivo de Receta (Imagen o PDF)</span>
+                        <span style="font-size:11px; color:var(--c-text-sub); display:block; margin-top:4px;">Admite exportaciones en PDF desde software médico de clínica o foto</span>
                     </div>
                     <img id="attached-photo-preview" style="display:none; max-height:160px; margin:0 auto; border-radius:var(--radius-md); border:1px solid var(--c-primary);" alt="Receta adjunta">
+                    <div id="attached-pdf-preview" style="display:none; text-align:center; padding:10px;">
+                        <span style="font-size:32px;">📄</span>
+                        <div id="pdf-file-name" style="font-size:13px; font-weight:700; color:var(--c-green); margin-top:4px;">Receta_Medica.pdf</div>
+                        <span style="font-size:11px; color:var(--c-text-sub);">Documento PDF listo para adjuntar</span>
+                    </div>
                 </div>
 
                 <hr style="border:0; border-top:1px solid var(--c-border); margin:24px 0;">
 
-                <!-- NUEVA SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS (ESPACIO INFERIOR FICHA) -->
+                <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS -->
                 <div style="background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.2); border-radius:var(--radius-lg); padding:20px;">
                     <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                         <h3 style="font-size:14px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:8px;">
@@ -476,7 +496,7 @@
                         <input type="checkbox" id="toggle-doc-contact" style="width:20px; height:20px; cursor:pointer;" onchange="toggleDocContactFields(this)">
                     </div>
                     <p style="font-size:12px; color:var(--c-text-sub); margin-bottom:14px;">
-                        Activa esta casilla si deseas adjuntar tus datos de contacto directo o anexo de emergencias en el mensaje del paciente.
+                        Activa esta casilla si deseas incluir tus datos de contacto directo o anexo de emergencias en el WhatsApp del paciente.
                     </p>
 
                     <div id="doc-contact-fields" style="display:none;">
@@ -542,7 +562,7 @@
                 <p style="margin-bottom:14px;">Los datos de tratamientos, pacientes y tutores se almacenan en <strong>Firebase Firestore (Google Cloud Platform)</strong>, utilizando cifrado de estándar militar <strong>AES-256 en reposo</strong> y protocolos de transporte seguro <strong>TLS/SSL de 256 bits</strong> en tránsito.</p>
 
                 <h4 style="color:var(--c-primary); font-weight:700; margin-bottom:8px;">3. Ley de Protección de Datos Personales & Secreto Médico</h4>
-                <p style="margin-bottom:14px;">Garantizamos la estricta confidencialidad médica. No vendemos, cedemos ni transferimos información sensible de salud a terceros. Las notificaciones a pacientes y tutores se envían de forma directa y privada a través de la infraestructura oficial de WhatsApp Cloud API.</p>
+                <p style="margin-bottom:14px;">Garantizamos la estricta confidencialidad médica. No vendemos, cedemos ni transferimos información sensible de salud a terceros. Las notificaciones a pacientes y contactos se envían de forma directa y privada a través de la infraestructura oficial de WhatsApp Cloud API.</p>
             </div>
 
             <button type="button" onclick="closePrivacyModal()" style="width:100%; background:var(--c-primary); color:#000; border:none; padding:14px; border-radius:var(--radius-md); font-weight:800; cursor:pointer;">
@@ -566,11 +586,9 @@
                 <p style="color:var(--c-primary); font-weight:700; font-size:15px; margin-bottom:10px;">✅ Registrado en Firestore & Notificado por WhatsApp</p>
                 <p><strong>Paciente:</strong> <span id="rep-paciente">--</span> (<span id="rep-phone">--</span>)</p>
                 <p><strong>Fecha Emisión:</strong> <span id="rep-fecha">--</span></p>
-                <p id="rep-tutor-container" style="display:none;"><strong>Tutor Responsable:</strong> <span id="rep-tutor">--</span></p>
+                <div id="rep-contactos-summary"></div>
                 <hr style="border:0; border-top:1px solid var(--c-border); margin:12px 0;">
-                <div id="rep-meds-summary">
-                    <!-- Resumen de medicamentos -->
-                </div>
+                <div id="rep-meds-summary"></div>
             </div>
 
             <div style="display:flex; flex-direction:column; gap:12px;">
@@ -591,14 +609,15 @@
 
     <!-- SCRIPTS DE OPERACIÓN -->
     <script>
-        let currentPhotoBase64 = '';
+        let currentFileBase64 = '';
+        let currentFileType = 'image'; // 'image' o 'pdf'
         let medCardCount = 0;
+        let contactCount = 0;
 
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('r-fecha').value = today;
 
-            // Agregar la primera tarjeta de medicamento por defecto
             addMedicationCard();
         });
 
@@ -609,23 +628,46 @@
             setTimeout(() => toast.classList.remove('show'), 3500);
         }
 
-        function toggleTutorFields() {
-            const container = document.getElementById('tutor-fields-container');
-            const btn = document.getElementById('btn-toggle-tutor');
-            if (container.style.display === 'none') {
-                container.style.display = 'block';
-                btn.style.borderColor = 'var(--c-accent)';
-                btn.style.color = 'var(--c-accent)';
-            } else {
-                container.style.display = 'none';
-                btn.style.borderColor = 'var(--c-border)';
-                btn.style.color = 'var(--c-primary)';
-            }
-        }
-
         function toggleDocContactFields(chk) {
             const container = document.getElementById('doc-contact-fields');
             container.style.display = chk.checked ? 'block' : 'none';
+        }
+
+        function addContactRow() {
+            contactCount++;
+            const container = document.getElementById('contacts-container');
+
+            const row = document.createElement('div');
+            row.className = 'contact-item-row';
+            row.id = `contact-row-${contactCount}`;
+
+            row.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <span style="font-size:13px; font-weight:700; color:var(--c-accent);">Contacto Adicional #${contactCount}</span>
+                    <button type="button" onclick="removeContactRow(${contactCount})" style="background:none; border:none; color:#EF4444; font-weight:700; font-size:12px; cursor:pointer;">Eliminar</button>
+                </div>
+                <div class="form-row" style="margin-bottom:0;">
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Nombre</label>
+                        <input type="text" class="field-input contact-nombre">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0;">
+                        <label class="field-label">Rol / Relación (Ej: Enfermera, Tutor)</label>
+                        <input type="text" class="field-input contact-rol" value="Enfermera Personal">
+                    </div>
+                </div>
+                <div class="form-group" style="margin-top:10px; margin-bottom:0;">
+                    <label class="field-label">WhatsApp del Contacto</label>
+                    <input type="tel" class="field-input contact-phone" value="+56957838682">
+                </div>
+            `;
+
+            container.appendChild(row);
+        }
+
+        function removeContactRow(id) {
+            const row = document.getElementById(`contact-row-${id}`);
+            if (row) row.remove();
         }
 
         function addMedicationCard() {
@@ -701,12 +743,11 @@
                     </div>
                 </div>
 
-                <div class="form-row" style="margin-top:14px;">
-                    <div class="form-group" style="margin-bottom:0;">
-                        <label class="field-label">Descuento % en Farmacia *</label>
-                        <input type="number" class="field-input med-descuento" min="0" max="100" value="15" required>
-                    </div>
-                    <div class="form-group" style="margin-bottom:0;">
+                <div style="margin-top:14px; display:flex; align-items:center; justify-content:space-between; gap:14px;">
+                    <button type="button" class="btn-descuento-farmacia active" id="btn-desc-${medCardCount}" onclick="toggleDescuentoFarmacia(${medCardCount})">
+                        🏷️ Descuento Farmacia Asociada Activado (15% DCTO)
+                    </button>
+                    <div style="flex:1;">
                         <label class="field-label">Indicaciones del Médico</label>
                         <input type="text" class="field-input med-indicacion">
                     </div>
@@ -714,7 +755,24 @@
             `;
 
             container.appendChild(card);
+            card.dataset.descuento = "true";
             calcularHorariosCard(medCardCount);
+        }
+
+        function toggleDescuentoFarmacia(id) {
+            const card = document.getElementById(`med-card-${id}`);
+            const btn = document.getElementById(`btn-desc-${id}`);
+            if (!card || !btn) return;
+
+            if (card.dataset.descuento === "true") {
+                card.dataset.descuento = "false";
+                btn.classList.remove('active');
+                btn.textContent = "🏷️ + Agregar Descuento (Farmacia Asociada)";
+            } else {
+                card.dataset.descuento = "true";
+                btn.classList.add('active');
+                btn.textContent = "🏷️ Descuento Farmacia Asociada Activado (15% DCTO)";
+            }
         }
 
         function removeMedicationCard(id) {
@@ -748,23 +806,35 @@
 
                 const badge = document.createElement('span');
                 badge.className = 'schedule-badge';
-                badge.innerHTML = `Toma ${i+1}: <strong>${timeString}</strong> (${cantPastillas} pastilla/s)`;
+                badge.innerHTML = `Toma ${i+1}: <strong>${timeString}</strong> (${cantPastillas} unidad/es)`;
                 previewContainer.appendChild(badge);
             }
         }
 
-        function previewRecipePhoto(input) {
+        function previewRecipeFile(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
 
             const reader = new FileReader();
             reader.onload = function(e) {
-                currentPhotoBase64 = e.target.result;
+                currentFileBase64 = e.target.result;
                 document.getElementById('photo-placeholder').style.display = 'none';
-                const preview = document.getElementById('attached-photo-preview');
-                preview.src = currentPhotoBase64;
-                preview.style.display = 'block';
-                showToast("📷 Imagen de respaldo adjuntada");
+
+                if (file.type === 'application/pdf' || file.name.endsWith('.pdf')) {
+                    currentFileType = 'pdf';
+                    document.getElementById('attached-photo-preview').style.display = 'none';
+                    const pdfBox = document.getElementById('attached-pdf-preview');
+                    document.getElementById('pdf-file-name').textContent = file.name;
+                    pdfBox.style.display = 'block';
+                    showToast("📄 Documento Receta PDF de Clínica adjuntado");
+                } else {
+                    currentFileType = 'image';
+                    document.getElementById('attached-pdf-preview').style.display = 'none';
+                    const preview = document.getElementById('attached-photo-preview');
+                    preview.src = currentFileBase64;
+                    preview.style.display = 'block';
+                    showToast("📷 Imagen de receta adjuntada");
+                }
             };
             reader.readAsDataURL(file);
         }
@@ -775,9 +845,18 @@
             const paciente = document.getElementById('p-nombre').value.trim();
             const phone = document.getElementById('p-phone').value.trim();
             const fechaEmision = document.getElementById('r-fecha').value;
-            
-            const tutorNombre = document.getElementById('tutor-nombre').value.trim();
-            const tutorPhone = document.getElementById('tutor-phone').value.trim();
+
+            // Recopilar contactos adicionales (Enfermera, Cuidador, etc.)
+            const contactosAdicionales = [];
+            const contactRows = document.querySelectorAll('.contact-item-row');
+            contactRows.forEach(row => {
+                const nombre = row.querySelector('.contact-nombre').value.trim();
+                const rol = row.querySelector('.contact-rol').value.trim() || 'Contacto Responsable';
+                const telefono = row.querySelector('.contact-phone').value.trim();
+                if (nombre && telefono) {
+                    contactosAdicionales.push({ nombre, rol, telefono });
+                }
+            });
 
             const docContactActive = document.getElementById('toggle-doc-contact').checked;
             const docPhone = document.getElementById('doc-phone').value.trim();
@@ -800,12 +879,12 @@
                 const horaInicio = card.querySelector('.med-hora-inicio').value;
                 const comidaRel = card.querySelector('.med-comida-rel').value;
                 const duracion = parseInt(card.querySelector('.med-dias').value) || 10;
-                const descuentoPct = parseInt(card.querySelector('.med-descuento').value) || 15;
+                const descuentoAplicado = card.dataset.descuento === "true";
                 const indicacion = card.querySelector('.med-indicacion').value.trim();
 
                 if (nombre) {
                     medicamentos.push({
-                        nombre, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, descuentoPct, indicacion
+                        nombre, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, descuentoAplicado, indicacion
                     });
                 }
             });
@@ -815,17 +894,19 @@
                 return;
             }
 
-            showToast("🚀 Emitiendo prescripción y notificado por WhatsApp...");
+            showToast("🚀 Emitiendo prescripción y despachando WhatsApp...");
 
             try {
                 const res = await fetch('/api/pro/prescribir', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        paciente, phone, fechaEmision, tutorNombre, tutorPhone,
+                        paciente, phone, fechaEmision,
+                        contactosAdicionales,
                         medicamentos,
                         docContactActive, docPhone, docNotaEmergency,
-                        fotoBase64: currentPhotoBase64
+                        fotoBase64: currentFileBase64,
+                        archivoTipo: currentFileType
                     })
                 });
                 const data = await res.json();
@@ -839,11 +920,14 @@
             document.getElementById('rep-phone').textContent = phone;
             document.getElementById('rep-fecha').textContent = fechaEmision;
 
-            if (tutorNombre) {
-                document.getElementById('rep-tutor').textContent = `${tutorNombre} (${tutorPhone || 'Sin tel'})`;
-                document.getElementById('rep-tutor-container').style.display = 'block';
-            } else {
-                document.getElementById('rep-tutor-container').style.display = 'none';
+            const repContactosSummary = document.getElementById('rep-contactos-summary');
+            repContactosSummary.innerHTML = '';
+            if (contactosAdicionales.length > 0) {
+                contactosAdicionales.forEach(c => {
+                    const p = document.createElement('p');
+                    p.innerHTML = `<strong>${c.rol}:</strong> ${c.nombre} (${c.telefono})`;
+                    repContactosSummary.appendChild(p);
+                });
             }
 
             const repMedsSummary = document.getElementById('rep-meds-summary');
@@ -853,10 +937,10 @@
             medicamentos.forEach((m, idx) => {
                 const item = document.createElement('div');
                 item.style.marginBottom = '10px';
-                item.innerHTML = `<strong>${idx+1}. ${m.nombre} (${m.dosis})</strong>: ${m.tomasDia} toma(s)/día (${m.cantPastillas} unidad/es) por ${m.duracion} días [${m.descuentoPct}% DCTO]`;
+                item.innerHTML = `<strong>${idx+1}. ${m.nombre} (${m.dosis})</strong>: ${m.tomasDia} toma(s)/día (${m.cantPastillas} unidad/es) por ${m.duracion} días ${m.descuentoAplicado ? '[Descuento Farmacia Activado]' : ''}`;
                 repMedsSummary.appendChild(item);
 
-                waMedsText += `\n💊 *${m.nombre} (${m.dosis}):* ${m.tomasDia} tomas/día por ${m.duracion} días (${m.descuentoPct}% DCTO)`;
+                waMedsText += `\n💊 *${m.nombre} (${m.dosis}):* ${m.tomasDia} tomas/día por ${m.duracion} días`;
             });
 
             const cleanPhone = phone.replace(/\D/g, '');
@@ -877,10 +961,13 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
             document.getElementById('dispatch-modal').style.display = 'none';
             document.getElementById('pro-prescription-form').reset();
             document.getElementById('attached-photo-preview').style.display = 'none';
+            document.getElementById('attached-pdf-preview').style.display = 'none';
             document.getElementById('photo-placeholder').style.display = 'block';
-            currentPhotoBase64 = '';
+            currentFileBase64 = '';
             
-            // Limpiar medicamentos adicionales y dejar 1 limpio
+            document.getElementById('contacts-container').innerHTML = '';
+            contactCount = 0;
+
             document.getElementById('meds-container').innerHTML = '';
             medCardCount = 0;
             addMedicationCard();
