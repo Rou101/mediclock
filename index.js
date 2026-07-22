@@ -26,9 +26,9 @@ const firebaseApp = initializeApp({ projectId: 'mediclock-recordatorios' });
 const db = getFirestore(firebaseApp);
 const adminAuth = getAuth(firebaseApp);
 
-// Middlewares
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Middlewares (límite ampliado a 50mb para fotografías en alta resolución de recetas)
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // Versión activa del sistema
@@ -81,6 +81,7 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
         let medicamento = '';
         let dosis = '';
         let tomasDia = 2; // Default
+        let duracion = '30 días';
         let comidaRel = 'Sin relación específica con comidas';
 
         const lines = rawText.split('\n').map(l => l.trim()).filter(Boolean);
@@ -100,21 +101,27 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
         else if (freq12) tomasDia = 2;
         else if (freq24) tomasDia = 1;
 
-        // 3. Dosis Detection (e.g. "500 MG", "5 MG", "20 MG")
+        // 3. Duración (e.g. "10 DIAS", "14 DIAS", "7 DIAS")
+        const diasMatch = rawText.match(/(\d+)\s*d[ií]as?/i);
+        if (diasMatch) {
+            duracion = `${diasMatch[1]} días`;
+        }
+
+        // 4. Dosis Detection (e.g. "40 MG", "500 MG", "5 MG")
         const dosisMatch = rawText.match(/(\d+\s*(mg|g|ml|comprimidos?|pastillas?))/i);
         if (dosisMatch) {
             dosis = dosisMatch[0].toUpperCase();
         }
 
-        // 4. Medicamento Detection
-        const knownMeds = ['ASPIRINA', 'LEVORIGOTAX', 'LOSARTAN', 'ATORVASTATINA', 'ENALAPRIL', 'METFORMINA', 'PARACETAMOL', 'IBUPROFENO', 'AMOXICILINA', 'OMEPRAZOL', 'KETOROLACO'];
+        // 5. Medicamento Detection
+        const knownMeds = ['CIALIS', 'ASPIRINA', 'LEVORIGOTAX', 'LOSARTAN', 'ATORVASTATINA', 'ENALAPRIL', 'METFORMINA', 'PARACETAMOL', 'IBUPROFENO', 'AMOXICILINA', 'OMEPRAZOL', 'KETOROLACO', 'VIAGRA', 'SILDENAFILO', 'TADALAFILO'];
         const foundKnown = knownMeds.find(km => rawText.toUpperCase().includes(km));
 
         if (foundKnown) {
             medicamento = foundKnown.charAt(0).toUpperCase() + foundKnown.slice(1).toLowerCase();
         } else {
             const medCandidates = lines.filter(l => 
-                !/dr\b|dra\b|proctologo|cardiologo|cada|horas|mg\b/i.test(l) && l.length > 3
+                !/dr\b|dra\b|proctologo|proctologa|cardiologo|cada|horas|mg\b|dias\b/i.test(l) && l.length > 3
             );
             if (medCandidates.length > 0) {
                 medicamento = medCandidates[0];
@@ -128,8 +135,9 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
             rawText,
             doctor,
             medicamento,
-            dosis: dosis || '500 MG',
+            dosis: dosis || '40 MG',
             tomasDia,
+            duracion,
             comidaRel,
             indicacion: doctor ? `Recetado por ${doctor}` : ''
         });

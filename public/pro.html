@@ -714,7 +714,7 @@
             }
         }
 
-        // PROCESAR FOTO DE RECETA O CAJA TOMADA POR EL MÉDICO CON CLOUD VISION OCR REAL
+        // PROCESAR FOTO CON COMPRESIÓN DE LIZENZA HD DE GALAXY S24 ULTRA & CLOUD VISION OCR
         function procesarFotoArchivo(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
@@ -726,42 +726,77 @@
             imgPreview.style.display = 'block';
             imgPreview.src = URL.createObjectURL(file);
 
-            showToast("🔍 Escaneando receta manuscrita o impresa con IA...");
+            showToast("🔍 Procesando foto con IA Google Cloud Vision...");
 
             const reader = new FileReader();
-            reader.onload = async function(e) {
-                const base64 = e.target.result;
-                try {
-                    const res = await fetch('/api/pro/scan-prescription', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ imageBase64: base64 })
-                    });
-                    const data = await res.json();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = async function() {
+                    // Redimensionar fotos en ultra-alta resolución (ej. S24 Ultra) a max 1200px para envío ultrarrápido
+                    const canvas = document.createElement('canvas');
+                    let width = img.width;
+                    let height = img.height;
+                    const maxDim = 1200;
 
-                    if (data.success && data.medicamento) {
-                        document.getElementById('m-nombre').value = data.medicamento;
-                        document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
-                        
-                        if (data.dosis) {
-                            document.getElementById('m-dosis').value = data.dosis;
-                            document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
+                    if (width > maxDim || height > maxDim) {
+                        if (width > height) {
+                            height = Math.round((height * maxDim) / width);
+                            width = maxDim;
+                        } else {
+                            width = Math.round((width * maxDim) / height);
+                            height = maxDim;
                         }
-                        if (data.tomasDia) {
-                            document.getElementById('m-tomas-dia').value = data.tomasDia.toString();
-                            calcularHorariosProgramados();
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+
+                    try {
+                        const res = await fetch('/api/pro/scan-prescription', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ imageBase64: compressedBase64 })
+                        });
+                        const data = await res.json();
+
+                        if (data.success && data.medicamento) {
+                            document.getElementById('m-nombre').value = data.medicamento;
+                            document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
+                            
+                            if (data.dosis) {
+                                document.getElementById('m-dosis').value = data.dosis;
+                                document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
+                            }
+                            if (data.tomasDia) {
+                                document.getElementById('m-tomas-dia').value = data.tomasDia.toString();
+                                calcularHorariosProgramados();
+                            }
+                            if (data.duracion) {
+                                const mDias = document.getElementById('m-dias');
+                                for (let opt of mDias.options) {
+                                    if (opt.value.includes(data.duracion.split(' ')[0])) {
+                                        opt.selected = true;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (data.indicacion) {
+                                document.getElementById('m-indicacion').value = data.indicacion;
+                            }
+                            showToast(`✨ Prescripción leída: ${data.medicamento} ${data.dosis}`);
+                        } else {
+                            showToast("Foto recibida. Verifique los datos ingresados.");
                         }
-                        if (data.indicacion) {
-                            document.getElementById('m-indicacion').value = data.indicacion;
-                        }
-                        showToast(`✨ Prescripción identificada: ${data.medicamento} ${data.dosis}`);
-                    } else {
+                    } catch (err) {
+                        console.error("Error en OCR:", err);
                         showToast("Foto cargada. Complete el nombre del medicamento.");
                     }
-                } catch (err) {
-                    console.error("Error en OCR:", err);
-                    showToast("Foto cargada. Complete el nombre del medicamento.");
-                }
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
