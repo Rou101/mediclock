@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>MediClock Pro v21.0 - Plataforma Médica Responsiva (Desktop, Tablet & Móvil)</title>
+    <title>MediClock Pro v22.0 - Plataforma Médica de Prescripción & Adherencia</title>
     
     <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -17,7 +17,7 @@
         :root {
             --bg-dark: #0B0F19;
             --bg-surface: #111827;
-            --bg-card: rgba(17, 24, 39, 0.8);
+            --bg-card: rgba(17, 24, 39, 0.85);
             --c-primary: #38BDF8;
             --c-primary-glow: rgba(56, 189, 248, 0.25);
             --c-accent: #818CF8;
@@ -129,14 +129,14 @@
             font-size: 12px;
         }
 
-        /* CONTENEDOR PRINCIPAL RESPONSIVO CON MEDIA QUERIES */
+        /* CONTENEDOR PRINCIPAL RESPONSIVO */
         .desktop-container {
             max-width: 1360px;
             width: 100%;
             margin: 24px auto;
             padding: 0 24px;
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1.1fr;
             gap: 24px;
         }
 
@@ -211,12 +211,30 @@
             color: #FFF;
         }
 
-        .field-textarea {
-            min-height: 80px;
+        /* TEXTAREA GIGANTE PARA INDICACIONES DEL MÉDICO (MITAD SUPERIOR DERECHA) */
+        .field-textarea-giant {
+            width: 100%;
+            min-height: 180px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--c-primary-glow);
+            color: var(--c-text);
+            padding: 16px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            line-height: 1.6;
+            outline: none;
             resize: vertical;
+            transition: all 0.2s ease;
         }
 
-        /* BOTONES AUXILIARES */
+        .field-textarea-giant:focus {
+            border-color: var(--c-primary);
+            box-shadow: 0 0 0 4px var(--c-primary-glow);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        /* BOTONES AUXILIARES Y SIMÉTRICOS */
         .btn-aux {
             background: rgba(255, 255, 255, 0.05);
             border: 1px dashed var(--c-border);
@@ -237,50 +255,70 @@
             border-color: var(--c-primary);
         }
 
-        .btn-add-med {
-            background: rgba(16, 185, 129, 0.1);
-            border: 1px solid rgba(16, 185, 129, 0.3);
-            color: var(--c-green);
-            width: 100%;
-            padding: 12px;
-            border-radius: var(--radius-md);
-            font-size: 13px;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s ease;
+        /* GRID DE BOTONES CUADRADOS SIMÉTRICOS AL PIE DE LA COLUMNA DERECHA */
+        .square-actions-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1.2fr;
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .square-btn {
+            height: 90px;
+            background: rgba(0, 0, 0, 0.35);
+            border: 1px solid var(--c-border);
+            border-radius: var(--radius-lg);
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 6px;
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            text-align: center;
+            color: var(--c-text);
         }
 
-        .btn-add-med:hover {
-            background: rgba(16, 185, 129, 0.2);
-            border-color: var(--c-green);
+        .square-btn:hover {
+            transform: translateY(-3px);
+            border-color: var(--c-primary);
+            background: rgba(56, 189, 248, 0.1);
         }
 
-        .btn-descuento-farmacia {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid rgba(245, 158, 11, 0.3);
-            color: var(--c-yellow);
-            padding: 10px 14px;
-            border-radius: var(--radius-md);
+        .square-btn-icon {
+            font-size: 24px;
+        }
+
+        .square-btn-text {
             font-size: 12px;
             font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            width: 100%;
-            justify-content: center;
+            line-height: 1.2;
         }
 
-        .btn-descuento-farmacia.active {
+        /* BOTÓN CUADRADO DE DESCUENTO */
+        .square-btn-desc {
+            border-color: rgba(245, 158, 11, 0.3);
+            color: var(--c-yellow);
+        }
+        .square-btn-desc.active {
             background: rgba(16, 185, 129, 0.15);
             border-color: var(--c-green);
             color: var(--c-green);
+        }
+
+        /* BOTÓN CUADRADO PRINCIPAL DE DISPARO WHATSAPP */
+        .square-btn-submit {
+            background: linear-gradient(135deg, #10B981, #059669);
+            border: none;
+            color: #FFF;
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.35);
+        }
+
+        .square-btn-submit:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 28px rgba(16, 185, 129, 0.5);
+            background: linear-gradient(135deg, #059669, #047857);
         }
 
         /* SECCIÓN ADJUNTAR ARCHIVO / PDF RECETA */
@@ -297,30 +335,6 @@
         .attachment-box:hover {
             border-color: var(--c-primary);
             background: rgba(56, 189, 248, 0.04);
-        }
-
-        /* BOTONES INTERACTIVOS PREMIUM */
-        .btn-submit {
-            width: 100%;
-            background: linear-gradient(135deg, #10B981, #059669);
-            color: #FFF;
-            border: none;
-            padding: 16px 24px;
-            border-radius: var(--radius-md);
-            font-size: 15px;
-            font-weight: 800;
-            cursor: pointer;
-            box-shadow: 0 6px 20px rgba(16, 185, 129, 0.3);
-            transition: all 0.25s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .btn-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 28px rgba(16, 185, 129, 0.45);
         }
 
         /* BADGES ITINERARIO SUGERIDO */
@@ -403,83 +417,56 @@
             margin-bottom: 10px;
         }
 
-        /* ========================================================
-           RESPONSIVIDAD Y MEDIA QUERIES (TABLETS Y MÓVILES)
-           ======================================================== */
-        
-        /* 1. PUNTO DE BREAKPOINT PARA TABLETS (Hasta 1024px) */
+        /* MEDIA QUERIES RESPONSIVOS */
         @media (max-width: 1024px) {
             .desktop-container {
-                grid-template-columns: 1fr; /* Pasa de 2 columnas a 1 columna apilada */
+                grid-template-columns: 1fr;
                 margin: 16px auto;
                 padding: 0 16px;
                 gap: 20px;
-            }
-            .chrome-header {
-                padding: 12px 20px;
             }
             .glass-card {
                 padding: 20px;
             }
         }
 
-        /* 2. PUNTO DE BREAKPOINT PARA CELULARES / SMARTPHONES (Hasta 576px) */
         @media (max-width: 576px) {
             .form-row {
-                grid-template-columns: 1fr; /* Todos los campos en 1 sola fila en celular */
+                grid-template-columns: 1fr;
                 gap: 12px;
                 margin-bottom: 12px;
             }
-            .chrome-header {
-                padding: 10px 14px;
+            .square-actions-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
             }
-            .brand-title {
-                font-size: 16px;
-            }
-            .version-tag {
-                font-size: 10px;
-                padding: 2px 8px;
-            }
-            .doctor-badge {
-                padding: 4px 10px;
-            }
-            .doctor-badge div div:first-child {
-                font-size: 12px !important;
-            }
-            .doctor-badge div div:last-child {
-                display: none; /* Ocultar especialidad en celulares muy pequeños */
+            .square-btn {
+                height: 70px;
+                flex-direction: row;
+                justify-content: center;
             }
             .glass-card {
                 padding: 16px;
-                border-radius: var(--radius-lg);
-            }
-            .card-header-title {
-                font-size: 15px;
-                margin-bottom: 14px;
-            }
-            .btn-submit {
-                padding: 14px 18px;
-                font-size: 14px;
             }
         }
     </style>
 </head>
 <body>
 
-    <!-- HEADER ESCRITORIO CHROME Y RESPONSIVO CON ACCIONES Y CONTROLES -->
+    <!-- HEADER ESCRITORIO CHROME Y RESPONSIVO CON CONTROLES -->
     <header class="chrome-header">
         <div class="brand-box">
             <div class="brand-icon">M</div>
             <div>
                 <div style="display:flex; align-items:center; gap:8px;">
                     <span class="brand-title">MediClock Pro</span>
-                    <span class="version-tag">v21.0 RESPONSIVO</span>
+                    <span class="version-tag">v22.0 CHROME B2B</span>
                 </div>
                 <div style="font-size:11px; color:var(--c-text-sub); font-weight:600;">Plataforma Médica de Prescripción & Adherencia</div>
             </div>
         </div>
 
-        <div style="display:flex; align-items:center; gap:14px;" class="header-actions-box">
+        <div style="display:flex; align-items:center; gap:14px;">
             <button type="button" class="btn-aux" onclick="closeDispatchModal()" style="padding:8px 14px; font-size:12px;">
                 <span>✨</span> Nueva Receta
             </button>
@@ -508,14 +495,14 @@
 
             <form id="pro-prescription-form" onsubmit="activarTratamiento(event)">
                 
-                <!-- NOMBRE Y APELLIDO PACIENTE (100% LIMPIO SIN SUGERENCIA) -->
+                <!-- NOMBRE Y APELLIDO PACIENTE (100% LIMPIO) -->
                 <div class="form-group">
                     <label class="field-label">Nombre y Apellido del Paciente *</label>
                     <input type="text" id="p-nombre" class="field-input" required>
                 </div>
 
                 <div class="form-row">
-                    <!-- TELÉFONO WHATSAPP PACIENTE (100% LIMPIO SIN SUGERENCIA) -->
+                    <!-- TELÉFONO WHATSAPP PACIENTE (100% LIMPIO) -->
                     <div class="form-group" style="margin-bottom:0;">
                         <label class="field-label">WhatsApp del Paciente *</label>
                         <input type="tel" id="p-phone" class="field-input" required>
@@ -588,27 +575,39 @@
 
         </section>
 
-        <!-- COLUMNA DERECHA: PRESCRIPCIÓN DEL MEDICAMENTO E ITINERARIO (MULTI-MEDICAMENTO) -->
+        <!-- COLUMNA DERECHA REFORMADA: INDICACIONES GIGANTES EN PARTE SUPERIOR + BOTONES CUADRADOS ABAJO -->
         <section class="glass-card">
             <h2 class="card-header-title">
-                <span>💊</span> 2. Prescripción del Tratamiento (Multi-Medicamento)
+                <span>💊</span> 2. Prescripción del Tratamiento & Indicaciones
             </h2>
 
-            <!-- CONTENEDOR DINÁMICO DE TARJETAS DE MEDICAMENTOS -->
+            <!-- CONTENEDOR DE TARJETAS DE MEDICAMENTOS -->
             <div id="meds-container">
                 <!-- Se insertan por JS -->
             </div>
 
-            <!-- BOTÓN AGREGAR OTRO MEDICAMENTO -->
-            <button type="button" class="btn-add-med" onclick="addMedicationCard()">
-                <span>+</span> Agregar Otro Medicamento a la misma Receta
-            </button>
+            <!-- BOTONERA DE ACCIÓN SIMÉTRICA CON BOTONES CUADRADOS ELEGANTE AL PIE -->
+            <div class="square-actions-grid">
+                <!-- BOTÓN CUADRADO 1: DESCUENTO FARMACIA -->
+                <button type="button" class="square-btn square-btn-desc active" id="main-btn-desc" onclick="toggleDescuentoGlobal()">
+                    <span class="square-btn-icon">🏷️</span>
+                    <span class="square-btn-text" id="main-desc-text">Descuento Farmacia (15% DCTO)</span>
+                </button>
 
-            <button type="submit" class="btn-submit">
-                <span>🚀</span> Emitir Prescripción & Despachar por WhatsApp
-            </button>
+                <!-- BOTÓN CUADRADO 2: AGREGAR REMEDIO -->
+                <button type="button" class="square-btn" onclick="addMedicationCard()">
+                    <span class="square-btn-icon">➕</span>
+                    <span class="square-btn-text">Agregar Otro Medicamento</span>
+                </button>
 
-            <div style="margin-top:14px; text-align:center; font-size:11px; color:var(--c-text-sub); display:flex; align-items:center; justify-content:center; gap:6px;">
+                <!-- BOTÓN CUADRADO 3 (PRINCIPAL): EMITIR Y DESPACHAR POR WHATSAPP -->
+                <button type="submit" class="square-btn square-btn-submit">
+                    <span class="square-btn-icon">🚀</span>
+                    <span class="square-btn-text">Emitir & Despachar WhatsApp</span>
+                </button>
+            </div>
+
+            <div style="margin-top:16px; text-align:center; font-size:11px; color:var(--c-text-sub); display:flex; align-items:center; justify-content:center; gap:6px;">
                 <span>🔒</span>
                 <span><strong>Privacidad Garantizada:</strong> Cero IA para lectura de recetas. Datos cifrados en Google Cloud.</span>
                 <a href="#" onclick="openPrivacyModal(event)" style="color:var(--c-primary); font-weight:700; text-decoration:underline; cursor:pointer;">Ver Política</a>
@@ -688,6 +687,7 @@
         let currentFileType = 'image';
         let medCardCount = 0;
         let contactCount = 0;
+        let descuentoGlobalActivo = true;
 
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
@@ -771,7 +771,7 @@
                     </div>
                 </div>
 
-                <!-- Fila 2: Pastillas por toma & Veces al día (Campos Numéricos) -->
+                <!-- Fila 2: Pastillas por toma & Veces al día -->
                 <div class="form-row">
                     <div class="form-group" style="margin-bottom:0;">
                         <label class="field-label">Pastillas por Toma (Número) *</label>
@@ -823,38 +823,30 @@
                     </div>
                 </div>
 
-                <!-- Fila 5: Indicaciones del Médico (ANCHO COMPLETO 100%) -->
-                <div class="form-group">
-                    <label class="field-label">Indicaciones del Médico</label>
-                    <textarea class="field-textarea med-indicacion"></textarea>
-                </div>
-
-                <!-- Fila 6: Botón de Descuento Farmacia -->
-                <div style="margin-top:10px;">
-                    <button type="button" class="btn-descuento-farmacia active" id="btn-desc-${medCardCount}" onclick="toggleDescuentoFarmacia(${medCardCount})">
-                        🏷️ Descuento Farmacia Asociada Activado (15% DCTO)
-                    </button>
+                <!-- Fila 5: INDICACIONES DEL MÉDICO (ÁREA GIGANTE AMPLIADA) -->
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="field-label" style="color:var(--c-primary);">📝 Indicaciones & Notas del Médico *</label>
+                    <textarea class="field-textarea-giant med-indicacion"></textarea>
                 </div>
             `;
 
             container.appendChild(card);
-            card.dataset.descuento = "true";
             calcularHorariosCard(medCardCount);
         }
 
-        function toggleDescuentoFarmacia(id) {
-            const card = document.getElementById(`med-card-${id}`);
-            const btn = document.getElementById(`btn-desc-${id}`);
-            if (!card || !btn) return;
+        function toggleDescuentoGlobal() {
+            const btn = document.getElementById('main-btn-desc');
+            const txt = document.getElementById('main-desc-text');
+            descuentoGlobalActivo = !descuentoGlobalActivo;
 
-            if (card.dataset.descuento === "true") {
-                card.dataset.descuento = "false";
-                btn.classList.remove('active');
-                btn.textContent = "🏷️ + Agregar Descuento (Farmacia Asociada)";
-            } else {
-                card.dataset.descuento = "true";
+            if (descuentoGlobalActivo) {
                 btn.classList.add('active');
-                btn.textContent = "🏷️ Descuento Farmacia Asociada Activado (15% DCTO)";
+                txt.textContent = "Descuento Farmacia (15% DCTO)";
+                showToast("🏷️ Descuento de farmacia activado");
+            } else {
+                btn.classList.remove('active');
+                txt.textContent = "+ Agregar Descuento Farmacia";
+                showToast("🏷️ Descuento desactivado");
             }
         }
 
@@ -962,12 +954,13 @@
                 const horaInicio = card.querySelector('.med-hora-inicio').value;
                 const comidaRel = card.querySelector('.med-comida-rel').value;
                 const duracion = parseInt(card.querySelector('.med-dias').value) || 10;
-                const descuentoAplicado = card.dataset.descuento === "true";
                 const indicacion = card.querySelector('.med-indicacion').value.trim();
 
                 if (nombre) {
                     medicamentos.push({
-                        nombre, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, descuentoAplicado, indicacion
+                        nombre, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion,
+                        descuentoAplicado: descuentoGlobalActivo,
+                        indicacion
                     });
                 }
             });
