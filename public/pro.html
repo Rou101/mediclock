@@ -11,6 +11,7 @@
         :root {
             --bg-body: #07090E;
             --bg-card: rgba(18, 24, 38, 0.85);
+            --bg-card-hover: rgba(28, 36, 56, 0.85);
             --c-primary: #6366F1;
             --c-primary-glow: rgba(99, 102, 241, 0.35);
             --c-accent: #A855F7;
@@ -219,43 +220,16 @@
             margin-bottom: 16px;
         }
 
-        video#camera-feed {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
         img#captured-preview {
             width: 100%;
             height: 100%;
             object-fit: cover;
         }
 
-        .scanner-overlay {
-            position: absolute;
-            inset: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.5);
-            border-radius: 16px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
-            pointer-events: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .scanner-overlay::before {
-            content: '';
-            width: 100%;
-            height: 2px;
-            background: var(--c-primary);
-            box-shadow: 0 0 14px var(--c-primary);
-            animation: scanLine 2s infinite ease-in-out;
-        }
-
-        @keyframes scanLine {
-            0% { transform: translateY(-75px); }
-            50% { transform: translateY(75px); }
-            100% { transform: translateY(-75px); }
+        .scanner-placeholder {
+            text-align: center;
+            padding: 20px;
+            color: var(--c-text-sub);
         }
 
         /* FORM STYLING */
@@ -319,7 +293,7 @@
             gap: 6px;
             background: rgba(99, 102, 241, 0.25);
             color: #C7D2FE;
-            padding: 4px 10px;
+            padding: 6px 12px;
             border-radius: 8px;
             font-size: 13px;
             font-weight: 700;
@@ -332,10 +306,10 @@
             background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
             color: #fff;
             font-weight: 800;
-            font-size: 16px;
+            font-size: 15px;
             border: none;
             border-radius: var(--radius-md);
-            padding: 16px 24px;
+            padding: 15px 24px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
@@ -356,16 +330,16 @@
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.06);
             border: 1px solid var(--c-border);
             box-shadow: none;
             color: var(--c-text);
             font-size: 14px;
-            padding: 12px 18px;
+            padding: 14px 18px;
         }
 
         .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             border-color: var(--c-text-sub);
         }
 
@@ -503,11 +477,9 @@
         <!-- PESTAÑAS DE NAVEGACIÓN PRINCIPAL -->
         <nav class="pro-nav-tabs">
             <button class="tab-btn active" id="tab-btn-prescripcion" onclick="switchTab('prescripcion')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                 Prescripción Express IA
             </button>
             <button class="tab-btn" id="tab-btn-adherencia" onclick="switchTab('adherencia')">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
                 Mis Pacientes & Semáforo
             </button>
         </nav>
@@ -531,39 +503,33 @@
                 <div class="card-header">
                     <div>
                         <div class="card-title">
-                            ✨ Prescripción Médica Inteligente
+                            Prescripción Médica Inteligente
                         </div>
-                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Escanee o cargue la foto del medicamento prescrito</span>
+                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Capture la foto del medicamento prescrito</span>
                     </div>
                 </div>
 
                 <!-- SCANNER VIEWPORT -->
                 <div class="scanner-viewport" id="scanner-box">
-                    <video id="camera-feed" autoplay playsinline style="display:none;"></video>
                     <img id="captured-preview" style="display:none;" alt="Vista previa de la caja">
-                    <div class="scanner-overlay" id="scanner-overlay" style="display:none;"></div>
                     
                     <div class="scanner-placeholder" id="scanner-placeholder">
-                        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px; color:var(--c-primary);"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M9 12h6"/></svg>
-                        <p style="font-size:15px; font-weight:700;">Captura o Foto de la Caja</p>
-                        <p style="font-size:13px; margin-top:4px; color:var(--c-text-sub);">Presione el botón para tomar foto a la caja del remedio</p>
+                        <p style="font-size:15px; font-weight:700;">Fotografía de la Caja</p>
+                        <p style="font-size:13px; margin-top:4px; color:var(--c-text-sub);">Presione el botón Foto para capturar la caja del remedio</p>
                     </div>
                 </div>
 
-                <!-- BOTONES DE ACCIÓN DE CÁMARA Y ARCHIVO -->
-                <div style="display:flex; gap:12px; margin-bottom:20px;">
+                <!-- BOTÓN ÚNICO: FOTO -->
+                <div style="margin-bottom:20px;">
                     <input type="file" id="file-input-box" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoArchivo(this)">
-                    <button type="button" class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('file-input-box').click()">
-                        📷 Tomar Foto a la Caja
-                    </button>
-                    <button type="button" class="btn btn-secondary" style="flex:1;" onclick="startCameraLive()">
-                        🎥 Usar Cámara en Vivo
+                    <button type="button" class="btn btn-secondary" onclick="document.getElementById('file-input-box').click()">
+                        Foto
                     </button>
                 </div>
 
                 <hr style="border:0; border-top:1px solid var(--c-border); margin-bottom:20px;">
 
-                <!-- FORMULARIO DE PRESCRIPCIÓN LIMPIO (SIN VALORES FIJOS NI FALSOS) -->
+                <!-- FORMULARIO DE PRESCRIPCIÓN LIMPIO -->
                 <form id="prescripcion-form" onsubmit="activarTratamiento(event)" class="form-grid">
                     
                     <div class="form-group-full">
@@ -578,7 +544,7 @@
 
                     <div>
                         <label class="field-label">Medicamento (Detectado o Ingresado)</label>
-                        <input type="text" id="m-nombre" class="field-input" placeholder="Ej: Levorigotax / Losartán" required>
+                        <input type="text" id="m-nombre" class="field-input" placeholder="Nombre del medicamento" required>
                     </div>
 
                     <div>
@@ -597,7 +563,7 @@
                         </select>
                     </div>
 
-                    <!-- HORA DE LA PRIMERA TOMA (CALCULA AUTOMÁTICAMENTE LAS SIGUIENTES) -->
+                    <!-- HORA DE LA PRIMERA TOMA -->
                     <div>
                         <label class="field-label">Hora de la 1ª Toma</label>
                         <input type="time" id="m-hora-inicio" class="field-input" value="08:00" onchange="calcularHorariosProgramados()" required>
@@ -643,7 +609,6 @@
 
                     <div class="form-group-full" style="margin-top:10px;">
                         <button type="submit" class="btn btn-wa">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
                             Enviar Prescripción por WhatsApp
                         </button>
                     </div>
@@ -659,7 +624,7 @@
                 <div class="card-header">
                     <div>
                         <div class="card-title">
-                            📊 Pacientes del Dr. Francisco Pérez
+                            Pacientes del Dr. Francisco Pérez
                         </div>
                         <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Trazabilidad exclusiva de pacientes bajo la supervisión directa de este médico</span>
                     </div>
@@ -685,14 +650,13 @@
                 <!-- FILTROS DE SEMÁFORO -->
                 <div style="display:flex; gap:10px; margin-bottom:18px;">
                     <button class="btn btn-secondary" style="width:auto;" onclick="filterPatients('all')">Todos los Pacientes</button>
-                    <button class="btn btn-secondary" style="width:auto;" onclick="filterPatients('green')">🟢 Cumplen (>90%)</button>
-                    <button class="btn btn-secondary" style="width:auto;" onclick="filterPatients('red')">🔴 En Riesgo</button>
+                    <button class="btn btn-secondary" style="width:auto;" onclick="filterPatients('green')">Cumplen (>90%)</button>
+                    <button class="btn btn-secondary" style="width:auto;" onclick="filterPatients('red')">En Riesgo</button>
                 </div>
 
                 <!-- LISTA DE PACIENTES EXCLUSIVA DEL MÉDICO -->
                 <div class="patient-list" id="doctor-patients-list">
                     <div id="no-patients-placeholder" style="text-align:center; padding:30px; color:var(--c-text-sub);">
-                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:10px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
                         <p style="font-size:14px; font-weight:600;">No hay prescripciones activas todavía</p>
                         <p style="font-size:12px; margin-top:4px;">Usa la pestaña 'Prescripción Express IA' para registrar a tu primer paciente.</p>
                     </div>
@@ -706,7 +670,6 @@
 
     <!-- TOAST NOTIFICATION -->
     <div class="toast-box" id="toast-box">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
         <span id="toast-msg">Mensaje de prueba</span>
     </div>
 
@@ -746,7 +709,7 @@
 
                 const badge = document.createElement('span');
                 badge.className = 'schedule-time-badge';
-                badge.innerHTML = `⏰ Toma ${i+1}: <strong>${timeString}</strong>`;
+                badge.innerHTML = `Toma ${i+1}: <strong>${timeString}</strong>`;
                 badgesContainer.appendChild(badge);
             }
         }
@@ -759,14 +722,12 @@
 
             const imgPreview = document.getElementById('captured-preview');
             const placeholder = document.getElementById('scanner-placeholder');
-            const video = document.getElementById('camera-feed');
 
-            video.style.display = 'none';
             placeholder.style.display = 'none';
             imgPreview.style.display = 'block';
             imgPreview.src = URL.createObjectURL(file);
 
-            showToast("🔍 Analizando fotografía de la caja...");
+            showToast("Analizando foto...");
 
             // Lógica inteligente de reconocimiento
             setTimeout(() => {
@@ -783,8 +744,7 @@
                     detectedName = "Atorvastatina";
                     detectedDosis = "20 mg";
                 } else {
-                    // Si el nombre del archivo no contiene la pista, extraer nombre del usuario o solicitar confirmación
-                    const userPrompt = prompt("Caja fotografiada. Ingrese o confirme el nombre del medicamento de la foto:", "Levorigotax 5mg");
+                    const userPrompt = prompt("Foto capturada. Confirme o ingrese el nombre del medicamento:", "Levorigotax 5mg");
                     if (userPrompt) {
                         detectedName = userPrompt;
                         detectedDosis = "5 mg / Dosis según caja";
@@ -799,30 +759,8 @@
                 document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
                 document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
 
-                showToast(`✨ Medicamento identificado: ${detectedName}`);
-            }, 800);
-        }
-
-        async function startCameraLive() {
-            const video = document.getElementById('camera-feed');
-            const placeholder = document.getElementById('scanner-placeholder');
-            const overlay = document.getElementById('scanner-overlay');
-            const imgPreview = document.getElementById('captured-preview');
-
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment" } 
-                });
-                video.srcObject = stream;
-                video.style.display = 'block';
-                overlay.style.display = 'flex';
-                placeholder.style.display = 'none';
-                imgPreview.style.display = 'none';
-                showToast("📷 Cámara en vivo activada");
-            } catch (err) {
-                console.error("Error accediendo a cámara:", err);
-                document.getElementById('file-input-box').click();
-            }
+                showToast(`Identificado: ${detectedName}`);
+            }, 750);
         }
 
         function activarTratamiento(e) {
@@ -832,7 +770,6 @@
             const med = document.getElementById('m-nombre').value.trim();
             const dosis = document.getElementById('m-dosis').value.trim();
             const tomasDia = document.getElementById('m-tomas-dia').value;
-            const horaInicio = document.getElementById('m-hora-inicio').value;
             const comidaRel = document.getElementById('m-comida-rel').value;
             const indicacion = document.getElementById('m-indicacion').value.trim();
 
@@ -843,16 +780,16 @@
 
             // Obtener lista de horarios formateada
             const badges = document.querySelectorAll('#schedule-badges-container .schedule-time-badge');
-            const horariosList = Array.from(badges).map(b => b.textContent.replace('⏰ ', '')).join(', ');
+            const horariosList = Array.from(badges).map(b => b.textContent).join(', ');
 
             // Limpiar teléfono
             const cleanPhone = phone.replace(/\D/g, '');
             const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha prescrito tu tratamiento de *${med} (${dosis})*.
 
-⏰ *Horarios de toma:* ${horariosList}
-🍽️ *Indicaciones:* ${comidaRel}${indicacion ? '\n📝 *Nota del Doctor:* ' + indicacion : ''}
+Horarios de toma: ${horariosList}
+Indicaciones: ${comidaRel}${indicacion ? '\nNota del Doctor: ' + indicacion : ''}
 
-Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Por favor responde *OK* para confirmar la primera toma.`;
+Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Por favor responde OK para confirmar la primera toma.`;
             
             const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textMsg)}`;
 
@@ -876,7 +813,7 @@ Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. P
                     <span class="status-pill status-green">
                         <span class="status-dot"></span> 100% Prescrito
                     </span>
-                    <span style="font-size:11px; color:var(--c-text-sub);">WhatsApp Despachado 💬</span>
+                    <span style="font-size:11px; color:var(--c-text-sub);">WhatsApp Despachado</span>
                 </div>
             `;
             list.prepend(newRow);
@@ -887,7 +824,7 @@ Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. P
 
             // Abrir WhatsApp en nueva pestaña
             window.open(waUrl, '_blank');
-            showToast("🚀 Prescripción activada y enviada por WhatsApp");
+            showToast("Prescripción enviada por WhatsApp");
         }
 
         function filterPatients(risk) {
