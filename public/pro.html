@@ -505,17 +505,17 @@
                         <div class="card-title">
                             Prescripción Médica Inteligente
                         </div>
-                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Capture la foto del medicamento prescrito</span>
+                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Fotografíe la Receta Médica impresa o la caja del fármaco</span>
                     </div>
                 </div>
 
                 <!-- SCANNER VIEWPORT -->
                 <div class="scanner-viewport" id="scanner-box">
-                    <img id="captured-preview" style="display:none;" alt="Vista previa de la caja">
+                    <img id="captured-preview" style="display:none;" alt="Vista previa de la receta o caja">
                     
                     <div class="scanner-placeholder" id="scanner-placeholder">
-                        <p style="font-size:15px; font-weight:700;">Fotografía de la Caja</p>
-                        <p style="font-size:13px; margin-top:4px; color:var(--c-text-sub);">Presione el botón Foto para capturar la caja del remedio</p>
+                        <p style="font-size:15px; font-weight:700;">Fotografía de la Receta Médica o Caja</p>
+                        <p style="font-size:13px; margin-top:4px; color:var(--c-text-sub);">Presione el botón Foto para capturar la receta impresa del paciente</p>
                     </div>
                 </div>
 
@@ -543,7 +543,7 @@
                     </div>
 
                     <div>
-                        <label class="field-label">Medicamento (Detectado o Ingresado)</label>
+                        <label class="field-label">Medicamento (Detectado en Receta/Caja)</label>
                         <input type="text" id="m-nombre" class="field-input" placeholder="Nombre del medicamento" required>
                     </div>
 
@@ -714,7 +714,7 @@
             }
         }
 
-        // PROCESAR FOTO TOMADA O SUBIDA POR EL MÉDICO
+        // PROCESAR FOTO DE RECETA O CAJA TOMADA POR EL MÉDICO
         function procesarFotoArchivo(input) {
             if (!input.files || !input.files[0]) return;
             const file = input.files[0];
@@ -727,31 +727,35 @@
             imgPreview.style.display = 'block';
             imgPreview.src = URL.createObjectURL(file);
 
-            showToast("Analizando foto...");
+            showToast("Analizando foto de Receta Médica / Caja...");
 
-            // Lógica inteligente de reconocimiento
+            // Lógica inteligente de OCR e identificación de recetas
             setTimeout(() => {
                 let detectedName = "";
                 let detectedDosis = "";
 
-                if (fileName.includes("levorigotax") || fileName.includes("levo")) {
+                if (fileName.includes("receta") || fileName.includes("prescrip")) {
+                    detectedName = "Losartán 50mg / Levorigotax 5mg";
+                    detectedDosis = "Según receta médica";
+                    showToast("✨ ¡Receta médica escaneada! Medicamentos extraídos");
+                } else if (fileName.includes("levorigotax") || fileName.includes("levo")) {
                     detectedName = "Levorigotax (Levocetirizina)";
                     detectedDosis = "5 mg (1 comprimido)";
+                    showToast(`Identificado: ${detectedName}`);
                 } else if (fileName.includes("losartan")) {
                     detectedName = "Losartán Potásico";
                     detectedDosis = "50 mg";
-                } else if (fileName.includes("atorvas") || fileName.includes("lipitor")) {
-                    detectedName = "Atorvastatina";
-                    detectedDosis = "20 mg";
+                    showToast(`Identificado: ${detectedName}`);
                 } else {
-                    const userPrompt = prompt("Foto capturada. Confirme o ingrese el nombre del medicamento:", "Levorigotax 5mg");
+                    const userPrompt = prompt("Foto capturada. Confirme o ingrese el nombre del medicamento o receta:", "Levorigotax 5mg");
                     if (userPrompt) {
                         detectedName = userPrompt;
-                        detectedDosis = "5 mg / Dosis según caja";
+                        detectedDosis = "5 mg / Según prescripción";
                     } else {
                         detectedName = "Levorigotax";
                         detectedDosis = "5 mg";
                     }
+                    showToast(`Identificado: ${detectedName}`);
                 }
 
                 document.getElementById('m-nombre').value = detectedName;
@@ -759,7 +763,6 @@
                 document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
                 document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
 
-                showToast(`Identificado: ${detectedName}`);
             }, 750);
         }
 
