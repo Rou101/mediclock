@@ -626,19 +626,19 @@
             
             <main class="desktop-container">
                 
-                <!-- COLUMNA IZQUIERDA: FICHA PACIENTE, CONTACTOS Y ADJUNTO PDF/FOTO -->
+                <!-- COLUMNA IZQUIERDA: FICHA PACIENTE, CONTACTOS Y ACCIONES -->
                 <section class="glass-card">
-                    <h2 class="card-header-title">
+                    <h2 class="card-header-title" style="margin-bottom:12px;">
                         <span>👤</span> 1. Ficha del Paciente & Contactos
                     </h2>
                     
-                    <!-- NOMBRE Y APELLIDO PACIENTE (LIMPIO) -->
-                    <div class="form-group">
+                    <!-- NOMBRE Y APELLIDO PACIENTE (LIMPIO Y COMPACTO) -->
+                    <div class="form-group" style="margin-bottom:12px;">
                         <label class="field-label">Nombre y Apellido del Paciente *</label>
                         <input type="text" id="p-nombre" class="field-input" required>
                     </div>
 
-                    <div class="form-row">
+                    <div class="form-row" style="margin-bottom:12px;">
                         <!-- TELÉFONO WHATSAPP PACIENTE (LIMPIO) -->
                         <div class="form-group" style="margin-bottom:0;">
                             <label class="field-label">WhatsApp del Paciente *</label>
@@ -653,16 +653,26 @@
                     </div>
 
                     <!-- SECCIÓN DE CONTACTOS ADICIONALES (ENFERMERA, TUTOR, CUIDADOR) -->
-                    <div style="margin:16px 0;">
+                    <div style="margin-bottom:12px;">
                         <div id="contacts-container"></div>
-                        <button type="button" class="btn-aux" onclick="addContactRow()">
+                        <button type="button" class="btn-aux" style="width:100%; justify-content:center;" onclick="addContactRow()">
                             <span>+</span> Agregar Persona / Contacto Adicional (Enfermera, Cuidador, etc.)
                         </button>
                     </div>
 
-                    <hr style="border:0; border-top:1px solid var(--c-border); margin:20px 0;">
+                    <!-- ACCIONES DE NAVEGACIÓN Y PRESCRIPCIÓN A CONTINUACIÓN DE AGREGAR PERSONA -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:16px;">
+                        <button type="button" class="btn-aux" style="justify-content:center; padding:10px; font-size:12px; font-weight:700; background:rgba(56, 189, 248, 0.1); border-color:var(--c-primary);" onclick="closeDispatchModal()">
+                            ✨ Nueva Prescripción
+                        </button>
+                        <button type="button" class="btn-aux" style="justify-content:center; padding:10px; font-size:12px; font-weight:700;" onclick="openSearchModal()">
+                            🔍 Buscar Prescripciones
+                        </button>
+                    </div>
 
-                    <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS (DESACTIVADA POR DEFECTO CON APARIENCIA VISUAL CLARA) -->
+                    <hr style="border:0; border-top:1px solid var(--c-border); margin:16px 0;">
+
+                    <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS -->
                     <div id="doc-contact-wrapper" class="doc-contact-container disabled" style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                             <h3 style="font-size:13px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:6px;">
@@ -681,16 +691,6 @@
                                 <textarea id="doc-nota-emergency" class="field-textarea" style="min-height:65px;" disabled></textarea>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- ACCIONES DE PRESCRIPCIÓN AL FINAL DE LA SECCIÓN IZQUIERDA -->
-                    <div style="margin-top:24px; padding-top:16px; border-top:1px solid var(--c-border); display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                        <button type="button" class="btn-aux" style="justify-content:center; padding:12px; font-size:12px; font-weight:700; background:rgba(56, 189, 248, 0.1); border-color:var(--c-primary);" onclick="closeDispatchModal()">
-                            ✨ Nueva Prescripción
-                        </button>
-                        <button type="button" class="btn-aux" style="justify-content:center; padding:12px; font-size:12px; font-weight:700;" onclick="openSearchModal()">
-                            🔍 Buscar Prescripciones
-                        </button>
                     </div>
 
                 </section>
