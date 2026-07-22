@@ -56,13 +56,16 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
         const tokenResponse = await client.getAccessToken();
         const accessToken = tokenResponse.token;
 
-        // Llamada a la API oficial de Google Cloud Vision (DOCUMENT_TEXT_DETECTION)
+        // Llamada a la API oficial de Google Cloud Vision (DOCUMENT_TEXT_DETECTION y TEXT_DETECTION)
         const visionUrl = 'https://vision.googleapis.com/v1/images:annotate';
         const visionRes = await axios.post(visionUrl, {
             requests: [
                 {
                     image: { content: cleanBase64 },
-                    features: [{ type: 'DOCUMENT_TEXT_DETECTION' }]
+                    features: [
+                        { type: 'DOCUMENT_TEXT_DETECTION' },
+                        { type: 'TEXT_DETECTION' }
+                    ]
                 }
             ]
         }, {
@@ -70,7 +73,7 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
                 'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             },
-            timeout: 10000
+            timeout: 12000
         });
 
         const fullAnnotation = visionRes.data?.responses?.[0]?.fullTextAnnotation;
