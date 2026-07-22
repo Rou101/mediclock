@@ -549,30 +549,39 @@
 
                     <div>
                         <label class="field-label">Dosis / Concentración</label>
-                        <input type="text" id="m-dosis" class="field-input" placeholder="Ej: 5mg / 1 comprimido" required>
+                        <input type="text" id="m-dosis" class="field-input" placeholder="Ej: 500 MG / 40 MG" required>
                     </div>
 
-                    <!-- FRECUENCIA GRANULAR: CANTIDAD DIARIA DE TOMAS -->
+                    <!-- CUADRO DE INGRESO: CANTIDAD DE PASTILLAS POR TOMA -->
                     <div>
-                        <label class="field-label">Tomas al día (Cantidad)</label>
-                        <select id="m-tomas-dia" class="field-select" onchange="calcularHorariosProgramados()">
-                            <option value="1">1 toma al día (Cada 24 horas)</option>
-                            <option value="2" selected>2 tomas al día (Cada 12 horas)</option>
-                            <option value="3">3 tomas al día (Cada 8 horas)</option>
-                            <option value="4">4 tomas al día (Cada 6 horas)</option>
+                        <label class="field-label">Cantidad de Pastillas (Por Toma)</label>
+                        <input type="text" id="m-cant-pastillas" class="field-input" placeholder="Ej: 1 pastilla, 2 comprimidos, 1/2 pastilla" value="1 pastilla" oninput="calcularHorariosProgramados()" required>
+                    </div>
+
+                    <!-- CUADRO DE INGRESO: CANTIDAD DE VECES AL DÍA -->
+                    <div>
+                        <label class="field-label">Cantidad de Veces al Día</label>
+                        <input type="number" id="m-tomas-dia" class="field-input" min="1" max="12" value="2" placeholder="Ej: 1, 2, 3 o 4" oninput="calcularHorariosProgramados()" required>
+                    </div>
+
+                    <!-- MENÚ DESPLEGABLE CON SUGERENCIAS DE HORARIO DE PRIMERA DOSIS AL DÍA SIGUIENTE -->
+                    <div class="form-group-full">
+                        <label class="field-label">Sugerencia de Horario (Primera Dosis al Día Siguiente)</label>
+                        <select id="m-hora-inicio" class="field-select" onchange="calcularHorariosProgramados()">
+                            <option value="08:00" selected>08:00 AM (Al despertar / Mañana)</option>
+                            <option value="09:00">09:00 AM (Mañana)</option>
+                            <option value="10:00">10:00 AM (Media Mañana)</option>
+                            <option value="12:00">12:00 PM (Mediodía / Almuerzo)</option>
+                            <option value="14:00">14:00 PM (Tarde)</option>
+                            <option value="20:00">20:00 PM (Noche / Cena)</option>
+                            <option value="22:00">22:00 PM (Antes de dormir)</option>
                         </select>
-                    </div>
-
-                    <!-- HORA DE LA PRIMERA TOMA -->
-                    <div>
-                        <label class="field-label">Hora de la 1ª Toma</label>
-                        <input type="time" id="m-hora-inicio" class="field-input" value="08:00" onchange="calcularHorariosProgramados()" required>
                     </div>
 
                     <!-- PREVIEW DINÁMICO DE HORARIOS CALCULADOS -->
                     <div class="form-group-full">
                         <div class="schedule-preview" id="schedule-preview-box">
-                            <span style="font-size:12px; font-weight:700; color:var(--c-text-sub); display:block; margin-bottom:4px; text-transform:uppercase;">Horarios programados para el paciente:</span>
+                            <span style="font-size:12px; font-weight:700; color:var(--c-text-sub); display:block; margin-bottom:6px; text-transform:uppercase;">Horarios Sugeridos (A partir de mañana):</span>
                             <div id="schedule-badges-container">
                                 <!-- Se calcula dinámicamente -->
                             </div>
@@ -687,10 +696,11 @@
             document.getElementById(`view-${tabId}`).classList.add('active');
         }
 
-        // CALCULA DINÁMICAMENTE LOS HORARIOS SEGÚN CANTIDAD DIARIA Y 1ª TOMA
+        // CALCULA DINÁMICAMENTE LOS HORARIOS SUGERIDOS A PARTIR DEL DÍA SIGUIENTE
         function calcularHorariosProgramados() {
-            const tomasDia = parseInt(document.getElementById('m-tomas-dia').value) || 1;
+            const tomasDia = Math.max(1, parseInt(document.getElementById('m-tomas-dia').value) || 1);
             const horaInicioStr = document.getElementById('m-hora-inicio').value || "08:00";
+            const cantPastillas = document.getElementById('m-cant-pastillas')?.value.trim() || "1 pastilla";
             
             const parts = horaInicioStr.split(':');
             let startHour = parseInt(parts[0]) || 8;
@@ -698,6 +708,7 @@
 
             const intervalHours = 24 / tomasDia;
             const badgesContainer = document.getElementById('schedule-badges-container');
+            if (!badgesContainer) return;
             badgesContainer.innerHTML = '';
 
             const formatMin = startMin < 10 ? '0' + startMin : startMin;
@@ -705,11 +716,17 @@
             for (let i = 0; i < tomasDia; i++) {
                 let currentHour = Math.floor((startHour + (i * intervalHours))) % 24;
                 const formattedHour = currentHour < 10 ? '0' + currentHour : currentHour;
-                const timeString = `${formattedHour}:${formatMin}`;
+                const ampm = currentHour >= 12 ? 'PM' : 'AM';
+                const timeString = `${formattedHour}:${formatMin} ${ampm}`;
 
                 const badge = document.createElement('span');
                 badge.className = 'schedule-time-badge';
-                badge.innerHTML = `Toma ${i+1}: <strong>${timeString}</strong>`;
+                badge.style.display = 'inline-flex';
+                badge.style.alignItems = 'center';
+                badge.style.gap = '6px';
+                badge.style.marginRight = '8px';
+                badge.style.marginBottom = '6px';
+                badge.innerHTML = `Toma ${i+1}: <strong>${timeString}</strong> <small style="opacity:0.8;">(${cantPastillas})</small>`;
                 badgesContainer.appendChild(badge);
             }
         }
