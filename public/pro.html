@@ -779,11 +779,11 @@
             reader.onload = function(e) {
                 const img = new Image();
                 img.onload = async function() {
-                    // Redimensionar fotos en ultra-alta resolución (ej. S24 Ultra) a max 1200px para envío ultrarrápido
+                    // Redimensionar fotos a max 900px para envío ultrarrápido (100KB)
                     const canvas = document.createElement('canvas');
                     let width = img.width;
                     let height = img.height;
-                    const maxDim = 1200;
+                    const maxDim = 900;
 
                     if (width > maxDim || height > maxDim) {
                         if (width > height) {
@@ -800,7 +800,7 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
 
-                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.85);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
 
                     try {
                         const res = await fetch('/api/pro/scan-prescription', {

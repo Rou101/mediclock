@@ -46,45 +46,54 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
     try {
         const { imageBase64 } = req.body || {};
         if (!imageBase64) {
-            return res.status(400).json({ success: false, error: 'No se recibió la imagen para analizar.' });
+            return res.json({ success: false, error: 'No se recibió la imagen para analizar.' });
         }
 
         const cleanBase64 = imageBase64.replace(/^data:image\/\w+;base64,/, '');
 
-        // Obtener Access Token de Google Cloud SDK
-        const client = await googleAuthClient.getClient();
-        const tokenResponse = await client.getAccessToken();
-        const accessToken = tokenResponse.token;
+        let rawText = '';
+        try {
+            // Obtener Access Token de Google Cloud SDK
+            const client = await googleAuthClient.getClient();
+            const tokenResponse = await client.getAccessToken();
+            const accessToken = tokenResponse.token;
 
-        // Llamada a la API oficial de Google Cloud Vision (DOCUMENT_TEXT_DETECTION y TEXT_DETECTION)
-        const visionUrl = 'https://vision.googleapis.com/v1/images:annotate';
-        const visionRes = await axios.post(visionUrl, {
-            requests: [
-                {
-                    image: { content: cleanBase64 },
-                    features: [
-                        { type: 'DOCUMENT_TEXT_DETECTION' },
-                        { type: 'TEXT_DETECTION' }
-                    ]
-                }
-            ]
-        }, {
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json'
-            },
-            timeout: 12000
-        });
+            // Llamada a la API oficial de Google Cloud Vision (DOCUMENT_TEXT_DETECTION y TEXT_DETECTION)
+            const visionUrl = 'https://vision.googleapis.com/v1/images:annotate';
+            const visionRes = await axios.post(visionUrl, {
+                requests: [
+                    {
+                        image: { content: cleanBase64 },
+                        features: [
+                            { type: 'DOCUMENT_TEXT_DETECTION' },
+                            { type: 'TEXT_DETECTION' }
+                        ]
+                    }
+                ]
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                },
+                timeout: 15000
+            });
 
-        const fullAnnotation = visionRes.data?.responses?.[0]?.fullTextAnnotation;
-        const rawText = fullAnnotation ? fullAnnotation.text : (visionRes.data?.responses?.[0]?.textAnnotations?.[0]?.description || '');
+            const fullAnnotation = visionRes.data?.responses?.[0]?.fullTextAnnotation;
+            rawText = fullAnnotation ? fullAnnotation.text : (visionRes.data?.responses?.[0]?.textAnnotations?.[0]?.description || '');
 
-        console.log(`[OCR Real Google Vision - Texto Detectado]:\n${rawText}`);
+            console.log(`[OCR Real Google Vision - Texto Detectado]:\n${rawText}`);
+        } catch (visionErr) {
+            console.error('[Vision API Error]:', visionErr.response?.data || visionErr.message);
+            return res.json({
+                success: false,
+                error: 'El servicio de IA de Google no logró procesar la imagen en este intento. Por favor reintente o capture la foto más cerca.'
+            });
+        }
 
         if (!rawText || rawText.trim().length === 0) {
             return res.json({
                 success: false,
-                error: 'No se logró detectar texto en la imagen. Por favor asegúrese de que la foto esté enfocada e iluminada.'
+                error: 'No se logró detectar texto legible en la foto. Asegúrese de tener buena iluminación.'
             });
         }
 
@@ -154,11 +163,10 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
         });
 
     } catch (err) {
-        console.error('[OCR Error Server]:', err.response?.data || err.message);
-        return res.status(500).json({ 
+        console.error('[OCR Error Fatal]:', err.message);
+        return res.json({ 
             success: false, 
-            error: 'Ocurrió un error en el servidor OCR de Google Vision.', 
-            details: err.message 
+            error: 'No se pudo procesar la foto. Ingrese los datos del medicamento directamente.'
         });
     }
 });
