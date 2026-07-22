@@ -466,21 +466,33 @@
 </head>
 <body>
 
-    <!-- HEADER ESCRITORIO CHROME Y RESPONSIVO -->
+    <!-- HEADER ESCRITORIO CHROME Y RESPONSIVO CON ACCIONES Y CONTROLES -->
     <header class="chrome-header">
         <div class="brand-box">
             <div class="brand-icon">M</div>
             <div>
-                <span class="brand-title">MediClock Pro</span>
-                <span class="version-tag">v21.0 RESPONSIVO</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span class="brand-title">MediClock Pro</span>
+                    <span class="version-tag">v21.0 RESPONSIVO</span>
+                </div>
+                <div style="font-size:11px; color:var(--c-text-sub); font-weight:600;">Plataforma Médica de Prescripción & Adherencia</div>
             </div>
         </div>
 
-        <div class="doctor-badge">
-            <div class="avatar-circle">DR</div>
-            <div>
-                <div style="font-size:14px; font-weight:700;">Dr. Francisco Pérez</div>
-                <div style="font-size:11px; color:var(--c-text-sub);">Cardiología Clínica</div>
+        <div style="display:flex; align-items:center; gap:14px;" class="header-actions-box">
+            <button type="button" class="btn-aux" onclick="closeDispatchModal()" style="padding:8px 14px; font-size:12px;">
+                <span>✨</span> Nueva Receta
+            </button>
+            <button type="button" class="btn-aux" onclick="openPrivacyModal(event)" style="padding:8px 14px; font-size:12px;">
+                <span>🔒</span> Privacidad
+            </button>
+
+            <div class="doctor-badge">
+                <div class="avatar-circle">DR</div>
+                <div>
+                    <div style="font-size:13px; font-weight:700;">Dr. Francisco Pérez</div>
+                    <div style="font-size:11px; color:var(--c-text-sub);">Cardiología | Box #4</div>
+                </div>
             </div>
         </div>
     </header>
