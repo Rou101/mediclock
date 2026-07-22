@@ -229,12 +229,12 @@ Responde únicamente con el JSON.`;
 });
 
 // ===========================================
-// API: PRO PARSE MEDS (Gemini Text-to-JSON)
+// API: PRO PARSE MEDS (Gemini Text-to-JSON + Fallback)
 // ===========================================
 app.post('/api/pro/parse-meds', async (req, res) => {
     try {
         const { texto } = req.body;
-        if (!texto) return res.status(400).json({ error: 'No text provided' });
+        if (!texto || !texto.trim()) return res.status(400).json({ error: 'No text provided' });
 
         const prompt = `Analiza las siguientes indicaciones médicas y extrae los medicamentos recetados. 
 ESTRICTAMENTE devuelve un arreglo en formato JSON puro (sin comillas invertidas ni bloques markdown, SOLO el array JSON válido).
@@ -252,39 +252,62 @@ ${texto}
 """`;
 
         const apiKey = process.env.GEMINI_API_KEY;
-        const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash:generateContent?key=${apiKey}`;
+        let textOutput = '';
 
-        const geminiRes = await axios.post(geminiUrl, {
-            contents: [ { role: 'user', parts: [ { text: prompt } ] } ],
-            generationConfig: { temperature: 0.1 }
-        }, {
-            headers: {
-                'Content-Type': 'application/json'
+        if (apiKey) {
+            // Probar modelos válidos de Gemini en Google AI Studio
+            const models = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+            for (const model of models) {
+                try {
+                    const geminiUrl = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+                    const geminiRes = await axios.post(geminiUrl, {
+                        contents: [ { role: 'user', parts: [ { text: prompt } ] } ],
+                        generationConfig: { temperature: 0.1 }
+                    }, { headers: { 'Content-Type': 'application/json' }, timeout: 8000 });
+
+                    textOutput = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+                    if (textOutput) break;
+                } catch (e) {
+                    console.warn(`[Parse Meds]: Model ${model} failed:`, e.message);
+                }
             }
-        });
-
-        let textOutput = geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
-        
-        // Extracción robusta de JSON Array ignorando texto conversacional
-        const startIndex = textOutput.indexOf('[');
-        const endIndex = textOutput.lastIndexOf(']');
-        if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
-            textOutput = textOutput.substring(startIndex, endIndex + 1);
-        } else {
-            textOutput = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
         }
-        
+
         let medsArray = [];
-        try {
-            medsArray = JSON.parse(textOutput);
-        } catch (e) {
-            console.error('[Parse Meds JSON Error]:', textOutput);
-            return res.json({ success: false, error: 'La IA no devolvió un JSON válido' });
+
+        if (textOutput) {
+            const startIndex = textOutput.indexOf('[');
+            const endIndex = textOutput.lastIndexOf(']');
+            if (startIndex !== -1 && endIndex !== -1 && endIndex > startIndex) {
+                textOutput = textOutput.substring(startIndex, endIndex + 1);
+            } else {
+                textOutput = textOutput.replace(/```json/gi, '').replace(/```/g, '').trim();
+            }
+            try {
+                medsArray = JSON.parse(textOutput);
+            } catch (e) {
+                console.error('[Parse Meds JSON Error]:', textOutput);
+            }
+        }
+
+        // FALLBACK LOCAL INTELIGENTE POR REGEX SI LA IA NO DEVOLVIÓ DATOS VÁLIDOS
+        if (!Array.isArray(medsArray) || medsArray.length === 0) {
+            const lineas = texto.split(/\n+/).filter(l => l.trim().length > 2);
+            medsArray = lineas.map(linea => {
+                const freqMatch = linea.match(/cada\s*(\d+)\s*(hrs?|horas?)/i);
+                const durMatch = linea.match(/(por|durante)\s*(\d+)\s*(d[ií]as?)/i);
+                return {
+                    nombre: linea.replace(/cada\s*\d+\s*(hrs?|horas?).*/i, '').replace(/(por|durante)\s*\d+\s*(d[ií]as?).*/i, '').trim() || linea.trim(),
+                    frecuencia_horas: freqMatch ? parseInt(freqMatch[1], 10) : 24,
+                    duracion_dias: durMatch ? parseInt(durMatch[2], 10) : 30,
+                    hora_sugerida: "08:00"
+                };
+            });
         }
 
         return res.json({ success: true, medicamentos: medsArray });
     } catch (err) {
-        console.error('[Parse Meds Error]:', err.response?.data || err.message);
+        console.error('[Parse Meds Error]:', err.message);
         return res.json({ success: false, error: err.message });
     }
 });
