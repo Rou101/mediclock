@@ -3,14 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MediClock Pro — Prescripción & Adherencia Médica</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>MediClock Pro v16.0 — Prescripción & Adherencia Médica</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-body: #07090E;
-            --bg-card: rgba(18, 24, 38, 0.85);
+            --bg-card: rgba(12, 24, 38, 0.85);
             --bg-card-hover: rgba(28, 36, 56, 0.85);
             --c-primary: #6366F1;
             --c-primary-glow: rgba(99, 102, 241, 0.35);
@@ -824,13 +827,7 @@
                                 calcularHorariosProgramados();
                             }
                             if (data.duracion) {
-                                const mDias = document.getElementById('m-dias');
-                                for (let opt of mDias.options) {
-                                    if (opt.value.includes(data.duracion.split(' ')[0])) {
-                                        opt.selected = true;
-                                        break;
-                                    }
-                                }
+                                document.getElementById('m-dias').value = data.duracion;
                             }
                             if (data.indicacion) {
                                 document.getElementById('m-indicacion').value = data.indicacion;
@@ -841,7 +838,7 @@
                         }
                     } catch (err) {
                         console.error("Error en OCR:", err);
-                        showToast("Error de conexión al analizar foto.");
+                        showToast(`Error al procesar foto: ${err.message || 'Revise conexión'}`);
                     }
                 };
                 img.src = e.target.result;
