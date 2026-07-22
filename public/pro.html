@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MediClock Pro — Prescripción & Adherencia Médica</title>
+    <title>MediClock Pro — Prescripción Express & Adherencia Médica</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-body: #0A0D14;
-            --bg-card: rgba(22, 27, 38, 0.75);
-            --bg-card-hover: rgba(30, 37, 52, 0.85);
+            --bg-body: #07090E;
+            --bg-card: rgba(18, 24, 38, 0.75);
+            --bg-card-hover: rgba(28, 36, 56, 0.85);
             --c-primary: #6366F1;
             --c-primary-glow: rgba(99, 102, 241, 0.35);
             --c-accent: #A855F7;
@@ -23,11 +23,11 @@
             --c-red-dim: rgba(239, 68, 68, 0.15);
             --c-text: #F9FAFB;
             --c-text-sub: #9CA3AF;
-            --c-border: rgba(255, 255, 255, 0.1);
-            --radius-lg: 20px;
+            --c-border: rgba(255, 255, 255, 0.08);
+            --radius-lg: 24px;
             --radius-md: 14px;
-            --shadow: 0 12px 32px rgba(0,0,0,0.4);
-            --blur: blur(16px);
+            --shadow: 0 20px 40px rgba(0,0,0,0.5);
+            --blur: blur(20px);
         }
 
         * {
@@ -41,24 +41,24 @@
         body {
             background-color: var(--bg-body);
             background-image: 
-                radial-gradient(at 10% 10%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
-                radial-gradient(at 90% 90%, rgba(168, 85, 247, 0.12) 0px, transparent 50%);
+                radial-gradient(at 15% 15%, rgba(99, 102, 241, 0.18) 0px, transparent 45%),
+                radial-gradient(at 85% 85%, rgba(168, 85, 247, 0.15) 0px, transparent 45%);
             background-attachment: fixed;
             color: var(--c-text);
             min-height: 100vh;
-            padding-bottom: 40px;
+            padding-bottom: 60px;
         }
 
-        /* HEADER */
+        /* HEADER & NAVBAR */
         .pro-header {
-            background: rgba(10, 13, 20, 0.85);
+            background: rgba(7, 9, 14, 0.85);
             backdrop-filter: var(--blur);
             -webkit-backdrop-filter: var(--blur);
             border-bottom: 1px solid var(--c-border);
             position: sticky;
             top: 0;
             z-index: 100;
-            padding: 16px 24px;
+            padding: 14px 28px;
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -71,20 +71,20 @@
         }
 
         .brand-logo {
-            width: 38px;
-            height: 38px;
+            width: 42px;
+            height: 42px;
             background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 20px;
-            box-shadow: 0 0 20px var(--c-primary-glow);
+            font-size: 22px;
+            box-shadow: 0 0 24px var(--c-primary-glow);
         }
 
         .brand-title {
-            font-size: 18px;
+            font-size: 19px;
             font-weight: 800;
             letter-spacing: -0.5px;
         }
@@ -93,18 +93,50 @@
             background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
             color: #fff;
             font-size: 10px;
-            font-weight: 700;
-            padding: 2px 8px;
+            font-weight: 800;
+            padding: 3px 9px;
             border-radius: 20px;
             text-transform: uppercase;
             letter-spacing: 1px;
             margin-left: 6px;
         }
 
+        /* TAB NAVIGATION HEADER */
+        .pro-nav-tabs {
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--c-border);
+            padding: 4px;
+            border-radius: 16px;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--c-text-sub);
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--c-primary), #4F46E5);
+            color: #fff;
+            box-shadow: 0 4px 16px var(--c-primary-glow);
+        }
+
         .doctor-profile {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             background: var(--bg-card);
             border: 1px solid var(--c-border);
             padding: 6px 14px 6px 8px;
@@ -112,10 +144,10 @@
         }
 
         .avatar {
-            width: 30px;
-            height: 30px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
-            background: #3B82F6;
+            background: linear-gradient(135deg, #3B82F6, #6366F1);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -123,20 +155,25 @@
             font-weight: 700;
         }
 
-        /* LAYOUT MAIN */
+        /* CONTAINER VIEWS */
         .pro-container {
-            max-width: 1200px;
-            margin: 24px auto;
+            max-width: 1000px;
+            margin: 28px auto;
             padding: 0 20px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
         }
 
-        @media (max-width: 900px) {
-            .pro-container {
-                grid-template-columns: 1fr;
-            }
+        .view-panel {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .view-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* CARDS */
@@ -146,31 +183,31 @@
             border-radius: var(--radius-lg);
             backdrop-filter: var(--blur);
             -webkit-backdrop-filter: var(--blur);
-            padding: 24px;
+            padding: 28px;
             box-shadow: var(--shadow);
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
+            margin-bottom: 24px;
         }
 
         .card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
+            margin-bottom: 20px;
         }
 
         .card-title {
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 800;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
+            letter-spacing: -0.4px;
         }
 
         /* SCANNER CAMERA BOX */
         .scanner-viewport {
             width: 100%;
-            height: 240px;
+            height: 260px;
             background: #000;
             border-radius: var(--radius-md);
             position: relative;
@@ -180,6 +217,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
+            margin-bottom: 16px;
         }
 
         video#camera-feed {
@@ -191,9 +229,9 @@
         .scanner-overlay {
             position: absolute;
             inset: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.4);
-            border-radius: 12px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            border-radius: 16px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.45);
             pointer-events: none;
             display: flex;
             align-items: center;
@@ -205,27 +243,57 @@
             width: 100%;
             height: 2px;
             background: var(--c-primary);
-            box-shadow: 0 0 10px var(--c-primary);
+            box-shadow: 0 0 14px var(--c-primary);
             animation: scanLine 2s infinite ease-in-out;
         }
 
         @keyframes scanLine {
-            0% { transform: translateY(-80px); }
-            50% { transform: translateY(80px); }
-            100% { transform: translateY(-80px); }
+            0% { transform: translateY(-90px); }
+            50% { transform: translateY(90px); }
+            100% { transform: translateY(-90px); }
         }
 
-        .scanner-placeholder {
-            text-align: center;
-            padding: 20px;
+        /* CHIPS DE FRECUENCIA & GRANULARIDAD */
+        .chips-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+            margin-bottom: 14px;
+        }
+
+        .chip-btn {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--c-border);
             color: var(--c-text-sub);
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip-btn.active {
+            background: rgba(99, 102, 241, 0.2);
+            border-color: var(--c-primary);
+            color: #fff;
+            box-shadow: 0 0 12px var(--c-primary-glow);
+        }
+
+        .chip-btn:hover {
+            border-color: var(--c-primary);
+            color: var(--c-text);
         }
 
         /* FORM STYLING */
         .form-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 14px;
+            gap: 16px;
         }
 
         .form-group-full {
@@ -234,20 +302,22 @@
 
         .field-label {
             font-size: 12px;
-            font-weight: 600;
+            font-weight: 700;
             color: var(--c-text-sub);
-            margin-bottom: 6px;
-            display: block;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.6px;
         }
 
         .field-input {
             width: 100%;
-            background: rgba(15, 23, 42, 0.6);
+            background: rgba(15, 23, 42, 0.7);
             border: 1px solid var(--c-border);
             border-radius: var(--radius-md);
-            padding: 12px 14px;
+            padding: 14px 16px;
             color: var(--c-text);
             font-size: 14px;
             outline: none;
@@ -256,31 +326,32 @@
 
         .field-input:focus {
             border-color: var(--c-primary);
-            box-shadow: 0 0 12px var(--c-primary-glow);
+            box-shadow: 0 0 16px var(--c-primary-glow);
+            background: rgba(20, 30, 50, 0.85);
         }
 
         /* BUTTONS */
         .btn {
             background: linear-gradient(135deg, var(--c-primary), var(--c-accent));
             color: #fff;
-            font-weight: 700;
-            font-size: 15px;
+            font-weight: 800;
+            font-size: 16px;
             border: none;
             border-radius: var(--radius-md);
-            padding: 14px 20px;
+            padding: 16px 24px;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
-            box-shadow: 0 4px 20px var(--c-primary-glow);
-            transition: all 0.2s;
+            box-shadow: 0 6px 24px var(--c-primary-glow);
+            transition: all 0.25s ease;
             width: 100%;
         }
 
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 24px var(--c-primary-glow);
+            box-shadow: 0 8px 30px var(--c-primary-glow);
         }
 
         .btn:active {
@@ -288,54 +359,85 @@
         }
 
         .btn-secondary {
-            background: rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.05);
             border: 1px solid var(--c-border);
             box-shadow: none;
             color: var(--c-text);
+            font-size: 14px;
+            padding: 12px 18px;
         }
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
-            box-shadow: none;
+            border-color: var(--c-text-sub);
         }
 
         .btn-wa {
-            background: #25D366;
-            color: #000;
-            box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: #fff;
+            box-shadow: 0 6px 24px rgba(37, 211, 102, 0.35);
         }
         .btn-wa:hover {
-            box-shadow: 0 6px 24px rgba(37, 211, 102, 0.4);
+            box-shadow: 0 8px 30px rgba(37, 211, 102, 0.45);
         }
 
-        /* PATIENT LIST / DASHBOARD */
+        /* ADHERENCIA DASHBOARD TAB */
+        .stats-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .stat-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--c-border);
+            padding: 18px;
+            border-radius: 16px;
+            text-align: left;
+        }
+
+        .stat-value {
+            font-size: 26px;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--c-text-sub);
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
         .patient-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
         .patient-row {
             background: rgba(15, 23, 42, 0.5);
             border: 1px solid var(--c-border);
             border-radius: var(--radius-md);
-            padding: 16px;
+            padding: 18px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 14px;
-            transition: all 0.2s;
+            gap: 16px;
+            transition: all 0.25s ease;
         }
 
         .patient-row:hover {
             border-color: rgba(99, 102, 241, 0.4);
-            background: rgba(30, 41, 59, 0.6);
+            background: rgba(26, 36, 56, 0.7);
+            transform: translateX(4px);
         }
 
         .patient-info h4 {
-            font-size: 15px;
+            font-size: 16px;
             font-weight: 700;
-            margin-bottom: 2px;
+            margin-bottom: 4px;
         }
 
         .patient-info p {
@@ -347,15 +449,15 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 12px;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: 700;
         }
 
-        .status-green { background: var(--c-green-dim); color: var(--c-green); }
-        .status-yellow { background: var(--c-yellow-dim); color: var(--c-yellow); }
-        .status-red { background: var(--c-red-dim); color: var(--c-red); }
+        .status-green { background: var(--c-green-dim); color: var(--c-green); border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-yellow { background: var(--c-yellow-dim); color: var(--c-yellow); border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-red { background: var(--c-red-dim); color: var(--c-red); border: 1px solid rgba(239, 68, 68, 0.3); }
 
         .status-dot {
             width: 8px;
@@ -367,21 +469,21 @@
         /* TOAST NOTIFICATION */
         .toast-box {
             position: fixed;
-            bottom: 24px;
-            right: 24px;
+            bottom: 28px;
+            right: 28px;
             background: #1E293B;
             border: 1px solid var(--c-primary);
             color: var(--c-text);
-            padding: 16px 20px;
+            padding: 18px 24px;
             border-radius: var(--radius-md);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            box-shadow: 0 12px 36px rgba(0,0,0,0.6);
             z-index: 1000;
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 14px;
             transform: translateY(100px);
             opacity: 0;
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
         .toast-box.show {
@@ -392,7 +494,7 @@
 </head>
 <body>
 
-    <!-- HEADER -->
+    <!-- HEADER & NAVBAR -->
     <header class="pro-header">
         <div class="brand">
             <div class="brand-logo">M</div>
@@ -402,178 +504,236 @@
             </div>
         </div>
 
+        <!-- PESTAÑAS DE NAVEGACIÓN PRINCIPAL -->
+        <nav class="pro-nav-tabs">
+            <button class="tab-btn active" id="tab-btn-prescripcion" onclick="switchTab('prescripcion')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                Prescripción Express IA
+            </button>
+            <button class="tab-btn" id="tab-btn-adherencia" onclick="switchTab('adherencia')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+                Mis Pacientes & Semáforo
+            </button>
+        </nav>
+
         <div class="doctor-profile">
             <div class="avatar">DR</div>
             <div style="display:flex; flex-direction:column;">
                 <span style="font-size:13px; font-weight:700;">Dr. Francisco Pérez</span>
-                <span style="font-size:11px; color:var(--c-text-sub);">Clínica Santa María</span>
+                <span style="font-size:11px; color:var(--c-text-sub);">Cardiología • Sta. María</span>
             </div>
         </div>
     </header>
 
-    <!-- MAIN DASHBOARD -->
+    <!-- MAIN CONTAINERS -->
     <main class="pro-container">
 
-        <!-- LEFT PANEL: PRESCRIPTION & OCR SCANNER -->
-        <section class="pro-card">
-            <div class="card-header">
-                <div class="card-title">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2.2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    Prescripción Express IA
-                </div>
-                <span style="font-size:12px; color:var(--c-text-sub);">Cero escritura manual</span>
-            </div>
-
-            <!-- SCANNER VIEWPORT -->
-            <div class="scanner-viewport" id="scanner-box">
-                <video id="camera-feed" autoplay playsinline style="display:none;"></video>
-                <div class="scanner-overlay" id="scanner-overlay" style="display:none;"></div>
-                
-                <div class="scanner-placeholder" id="scanner-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:10px; color:var(--c-primary);"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M9 12h6"/></svg>
-                    <p style="font-size:14px; font-weight:600;">Escáner de Medicamentos</p>
-                    <p style="font-size:12px; margin-top:4px;">Apunta la cámara del dispositivo a la caja del fármaco</p>
-                </div>
-            </div>
-
-            <div style="display:flex; gap:10px;">
-                <button type="button" class="btn btn-secondary" onclick="startCamera()" id="btn-cam">
-                    📷 Activar Cámara HD
-                </button>
-                <button type="button" class="btn" onclick="simularLecturaIA()" id="btn-scan">
-                    ✨ Escanear con IA
-                </button>
-            </div>
-
-            <hr style="border:0; border-top:1px solid var(--c-border); margin:4px 0;">
-
-            <!-- FORMULARIO DETECTADO AUTOMÁTICAMENTE -->
-            <form id="prescripcion-form" onsubmit="activarTratamiento(event)" class="form-grid">
-                
-                <div class="form-group-full">
-                    <label class="field-label">Paciente (Nombre o ID Ficha)</label>
-                    <input type="text" id="p-nombre" class="field-input" placeholder="Ej: Juan Carlos Pérez" required value="Juan Carlos Pérez">
+        <!-- PESTAÑA 1: PRESCRIPCIÓN EXPRESS IA -->
+        <section class="view-panel active" id="view-prescripcion">
+            
+            <div class="pro-card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            ✨ Prescripción Médica Inteligente
+                        </div>
+                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Escanear caja de medicamento → Seleccionar frecuencia → Enviar por WhatsApp</span>
+                    </div>
                 </div>
 
-                <div class="form-group-full">
-                    <label class="field-label">Teléfono WhatsApp del Paciente</label>
-                    <input type="tel" id="p-phone" class="field-input" placeholder="+56912345678" required value="+56998765432">
+                <!-- SCANNER VIEWPORT -->
+                <div class="scanner-viewport" id="scanner-box">
+                    <video id="camera-feed" autoplay playsinline style="display:none;"></video>
+                    <div class="scanner-overlay" id="scanner-overlay" style="display:none;"></div>
+                    
+                    <div class="scanner-placeholder" id="scanner-placeholder">
+                        <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px; color:var(--c-primary);"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M9 12h6"/></svg>
+                        <p style="font-size:15px; font-weight:700;">Escáner de Medicamentos IA</p>
+                        <p style="font-size:13px; margin-top:4px; color:var(--c-text-sub);">Coloque la caja del fármaco frente a la cámara del box</p>
+                    </div>
                 </div>
 
-                <div>
-                    <label class="field-label">Medicamento Detectado</label>
-                    <input type="text" id="m-nombre" class="field-input" placeholder="Nombre" required value="Losartán Potásico">
-                </div>
-
-                <div>
-                    <label class="field-label">Dosis / Gramaje</label>
-                    <input type="text" id="m-dosis" class="field-input" placeholder="Ej: 50 mg" required value="50 mg">
-                </div>
-
-                <div>
-                    <label class="field-label">Frecuencia de Tomas</label>
-                    <select id="m-frec" class="field-input">
-                        <option value="Cada 12 horas (8:00 y 20:00)">Cada 12 hrs (8:00 y 20:00)</option>
-                        <option value="Cada 8 horas (8:00, 16:00, 00:00)">Cada 8 hrs</option>
-                        <option value="Una vez al día (8:00 AM)">1 vez al día (08:00 AM)</option>
-                    </select>
-                </div>
-
-                <div>
-                    <label class="field-label">Duración Tratamiento</label>
-                    <select id="m-dias" class="field-input">
-                        <option value="14 días">14 Días</option>
-                        <option value="30 días">30 Días (Tratamiento Crónico)</option>
-                        <option value="7 días">7 Días (Antibiótico)</option>
-                    </select>
-                </div>
-
-                <div class="form-group-full" style="margin-top:10px;">
-                    <button type="submit" class="btn btn-wa">
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                        Activar Recordatorios por WhatsApp
+                <div style="display:flex; gap:12px; margin-bottom:20px;">
+                    <button type="button" class="btn btn-secondary" style="flex:1;" onclick="startCamera()" id="btn-cam">
+                        📷 Activar Cámara HD Nativa
+                    </button>
+                    <button type="button" class="btn" style="flex:1;" onclick="simularLecturaIA()" id="btn-scan">
+                        ✨ Lectura IA por Visión
                     </button>
                 </div>
-            </form>
-        </section>
 
-        <!-- RIGHT PANEL: REAL-TIME ADHERENCE DASHBOARD -->
-        <section class="pro-card">
-            <div class="card-header">
-                <div class="card-title">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--c-green)" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-                    Semáforo de Adherencia Clínica
-                </div>
-                <span class="status-pill status-green">En Línea</span>
-            </div>
+                <hr style="border:0; border-top:1px solid var(--c-border); margin-bottom:20px;">
 
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
-                <div style="background:rgba(15,23,42,0.6); padding:12px; border-radius:12px; text-align:center; border:1px solid var(--c-border);">
-                    <span style="font-size:20px; font-weight:800; color:var(--c-green);">88%</span>
-                    <span style="display:block; font-size:11px; color:var(--c-text-sub);">Cumplimiento Global</span>
-                </div>
-                <div style="background:rgba(15,23,42,0.6); padding:12px; border-radius:12px; text-align:center; border:1px solid var(--c-border);">
-                    <span style="font-size:20px; font-weight:800; color:var(--c-primary);">14</span>
-                    <span style="display:block; font-size:11px; color:var(--c-text-sub);">Pacientes Activos</span>
-                </div>
-                <div style="background:rgba(15,23,42,0.6); padding:12px; border-radius:12px; text-align:center; border:1px solid var(--c-border);">
-                    <span style="font-size:20px; font-weight:800; color:var(--c-red);">1</span>
-                    <span style="display:block; font-size:11px; color:var(--c-text-sub);">Alerta de Deserción</span>
-                </div>
-            </div>
+                <!-- FORMULARIO DE PRESCRIPCIÓN -->
+                <form id="prescripcion-form" onsubmit="activarTratamiento(event)" class="form-grid">
+                    
+                    <div class="form-group-full">
+                        <label class="field-label">Paciente (Nombre Completo)</label>
+                        <input type="text" id="p-nombre" class="field-input" placeholder="Ej: María José Ugarte" required value="María José Ugarte">
+                    </div>
 
-            <div class="patient-list" id="patients-container">
-                
-                <!-- PACIENTE 1 -->
-                <div class="patient-row">
-                    <div class="patient-info">
-                        <h4>Juan Carlos Pérez</h4>
-                        <p>Losartán 50mg • Cada 12h</p>
+                    <div class="form-group-full">
+                        <label class="field-label">Teléfono WhatsApp del Paciente</label>
+                        <input type="tel" id="p-phone" class="field-input" placeholder="+56912345678" required value="+56998765432">
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                        <span class="status-pill status-green">
-                            <span class="status-dot"></span> 95% Adherencia
-                        </span>
-                        <span style="font-size:11px; color:var(--c-text-sub);">Última toma: 08:00 AM ✅</span>
-                    </div>
-                </div>
 
-                <!-- PACIENTE 2 -->
-                <div class="patient-row">
-                    <div class="patient-info">
-                        <h4>María González T.</h4>
-                        <p>Enalapril 10mg • Cada 24h</p>
+                    <div>
+                        <label class="field-label">Fármaco Registrado</label>
+                        <input type="text" id="m-nombre" class="field-input" placeholder="Ej: Losartán Potásico" required value="Losartán Potásico">
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                        <span class="status-pill status-yellow">
-                            <span class="status-dot"></span> 78% Irregular
-                        </span>
-                        <span style="font-size:11px; color:var(--c-text-sub);">Pendiente 20:00 PM ⏳</span>
-                    </div>
-                </div>
 
-                <!-- PACIENTE 3 -->
-                <div class="patient-row">
-                    <div class="patient-info">
-                        <h4>Pedro Soto Ugarte</h4>
-                        <p>Metformina 850mg • Cada 12h</p>
+                    <div>
+                        <label class="field-label">Dosis / Presentación</label>
+                        <input type="text" id="m-dosis" class="field-input" placeholder="Ej: 50 mg (1 comprimido)" required value="50 mg (1 comprimido)">
                     </div>
-                    <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                        <span class="status-pill status-red">
-                            <span class="status-dot"></span> 35% Sin Respuesta
-                        </span>
-                        <button class="btn btn-secondary" style="padding:4px 8px; font-size:11px; margin-top:2px;" onclick="enviarAlertaManual('Pedro Soto Ugarte')">
-                            ⚠️ Notificar Médico
+
+                    <!-- SELECTOR GRANULAR Y ESPECÍFICO DE FRECUENCIA -->
+                    <div class="form-group-full">
+                        <label class="field-label">
+                            Frecuencia Específica de Tomas
+                            <span style="color:var(--c-primary); text-transform:none; font-weight:600;">Selección rápida</span>
+                        </label>
+
+                        <div class="chips-grid" id="chips-container">
+                            <button type="button" class="chip-btn active" onclick="selectFrec(this, 'Cada 12 horas (8:00 y 20:00)', ['08:00', '20:00'])">⏰ Cada 12h (8:00 y 20:00)</button>
+                            <button type="button" class="chip-btn" onclick="selectFrec(this, 'Cada 8 horas (8:00, 16:00, 00:00)', ['08:00', '16:00', '00:00'])">⏰ Cada 8h</button>
+                            <button type="button" class="chip-btn" onclick="selectFrec(this, 'Cada 24 horas (En la mañana - 08:00)', ['08:00'])">🌅 En Ayunas (08:00 AM)</button>
+                            <button type="button" class="chip-btn" onclick="selectFrec(this, 'Cada 24 horas (Al acostarse - 22:00)', ['22:00'])">🌙 Antes de Dormir (22:00 PM)</button>
+                            <button type="button" class="chip-btn" onclick="selectFrec(this, 'Con las comidas principales', ['09:00', '14:00', '21:00'])">🍽️ Con Comidas (Desayuno / Almuerzo / Cena)</button>
+                        </div>
+
+                        <input type="hidden" id="m-frec" value="Cada 12 horas (8:00 y 20:00)">
+                    </div>
+
+                    <div>
+                        <label class="field-label">Duración del Tratamiento</label>
+                        <select id="m-dias" class="field-input">
+                            <option value="30 días">30 Días (Tratamiento Crónico)</option>
+                            <option value="14 días">14 Días</option>
+                            <option value="7 días">7 Días (Antibiótico / Agudo)</option>
+                            <option value="Indefinido">Indefinido (Uso Permanente)</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="field-label">Indicación Especial (Opcional)</label>
+                        <input type="text" id="m-indicacion" class="field-input" placeholder="Ej: Tomar con abundante agua" value="Tomar junto con alimentos">
+                    </div>
+
+                    <div class="form-group-full" style="margin-top:12px;">
+                        <button type="submit" class="btn btn-wa">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                            Enviar Notificación de Prescripción por WhatsApp
                         </button>
                     </div>
+                </form>
+            </div>
+
+        </section>
+
+        <!-- PESTAÑA 2: MIS PACIENTES & SEMÁFORO DE ADHERENCIA -->
+        <section class="view-panel" id="view-adherencia">
+            
+            <div class="pro-card">
+                <div class="card-header">
+                    <div>
+                        <div class="card-title">
+                            📊 Panel de Mis Pacientes Atendidos
+                        </div>
+                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Trazabilidad exclusiva de tratamientos activos bajo supervisión del Dr. Francisco Pérez</span>
+                    </div>
+                    <span class="status-pill status-green">En Vivo</span>
+                </div>
+
+                <!-- RESUMEN DE MÉTRICAS DEL MÉDICO -->
+                <div class="stats-summary">
+                    <div class="stat-box">
+                        <span class="stat-label">Mis Pacientes Activos</span>
+                        <div class="stat-value" style="color:var(--c-text);" id="stat-total">12</div>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Adherencia Promedio</span>
+                        <div class="stat-value" style="color:var(--c-green);" id="stat-pct">89%</div>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Alertas de No-Toma</span>
+                        <div class="stat-value" style="color:var(--c-red);" id="stat-alertas">1</div>
+                    </div>
+                </div>
+
+                <!-- FILTROS DE SEMÁFORO -->
+                <div style="display:flex; gap:10px; margin-bottom:18px;">
+                    <button class="chip-btn active" onclick="filterPatients('all')">Todos (12)</button>
+                    <button class="chip-btn" onclick="filterPatients('green')">🟢 Cumplen (>90%)</button>
+                    <button class="chip-btn" onclick="filterPatients('yellow')">🟡 Irregulares</button>
+                    <button class="chip-btn" onclick="filterPatients('red')">🔴 En Riesgo</button>
+                </div>
+
+                <!-- LISTA DE PACIENTES EXCLUSIVA DEL MÉDICO -->
+                <div class="patient-list" id="doctor-patients-list">
+                    
+                    <!-- PACIENTE 1 -->
+                    <div class="patient-row" data-risk="green">
+                        <div class="patient-info">
+                            <h4>María José Ugarte</h4>
+                            <p>Losartán 50mg • Cada 12h (8:00 y 20:00) • 30 Días</p>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                            <span class="status-pill status-green">
+                                <span class="status-dot"></span> 96% Excelente
+                            </span>
+                            <span style="font-size:11px; color:var(--c-text-sub);">Última toma: Hoy 08:00 AM ✅</span>
+                        </div>
+                    </div>
+
+                    <!-- PACIENTE 2 -->
+                    <div class="patient-row" data-risk="green">
+                        <div class="patient-info">
+                            <h4>Roberto Carlos Silva</h4>
+                            <p>Atorvastatina 20mg • Al acostarse (22:00 PM)</p>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                            <span class="status-pill status-green">
+                                <span class="status-dot"></span> 92% Excelente
+                            </span>
+                            <span style="font-size:11px; color:var(--c-text-sub);">Última toma: Ayer 22:00 PM ✅</span>
+                        </div>
+                    </div>
+
+                    <!-- PACIENTE 3 -->
+                    <div class="patient-row" data-risk="yellow">
+                        <div class="patient-info">
+                            <h4>Ana María Fuentes</h4>
+                            <p>Enalapril 10mg • Cada 24h (En Ayunas)</p>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                            <span class="status-pill status-yellow">
+                                <span class="status-dot"></span> 75% Irregular
+                            </span>
+                            <span style="font-size:11px; color:var(--c-text-sub);">Pendiente hoy 08:00 AM ⏳</span>
+                        </div>
+                    </div>
+
+                    <!-- PACIENTE 4 -->
+                    <div class="patient-row" data-risk="red">
+                        <div class="patient-info">
+                            <h4>Gonzalo Morales P.</h4>
+                            <p>Metformina 850mg • Con Comidas (Desayuno / Cena)</p>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
+                            <span class="status-pill status-red">
+                                <span class="status-dot"></span> 32% En Riesgo
+                            </span>
+                            <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; margin-top:4px;" onclick="reenviarRefuerzoWhatsApp('Gonzalo Morales P.')">
+                                💬 Enviar Refuerzo por WhatsApp
+                            </button>
+                        </div>
+                    </div>
+
                 </div>
 
             </div>
 
-            <div style="background:rgba(99,102,241,0.08); border:1px solid rgba(99,102,241,0.2); padding:14px; border-radius:12px; font-size:12px; color:var(--c-text-sub); display:flex; gap:10px; align-items:center;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--c-primary)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
-                <span>Los reportes de cumplimiento son exportables para ficha clínica y estudios de farmacovigilancia.</span>
-            </div>
         </section>
 
     </main>
@@ -584,9 +744,22 @@
         <span id="toast-msg">Mensaje de prueba</span>
     </div>
 
-    <!-- SCRIPT DE INTERACCIÓN -->
+    <!-- SCRIPT DE NAVEGACIÓN Y OPERACIÓN -->
     <script>
-        let streamActive = false;
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
+
+            document.getElementById(`tab-btn-${tabId}`).classList.add('active');
+            document.getElementById(`view-${tabId}`).classList.add('active');
+        }
+
+        function selectFrec(btn, frecText, horas) {
+            document.querySelectorAll('#chips-container .chip-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('m-frec').value = frecText;
+            showToast(`Frecuencia asignada: ${frecText}`);
+        }
 
         async function startCamera() {
             const video = document.getElementById('camera-feed');
@@ -601,21 +774,20 @@
                 video.style.display = 'block';
                 overlay.style.display = 'flex';
                 placeholder.style.display = 'none';
-                streamActive = true;
-                showToast("Cámara HD activada en tiempo real");
+                showToast("📷 Cámara HD del box activada");
             } catch (err) {
                 console.error("Error accediendo a cámara:", err);
                 showToast("Acceso simulado a cámara activado");
                 video.style.display = 'none';
                 placeholder.innerHTML = `
                     <div style="color:var(--c-primary); font-weight:700; font-size:16px;">📸 Vista Previa de Cámara Activa</div>
-                    <p style="font-size:12px; color:var(--c-text-sub); margin-top:6px;">[Simulación de Hardware HD OK]</p>
+                    <p style="font-size:12px; color:var(--c-text-sub); margin-top:6px;">[Simulación de Hardware HD en Box OK]</p>
                 `;
             }
         }
 
         function simularLecturaIA() {
-            showToast("🔍 Procesando imagen con IA Visión...");
+            showToast("🔍 Procesando imagen de la caja con Visión IA...");
             
             setTimeout(() => {
                 document.getElementById('m-nombre').value = "Atorvastatina 20mg";
@@ -623,8 +795,8 @@
                 document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
                 document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
                 
-                showToast("✨ ¡Caja escaneada! Atorvastatina 20mg detectada");
-            }, 800);
+                showToast("✨ ¡Caja escaneada! Atorvastatina 20mg autocompletada");
+            }, 750);
         }
 
         function activarTratamiento(e) {
@@ -634,16 +806,24 @@
             const med = document.getElementById('m-nombre').value;
             const dosis = document.getElementById('m-dosis').value;
             const frec = document.getElementById('m-frec').value;
+            const indicacion = document.getElementById('m-indicacion').value;
 
             // Limpiar teléfono
             const cleanPhone = phone.replace(/\D/g, '');
-            const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha activado tu tratamiento de *${med} (${dosis})* en MediClock. Recibirás recordatorios por WhatsApp: ${frec}. Responde *OK* para confirmar primera toma.`;
+            const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha prescrito tu tratamiento de *${med} (${dosis})*. 
+
+🗓️ *Frecuencia:* ${frec}
+💡 *Indicación:* ${indicacion}
+
+Recibirás tus recordatorios automáticos por esta vía. Por favor responde *OK* para confirmar la primera toma.`;
+            
             const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textMsg)}`;
 
-            // Agregar a la lista dinámica
-            const container = document.getElementById('patients-container');
+            // Agregar el paciente a la pestaña "Mis Pacientes"
+            const list = document.getElementById('doctor-patients-list');
             const newRow = document.createElement('div');
             newRow.className = 'patient-row';
+            newRow.setAttribute('data-risk', 'green');
             newRow.style.borderColor = 'var(--c-primary)';
             newRow.innerHTML = `
                 <div class="patient-info">
@@ -652,20 +832,35 @@
                 </div>
                 <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
                     <span class="status-pill status-green">
-                        <span class="status-dot"></span> 100% Tratamiento Iniciado
+                        <span class="status-dot"></span> 100% Prescrito
                     </span>
-                    <span style="font-size:11px; color:var(--c-text-sub);">WhatsApp Enviado 💬</span>
+                    <span style="font-size:11px; color:var(--c-text-sub);">WhatsApp Despachado 💬</span>
                 </div>
             `;
-            container.prepend(newRow);
+            list.prepend(newRow);
+
+            // Actualizar total
+            const statTotal = document.getElementById('stat-total');
+            if (statTotal) statTotal.textContent = parseInt(statTotal.textContent) + 1;
 
             // Abrir WhatsApp en nueva pestaña
             window.open(waUrl, '_blank');
-            showToast("🚀 Tratamiento activado y enviado por WhatsApp");
+            showToast("🚀 Prescripción activada y enviada por WhatsApp");
         }
 
-        function enviarAlertaManual(nombre) {
-            showToast(`⚠️ Alerta de no-cumplimiento enviada al equipo médico para ${nombre}`);
+        function filterPatients(risk) {
+            const rows = document.querySelectorAll('.patient-row');
+            rows.forEach(row => {
+                if (risk === 'all' || row.getAttribute('data-risk') === risk) {
+                    row.style.display = 'flex';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+
+        function reenviarRefuerzoWhatsApp(nombre) {
+            showToast(`💬 Mensaje de seguimiento enviado por WhatsApp a ${nombre}`);
         }
 
         function showToast(msg) {
