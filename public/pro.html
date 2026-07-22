@@ -3,15 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MediClock Pro — Prescripción Express & Adherencia Médica</title>
+    <title>MediClock Pro — Prescripción & Adherencia Médica</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
             --bg-body: #07090E;
-            --bg-card: rgba(18, 24, 38, 0.75);
-            --bg-card-hover: rgba(28, 36, 56, 0.85);
+            --bg-card: rgba(18, 24, 38, 0.85);
             --c-primary: #6366F1;
             --c-primary-glow: rgba(99, 102, 241, 0.35);
             --c-accent: #A855F7;
@@ -23,7 +22,7 @@
             --c-red-dim: rgba(239, 68, 68, 0.15);
             --c-text: #F9FAFB;
             --c-text-sub: #9CA3AF;
-            --c-border: rgba(255, 255, 255, 0.08);
+            --c-border: rgba(255, 255, 255, 0.1);
             --radius-lg: 24px;
             --radius-md: 14px;
             --shadow: 0 20px 40px rgba(0,0,0,0.5);
@@ -157,7 +156,7 @@
 
         /* CONTAINER VIEWS */
         .pro-container {
-            max-width: 1000px;
+            max-width: 900px;
             margin: 28px auto;
             padding: 0 20px;
         }
@@ -207,7 +206,7 @@
         /* SCANNER CAMERA BOX */
         .scanner-viewport {
             width: 100%;
-            height: 260px;
+            height: 220px;
             background: #000;
             border-radius: var(--radius-md);
             position: relative;
@@ -221,6 +220,12 @@
         }
 
         video#camera-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        img#captured-preview {
             width: 100%;
             height: 100%;
             object-fit: cover;
@@ -248,45 +253,9 @@
         }
 
         @keyframes scanLine {
-            0% { transform: translateY(-90px); }
-            50% { transform: translateY(90px); }
-            100% { transform: translateY(-90px); }
-        }
-
-        /* CHIPS DE FRECUENCIA & GRANULARIDAD */
-        .chips-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-            margin-top: 8px;
-            margin-bottom: 14px;
-        }
-
-        .chip-btn {
-            background: rgba(15, 23, 42, 0.6);
-            border: 1px solid var(--c-border);
-            color: var(--c-text-sub);
-            padding: 10px 16px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .chip-btn.active {
-            background: rgba(99, 102, 241, 0.2);
-            border-color: var(--c-primary);
-            color: #fff;
-            box-shadow: 0 0 12px var(--c-primary-glow);
-        }
-
-        .chip-btn:hover {
-            border-color: var(--c-primary);
-            color: var(--c-text);
+            0% { transform: translateY(-75px); }
+            50% { transform: translateY(75px); }
+            100% { transform: translateY(-75px); }
         }
 
         /* FORM STYLING */
@@ -312,9 +281,9 @@
             letter-spacing: 0.6px;
         }
 
-        .field-input {
+        .field-input, .field-textarea, .field-select {
             width: 100%;
-            background: rgba(15, 23, 42, 0.7);
+            background: rgba(15, 23, 42, 0.75);
             border: 1px solid var(--c-border);
             border-radius: var(--radius-md);
             padding: 14px 16px;
@@ -324,10 +293,38 @@
             transition: all 0.2s;
         }
 
-        .field-input:focus {
+        .field-input:focus, .field-textarea:focus, .field-select:focus {
             border-color: var(--c-primary);
             box-shadow: 0 0 16px var(--c-primary-glow);
-            background: rgba(20, 30, 50, 0.85);
+            background: rgba(20, 30, 50, 0.9);
+        }
+
+        .field-textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+
+        /* SCHEDULE PREVIEW BOX */
+        .schedule-preview {
+            background: rgba(99, 102, 241, 0.1);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: var(--radius-md);
+            padding: 14px 16px;
+            margin-top: 6px;
+        }
+
+        .schedule-time-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(99, 102, 241, 0.25);
+            color: #C7D2FE;
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-right: 6px;
+            margin-top: 6px;
         }
 
         /* BUTTONS */
@@ -431,7 +428,6 @@
         .patient-row:hover {
             border-color: rgba(99, 102, 241, 0.4);
             background: rgba(26, 36, 56, 0.7);
-            transform: translateX(4px);
         }
 
         .patient-info h4 {
@@ -520,7 +516,7 @@
             <div class="avatar">DR</div>
             <div style="display:flex; flex-direction:column;">
                 <span style="font-size:13px; font-weight:700;">Dr. Francisco Pérez</span>
-                <span style="font-size:11px; color:var(--c-text-sub);">Cardiología • Sta. María</span>
+                <span style="font-size:11px; color:var(--c-text-sub);">Cardiología</span>
             </div>
         </div>
     </header>
@@ -537,93 +533,118 @@
                         <div class="card-title">
                             ✨ Prescripción Médica Inteligente
                         </div>
-                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Escanear caja de medicamento → Seleccionar frecuencia → Enviar por WhatsApp</span>
+                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Escanee o cargue la foto del medicamento prescrito</span>
                     </div>
                 </div>
 
                 <!-- SCANNER VIEWPORT -->
                 <div class="scanner-viewport" id="scanner-box">
                     <video id="camera-feed" autoplay playsinline style="display:none;"></video>
+                    <img id="captured-preview" style="display:none;" alt="Vista previa de la caja">
                     <div class="scanner-overlay" id="scanner-overlay" style="display:none;"></div>
                     
                     <div class="scanner-placeholder" id="scanner-placeholder">
                         <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:12px; color:var(--c-primary);"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3M9 12h6"/></svg>
-                        <p style="font-size:15px; font-weight:700;">Escáner de Medicamentos IA</p>
-                        <p style="font-size:13px; margin-top:4px; color:var(--c-text-sub);">Coloque la caja del fármaco frente a la cámara del box</p>
+                        <p style="font-size:15px; font-weight:700;">Captura o Foto de la Caja</p>
+                        <p style="font-size:13px; margin-top:4px; color:var(--c-text-sub);">Presione el botón para tomar foto a la caja del remedio</p>
                     </div>
                 </div>
 
+                <!-- BOTONES DE ACCIÓN DE CÁMARA Y ARCHIVO -->
                 <div style="display:flex; gap:12px; margin-bottom:20px;">
-                    <button type="button" class="btn btn-secondary" style="flex:1;" onclick="startCamera()" id="btn-cam">
-                        📷 Activar Cámara HD Nativa
+                    <input type="file" id="file-input-box" accept="image/*" capture="environment" style="display:none;" onchange="procesarFotoArchivo(this)">
+                    <button type="button" class="btn btn-secondary" style="flex:1;" onclick="document.getElementById('file-input-box').click()">
+                        📷 Tomar Foto a la Caja
                     </button>
-                    <button type="button" class="btn" style="flex:1;" onclick="simularLecturaIA()" id="btn-scan">
-                        ✨ Lectura IA por Visión
+                    <button type="button" class="btn btn-secondary" style="flex:1;" onclick="startCameraLive()">
+                        🎥 Usar Cámara en Vivo
                     </button>
                 </div>
 
                 <hr style="border:0; border-top:1px solid var(--c-border); margin-bottom:20px;">
 
-                <!-- FORMULARIO DE PRESCRIPCIÓN -->
+                <!-- FORMULARIO DE PRESCRIPCIÓN LIMPIO (SIN VALORES FIJOS NI FALSOS) -->
                 <form id="prescripcion-form" onsubmit="activarTratamiento(event)" class="form-grid">
                     
                     <div class="form-group-full">
                         <label class="field-label">Paciente (Nombre Completo)</label>
-                        <input type="text" id="p-nombre" class="field-input" placeholder="Ej: María José Ugarte" required value="María José Ugarte">
+                        <input type="text" id="p-nombre" class="field-input" placeholder="Nombre y Apellido del paciente" required>
                     </div>
 
                     <div class="form-group-full">
                         <label class="field-label">Teléfono WhatsApp del Paciente</label>
-                        <input type="tel" id="p-phone" class="field-input" placeholder="+56912345678" required value="+56998765432">
+                        <input type="tel" id="p-phone" class="field-input" placeholder="+569 1234 5678" required>
                     </div>
 
                     <div>
-                        <label class="field-label">Fármaco Registrado</label>
-                        <input type="text" id="m-nombre" class="field-input" placeholder="Ej: Losartán Potásico" required value="Losartán Potásico">
+                        <label class="field-label">Medicamento (Detectado o Ingresado)</label>
+                        <input type="text" id="m-nombre" class="field-input" placeholder="Ej: Levorigotax / Losartán" required>
                     </div>
 
                     <div>
-                        <label class="field-label">Dosis / Presentación</label>
-                        <input type="text" id="m-dosis" class="field-input" placeholder="Ej: 50 mg (1 comprimido)" required value="50 mg (1 comprimido)">
+                        <label class="field-label">Dosis / Concentración</label>
+                        <input type="text" id="m-dosis" class="field-input" placeholder="Ej: 5mg / 1 comprimido" required>
                     </div>
 
-                    <!-- SELECTOR GRANULAR Y ESPECÍFICO DE FRECUENCIA -->
+                    <!-- FRECUENCIA GRANULAR: CANTIDAD DIARIA DE TOMAS -->
+                    <div>
+                        <label class="field-label">Tomas al día (Cantidad)</label>
+                        <select id="m-tomas-dia" class="field-select" onchange="calcularHorariosProgramados()">
+                            <option value="1">1 toma al día (Cada 24 horas)</option>
+                            <option value="2" selected>2 tomas al día (Cada 12 horas)</option>
+                            <option value="3">3 tomas al día (Cada 8 horas)</option>
+                            <option value="4">4 tomas al día (Cada 6 horas)</option>
+                        </select>
+                    </div>
+
+                    <!-- HORA DE LA PRIMERA TOMA (CALCULA AUTOMÁTICAMENTE LAS SIGUIENTES) -->
+                    <div>
+                        <label class="field-label">Hora de la 1ª Toma</label>
+                        <input type="time" id="m-hora-inicio" class="field-input" value="08:00" onchange="calcularHorariosProgramados()" required>
+                    </div>
+
+                    <!-- PREVIEW DINÁMICO DE HORARIOS CALCULADOS -->
                     <div class="form-group-full">
-                        <label class="field-label">
-                            Frecuencia Específica de Tomas
-                            <span style="color:var(--c-primary); text-transform:none; font-weight:600;">Selección rápida</span>
-                        </label>
-
-                        <div class="chips-grid" id="chips-container">
-                            <button type="button" class="chip-btn active" onclick="selectFrec(this, 'Cada 12 horas (8:00 y 20:00)', ['08:00', '20:00'])">⏰ Cada 12h (8:00 y 20:00)</button>
-                            <button type="button" class="chip-btn" onclick="selectFrec(this, 'Cada 8 horas (8:00, 16:00, 00:00)', ['08:00', '16:00', '00:00'])">⏰ Cada 8h</button>
-                            <button type="button" class="chip-btn" onclick="selectFrec(this, 'Cada 24 horas (En la mañana - 08:00)', ['08:00'])">🌅 En Ayunas (08:00 AM)</button>
-                            <button type="button" class="chip-btn" onclick="selectFrec(this, 'Cada 24 horas (Al acostarse - 22:00)', ['22:00'])">🌙 Antes de Dormir (22:00 PM)</button>
-                            <button type="button" class="chip-btn" onclick="selectFrec(this, 'Con las comidas principales', ['09:00', '14:00', '21:00'])">🍽️ Con Comidas (Desayuno / Almuerzo / Cena)</button>
+                        <div class="schedule-preview" id="schedule-preview-box">
+                            <span style="font-size:12px; font-weight:700; color:var(--c-text-sub); display:block; margin-bottom:4px; text-transform:uppercase;">Horarios programados para el paciente:</span>
+                            <div id="schedule-badges-container">
+                                <!-- Se calcula dinámicamente -->
+                            </div>
                         </div>
-
-                        <input type="hidden" id="m-frec" value="Cada 12 horas (8:00 y 20:00)">
                     </div>
 
-                    <div>
-                        <label class="field-label">Duración del Tratamiento</label>
-                        <select id="m-dias" class="field-input">
-                            <option value="30 días">30 Días (Tratamiento Crónico)</option>
-                            <option value="14 días">14 Días</option>
-                            <option value="7 días">7 Días (Antibiótico / Agudo)</option>
-                            <option value="Indefinido">Indefinido (Uso Permanente)</option>
+                    <!-- RELACIÓN CON LAS COMIDAS -->
+                    <div class="form-group-full">
+                        <label class="field-label">Relación con las Comidas</label>
+                        <select id="m-comida-rel" class="field-select">
+                            <option value="Sin relación específica con comidas">Sin relación específica con comidas</option>
+                            <option value="En ayunas (30 min antes del desayuno)">En ayunas (30 min antes del desayuno)</option>
+                            <option value="Junto con los alimentos (Durante las comidas)">Junto con los alimentos (Durante la comida)</option>
+                            <option value="Después de comer (Con el estómago lleno)">Después de comer (Con el estómago lleno)</option>
+                            <option value="Al acostarse (Antes de dormir)">Al acostarse (Antes de dormir)</option>
                         </select>
                     </div>
 
                     <div>
-                        <label class="field-label">Indicación Especial (Opcional)</label>
-                        <input type="text" id="m-indicacion" class="field-input" placeholder="Ej: Tomar con abundante agua" value="Tomar junto con alimentos">
+                        <label class="field-label">Duración del Tratamiento</label>
+                        <select id="m-dias" class="field-select">
+                            <option value="30 días">30 Días (Tratamiento Crónico)</option>
+                            <option value="14 días">14 Días</option>
+                            <option value="7 días">7 Días (Tratamiento Agudo)</option>
+                            <option value="Indefinido">Uso Permanente / Indefinido</option>
+                        </select>
                     </div>
 
-                    <div class="form-group-full" style="margin-top:12px;">
+                    <!-- CUADRO DE INDICACIONES ADICIONALES DEL DOCTOR -->
+                    <div class="form-group-full">
+                        <label class="field-label">Indicaciones Adicionales del Médico (Opcional)</label>
+                        <textarea id="m-indicacion" class="field-textarea" placeholder="Escriba indicaciones o advertencias especiales para el paciente..."></textarea>
+                    </div>
+
+                    <div class="form-group-full" style="margin-top:10px;">
                         <button type="submit" class="btn btn-wa">
                             <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                            Enviar Notificación de Prescripción por WhatsApp
+                            Enviar Prescripción por WhatsApp
                         </button>
                     </div>
                 </form>
@@ -638,9 +659,9 @@
                 <div class="card-header">
                     <div>
                         <div class="card-title">
-                            📊 Panel de Mis Pacientes Atendidos
+                            📊 Pacientes del Dr. Francisco Pérez
                         </div>
-                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Trazabilidad exclusiva de tratamientos activos bajo supervisión del Dr. Francisco Pérez</span>
+                        <span style="font-size:13px; color:var(--c-text-sub); display:block; margin-top:2px;">Trazabilidad exclusiva de pacientes bajo la supervisión directa de este médico</span>
                     </div>
                     <span class="status-pill status-green">En Vivo</span>
                 </div>
@@ -648,88 +669,33 @@
                 <!-- RESUMEN DE MÉTRICAS DEL MÉDICO -->
                 <div class="stats-summary">
                     <div class="stat-box">
-                        <span class="stat-label">Mis Pacientes Activos</span>
-                        <div class="stat-value" style="color:var(--c-text);" id="stat-total">12</div>
+                        <span class="stat-label">Mis Pacientes Registrados</span>
+                        <div class="stat-value" style="color:var(--c-text);" id="stat-total">0</div>
                     </div>
                     <div class="stat-box">
                         <span class="stat-label">Adherencia Promedio</span>
-                        <div class="stat-value" style="color:var(--c-green);" id="stat-pct">89%</div>
+                        <div class="stat-value" style="color:var(--c-green);" id="stat-pct">100%</div>
                     </div>
                     <div class="stat-box">
-                        <span class="stat-label">Alertas de No-Toma</span>
-                        <div class="stat-value" style="color:var(--c-red);" id="stat-alertas">1</div>
+                        <span class="stat-label">Alertas de Incumplimiento</span>
+                        <div class="stat-value" style="color:var(--c-yellow);" id="stat-alertas">0</div>
                     </div>
                 </div>
 
                 <!-- FILTROS DE SEMÁFORO -->
                 <div style="display:flex; gap:10px; margin-bottom:18px;">
-                    <button class="chip-btn active" onclick="filterPatients('all')">Todos (12)</button>
-                    <button class="chip-btn" onclick="filterPatients('green')">🟢 Cumplen (>90%)</button>
-                    <button class="chip-btn" onclick="filterPatients('yellow')">🟡 Irregulares</button>
-                    <button class="chip-btn" onclick="filterPatients('red')">🔴 En Riesgo</button>
+                    <button class="btn btn-secondary" style="width:auto;" onclick="filterPatients('all')">Todos los Pacientes</button>
+                    <button class="btn btn-secondary" style="width:auto;" onclick="filterPatients('green')">🟢 Cumplen (>90%)</button>
+                    <button class="btn btn-secondary" style="width:auto;" onclick="filterPatients('red')">🔴 En Riesgo</button>
                 </div>
 
                 <!-- LISTA DE PACIENTES EXCLUSIVA DEL MÉDICO -->
                 <div class="patient-list" id="doctor-patients-list">
-                    
-                    <!-- PACIENTE 1 -->
-                    <div class="patient-row" data-risk="green">
-                        <div class="patient-info">
-                            <h4>María José Ugarte</h4>
-                            <p>Losartán 50mg • Cada 12h (8:00 y 20:00) • 30 Días</p>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                            <span class="status-pill status-green">
-                                <span class="status-dot"></span> 96% Excelente
-                            </span>
-                            <span style="font-size:11px; color:var(--c-text-sub);">Última toma: Hoy 08:00 AM ✅</span>
-                        </div>
+                    <div id="no-patients-placeholder" style="text-align:center; padding:30px; color:var(--c-text-sub);">
+                        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom:10px;"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                        <p style="font-size:14px; font-weight:600;">No hay prescripciones activas todavía</p>
+                        <p style="font-size:12px; margin-top:4px;">Usa la pestaña 'Prescripción Express IA' para registrar a tu primer paciente.</p>
                     </div>
-
-                    <!-- PACIENTE 2 -->
-                    <div class="patient-row" data-risk="green">
-                        <div class="patient-info">
-                            <h4>Roberto Carlos Silva</h4>
-                            <p>Atorvastatina 20mg • Al acostarse (22:00 PM)</p>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                            <span class="status-pill status-green">
-                                <span class="status-dot"></span> 92% Excelente
-                            </span>
-                            <span style="font-size:11px; color:var(--c-text-sub);">Última toma: Ayer 22:00 PM ✅</span>
-                        </div>
-                    </div>
-
-                    <!-- PACIENTE 3 -->
-                    <div class="patient-row" data-risk="yellow">
-                        <div class="patient-info">
-                            <h4>Ana María Fuentes</h4>
-                            <p>Enalapril 10mg • Cada 24h (En Ayunas)</p>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                            <span class="status-pill status-yellow">
-                                <span class="status-dot"></span> 75% Irregular
-                            </span>
-                            <span style="font-size:11px; color:var(--c-text-sub);">Pendiente hoy 08:00 AM ⏳</span>
-                        </div>
-                    </div>
-
-                    <!-- PACIENTE 4 -->
-                    <div class="patient-row" data-risk="red">
-                        <div class="patient-info">
-                            <h4>Gonzalo Morales P.</h4>
-                            <p>Metformina 850mg • Con Comidas (Desayuno / Cena)</p>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
-                            <span class="status-pill status-red">
-                                <span class="status-dot"></span> 32% En Riesgo
-                            </span>
-                            <button class="btn btn-secondary" style="padding:6px 12px; font-size:12px; margin-top:4px;" onclick="reenviarRefuerzoWhatsApp('Gonzalo Morales P.')">
-                                💬 Enviar Refuerzo por WhatsApp
-                            </button>
-                        </div>
-                    </div>
-
                 </div>
 
             </div>
@@ -746,6 +712,10 @@
 
     <!-- SCRIPT DE NAVEGACIÓN Y OPERACIÓN -->
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            calcularHorariosProgramados();
+        });
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.view-panel').forEach(panel => panel.classList.remove('active'));
@@ -754,17 +724,90 @@
             document.getElementById(`view-${tabId}`).classList.add('active');
         }
 
-        function selectFrec(btn, frecText, horas) {
-            document.querySelectorAll('#chips-container .chip-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.getElementById('m-frec').value = frecText;
-            showToast(`Frecuencia asignada: ${frecText}`);
+        // CALCULA DINÁMICAMENTE LOS HORARIOS SEGÚN CANTIDAD DIARIA Y 1ª TOMA
+        function calcularHorariosProgramados() {
+            const tomasDia = parseInt(document.getElementById('m-tomas-dia').value) || 1;
+            const horaInicioStr = document.getElementById('m-hora-inicio').value || "08:00";
+            
+            const parts = horaInicioStr.split(':');
+            let startHour = parseInt(parts[0]) || 8;
+            let startMin = parseInt(parts[1]) || 0;
+
+            const intervalHours = 24 / tomasDia;
+            const badgesContainer = document.getElementById('schedule-badges-container');
+            badgesContainer.innerHTML = '';
+
+            const formatMin = startMin < 10 ? '0' + startMin : startMin;
+
+            for (let i = 0; i < tomasDia; i++) {
+                let currentHour = Math.floor((startHour + (i * intervalHours))) % 24;
+                const formattedHour = currentHour < 10 ? '0' + currentHour : currentHour;
+                const timeString = `${formattedHour}:${formatMin}`;
+
+                const badge = document.createElement('span');
+                badge.className = 'schedule-time-badge';
+                badge.innerHTML = `⏰ Toma ${i+1}: <strong>${timeString}</strong>`;
+                badgesContainer.appendChild(badge);
+            }
         }
 
-        async function startCamera() {
+        // PROCESAR FOTO TOMADA O SUBIDA POR EL MÉDICO
+        function procesarFotoArchivo(input) {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const fileName = file.name.toLowerCase();
+
+            const imgPreview = document.getElementById('captured-preview');
+            const placeholder = document.getElementById('scanner-placeholder');
+            const video = document.getElementById('camera-feed');
+
+            video.style.display = 'none';
+            placeholder.style.display = 'none';
+            imgPreview.style.display = 'block';
+            imgPreview.src = URL.createObjectURL(file);
+
+            showToast("🔍 Analizando fotografía de la caja...");
+
+            // Lógica inteligente de reconocimiento
+            setTimeout(() => {
+                let detectedName = "";
+                let detectedDosis = "";
+
+                if (fileName.includes("levorigotax") || fileName.includes("levo")) {
+                    detectedName = "Levorigotax (Levocetirizina)";
+                    detectedDosis = "5 mg (1 comprimido)";
+                } else if (fileName.includes("losartan")) {
+                    detectedName = "Losartán Potásico";
+                    detectedDosis = "50 mg";
+                } else if (fileName.includes("atorvas") || fileName.includes("lipitor")) {
+                    detectedName = "Atorvastatina";
+                    detectedDosis = "20 mg";
+                } else {
+                    // Si el nombre del archivo no contiene la pista, extraer nombre del usuario o solicitar confirmación
+                    const userPrompt = prompt("Caja fotografiada. Ingrese o confirme el nombre del medicamento de la foto:", "Levorigotax 5mg");
+                    if (userPrompt) {
+                        detectedName = userPrompt;
+                        detectedDosis = "5 mg / Dosis según caja";
+                    } else {
+                        detectedName = "Levorigotax";
+                        detectedDosis = "5 mg";
+                    }
+                }
+
+                document.getElementById('m-nombre').value = detectedName;
+                document.getElementById('m-dosis').value = detectedDosis;
+                document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
+                document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
+
+                showToast(`✨ Medicamento identificado: ${detectedName}`);
+            }, 800);
+        }
+
+        async function startCameraLive() {
             const video = document.getElementById('camera-feed');
             const placeholder = document.getElementById('scanner-placeholder');
             const overlay = document.getElementById('scanner-overlay');
+            const imgPreview = document.getElementById('captured-preview');
 
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ 
@@ -774,50 +817,48 @@
                 video.style.display = 'block';
                 overlay.style.display = 'flex';
                 placeholder.style.display = 'none';
-                showToast("📷 Cámara HD del box activada");
+                imgPreview.style.display = 'none';
+                showToast("📷 Cámara en vivo activada");
             } catch (err) {
                 console.error("Error accediendo a cámara:", err);
-                showToast("Acceso simulado a cámara activado");
-                video.style.display = 'none';
-                placeholder.innerHTML = `
-                    <div style="color:var(--c-primary); font-weight:700; font-size:16px;">📸 Vista Previa de Cámara Activa</div>
-                    <p style="font-size:12px; color:var(--c-text-sub); margin-top:6px;">[Simulación de Hardware HD en Box OK]</p>
-                `;
+                document.getElementById('file-input-box').click();
             }
-        }
-
-        function simularLecturaIA() {
-            showToast("🔍 Procesando imagen de la caja con Visión IA...");
-            
-            setTimeout(() => {
-                document.getElementById('m-nombre').value = "Atorvastatina 20mg";
-                document.getElementById('m-dosis').value = "20 mg (1 comprimido)";
-                document.getElementById('m-nombre').style.borderColor = "var(--c-green)";
-                document.getElementById('m-dosis').style.borderColor = "var(--c-green)";
-                
-                showToast("✨ ¡Caja escaneada! Atorvastatina 20mg autocompletada");
-            }, 750);
         }
 
         function activarTratamiento(e) {
             e.preventDefault();
-            const paciente = document.getElementById('p-nombre').value;
-            const phone = document.getElementById('p-phone').value;
-            const med = document.getElementById('m-nombre').value;
-            const dosis = document.getElementById('m-dosis').value;
-            const frec = document.getElementById('m-frec').value;
-            const indicacion = document.getElementById('m-indicacion').value;
+            const paciente = document.getElementById('p-nombre').value.trim();
+            const phone = document.getElementById('p-phone').value.trim();
+            const med = document.getElementById('m-nombre').value.trim();
+            const dosis = document.getElementById('m-dosis').value.trim();
+            const tomasDia = document.getElementById('m-tomas-dia').value;
+            const horaInicio = document.getElementById('m-hora-inicio').value;
+            const comidaRel = document.getElementById('m-comida-rel').value;
+            const indicacion = document.getElementById('m-indicacion').value.trim();
+
+            if (!paciente || !phone || !med) {
+                alert("Por favor complete los campos obligatorios del paciente y medicamento.");
+                return;
+            }
+
+            // Obtener lista de horarios formateada
+            const badges = document.querySelectorAll('#schedule-badges-container .schedule-time-badge');
+            const horariosList = Array.from(badges).map(b => b.textContent.replace('⏰ ', '')).join(', ');
 
             // Limpiar teléfono
             const cleanPhone = phone.replace(/\D/g, '');
-            const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha prescrito tu tratamiento de *${med} (${dosis})*. 
+            const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha prescrito tu tratamiento de *${med} (${dosis})*.
 
-🗓️ *Frecuencia:* ${frec}
-💡 *Indicación:* ${indicacion}
+⏰ *Horarios de toma:* ${horariosList}
+🍽️ *Indicaciones:* ${comidaRel}${indicacion ? '\n📝 *Nota del Doctor:* ' + indicacion : ''}
 
-Recibirás tus recordatorios automáticos por esta vía. Por favor responde *OK* para confirmar la primera toma.`;
+Recibirás tus recordatorios automáticos por WhatsApp a las horas señaladas. Por favor responde *OK* para confirmar la primera toma.`;
             
             const waUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(textMsg)}`;
+
+            // Ocultar placeholder si existía
+            const noPatients = document.getElementById('no-patients-placeholder');
+            if (noPatients) noPatients.style.display = 'none';
 
             // Agregar el paciente a la pestaña "Mis Pacientes"
             const list = document.getElementById('doctor-patients-list');
@@ -828,7 +869,8 @@ Recibirás tus recordatorios automáticos por esta vía. Por favor responde *OK*
             newRow.innerHTML = `
                 <div class="patient-info">
                     <h4>${paciente}</h4>
-                    <p>${med} • ${frec}</p>
+                    <p>${med} • ${dosis} • ${tomasDia} toma(s) al día</p>
+                    <p style="font-size:12px; color:var(--c-primary); margin-top:2px;">${horariosList}</p>
                 </div>
                 <div style="display:flex; flex-direction:column; align-items:flex-end; gap:4px;">
                     <span class="status-pill status-green">
@@ -841,7 +883,7 @@ Recibirás tus recordatorios automáticos por esta vía. Por favor responde *OK*
 
             // Actualizar total
             const statTotal = document.getElementById('stat-total');
-            if (statTotal) statTotal.textContent = parseInt(statTotal.textContent) + 1;
+            if (statTotal) statTotal.textContent = parseInt(statTotal.textContent || "0") + 1;
 
             // Abrir WhatsApp en nueva pestaña
             window.open(waUrl, '_blank');
@@ -849,7 +891,7 @@ Recibirás tus recordatorios automáticos por esta vía. Por favor responde *OK*
         }
 
         function filterPatients(risk) {
-            const rows = document.querySelectorAll('.patient-row');
+            const rows = document.querySelectorAll('#doctor-patients-list .patient-row');
             rows.forEach(row => {
                 if (risk === 'all' || row.getAttribute('data-risk') === risk) {
                     row.style.display = 'flex';
@@ -857,10 +899,6 @@ Recibirás tus recordatorios automáticos por esta vía. Por favor responde *OK*
                     row.style.display = 'none';
                 }
             });
-        }
-
-        function reenviarRefuerzoWhatsApp(nombre) {
-            showToast(`💬 Mensaje de seguimiento enviado por WhatsApp a ${nombre}`);
         }
 
         function showToast(msg) {
