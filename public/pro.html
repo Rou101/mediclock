@@ -58,10 +58,10 @@
         /* BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B FLOTANTE) */
         .vertical-sidebar {
             width: var(--sidebar-width);
-            height: calc(100vh - 48px);
+            height: calc(100vh - 96px); /* EXPANSIÓN VERTICAL IDÉNTICA (100vh - 48 top - 48 bottom) */
             position: fixed;
-            top: 24px;
-            left: 24px;
+            top: 48px;
+            left: 48px;
             background: rgba(15, 22, 36, 0.96);
             backdrop-filter: blur(20px);
             border: 1px solid var(--c-border);
@@ -209,10 +209,10 @@
 
         /* ÁREA PRINCIPAL CONTENEDORA (DERECHA DEL SIDEBAR - EXPANSIVA Y CON TRIPLE MARGEN) */
         .main-content {
-            margin-left: calc(var(--sidebar-width) + 24px); /* Espacio del sidebar flotante + su margen izquierdo */
-            width: calc(100% - var(--sidebar-width) - 24px);
+            margin-left: calc(var(--sidebar-width) + 96px); /* Espacio del sidebar (48) + Ancho + Margen derecho (48) */
+            width: calc(100% - var(--sidebar-width) - 96px);
             min-height: 100vh;
-            padding: 48px; /* TRIPLE DEL MARGEN ANTERIOR (16px * 3 = 48px) */
+            padding: 48px 48px 48px 0; /* TRIPLE DEL MARGEN: Arriba, Derecha, Abajo (48px). Izquierda 0 porque ya lo da margin-left */
             display: flex;
             flex-direction: column;
         }
@@ -542,7 +542,7 @@
                 <div class="brand-icon">M</div>
                 <div>
                     <span class="brand-title">MediClock Pro</span>
-                    <div><span class="version-tag">v27.0 CHROME B2B</span></div>
+                    <div><span class="version-tag">v28.0 CHROME B2B</span></div>
                 </div>
             </div>
 
@@ -942,13 +942,19 @@
             e.preventDefault();
             
             const paciente = document.getElementById('p-nombre').value.trim();
-            const phone = document.getElementById('p-phone').value.trim();
+            let phone = document.getElementById('p-phone').value.trim();
             const fechaEmision = document.getElementById('r-fecha').value;
             const indicacionesCopied = document.getElementById('m-indicaciones-copied').value.trim();
 
             if (!paciente || !phone) {
                 alert("Por favor ingrese el nombre del paciente y su WhatsApp.");
                 return;
+            }
+
+            // AUTO AÑADIR +56 SI SE OLVIDÓ EL DOCTOR Y ES NÚMERO CHILENO DE 8-9 DÍGITOS
+            let phoneClean = phone.replace(/\D/g, '');
+            if (phoneClean.length === 9 || phoneClean.length === 8) {
+                phone = '+56' + phoneClean;
             }
 
             if (!indicacionesCopied) {
@@ -1012,9 +1018,15 @@
                     })
                 });
                 const data = await res.json();
-                console.log("Prescripción creada:", data);
+                console.log("Respuesta del servidor:", data);
+                if (!data.success) {
+                    alert("⚠️ Error en el servidor al despachar WhatsApp:\n" + (data.error || JSON.stringify(data)));
+                    return; // Abortar modal de éxito si hubo error
+                }
             } catch (err) {
                 console.error("Error en prescripción:", err);
+                alert("⚠️ Error de conexión con el servidor (ver consola).");
+                return; // Abortar modal de éxito si hay error de conexión
             }
 
             // Poblar Modal de Reporte
@@ -1028,7 +1040,7 @@
                 contactosAdicionales.forEach(c => {
                     const p = document.createElement('p');
                     p.innerHTML = `<strong>${c.rol}:</strong> ${c.nombre} (${c.telefono})`;
-                    repContactosSummary.appendChild(p);
+                repContactosSummary.appendChild(p);
                 });
             }
 
