@@ -58,7 +58,7 @@ app.post('/api/pro/scan-prescription', async (req, res) => {
 
         // INTENTO 1: GEMINI 1.5 FLASH MULTIMODAL VISION IA
         try {
-            const geminiUrl = 'https://us-central1-aiplatform.googleapis.com/v1/projects/mediclock-recordatorios/locations/us-central1/publishers/google/models/gemini-1.5-flash:generateContent';
+            const geminiUrl = 'https://us-central1-aiplatform.googleapis.com/v1/projects/mediclock-recordatorios/locations/us-central1/publishers/google/models/gemini-1.5-flash-001:generateContent';
             const prompt = `Analiza esta receta médica o caja de medicamento. Extrae exactamente en JSON válido:
 {
   "doctor": "Nombre del médico si aparece",
@@ -260,7 +260,7 @@ ${texto}
             scopes: ['https://www.googleapis.com/auth/cloud-platform']
         });
         const accessToken = await authClient.getAccessToken();
-        const geminiUrl = 'https://us-central1-aiplatform.googleapis.com/v1/projects/mediclock-recordatorios/locations/us-central1/publishers/google/models/gemini-1.5-flash:generateContent';
+        const geminiUrl = 'https://us-central1-aiplatform.googleapis.com/v1/projects/mediclock-recordatorios/locations/us-central1/publishers/google/models/gemini-1.5-flash-001:generateContent';
 
         const geminiRes = await axios.post(geminiUrl, {
             contents: [ { role: 'user', parts: [ { text: prompt } ] } ],
