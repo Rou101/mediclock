@@ -681,13 +681,19 @@
                             <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="flex:1; min-height:100px;" required></textarea>
                         </div>
                         
-                        <!-- CONTENEDOR DE MEDICAMENTOS ESTRUCTURADOS (OCULTO INICIALMENTE) -->
-                        <div id="structured-meds-container" style="flex:0.6; overflow-y:auto; padding-right:8px; display:none;">
-                            <h3 style="font-size:14px; font-weight:700; color:var(--c-text); margin-bottom:12px; border-bottom:1px solid var(--c-border); padding-bottom:8px;">
-                                💊 Estructura de Recordatorios (Generada por IA)
-                            </h3>
-                            <div id="ai-meds-list" style="display:flex; flex-direction:column; gap:12px;">
-                                <!-- Aquí se inyectan las cajitas -->
+                        <!-- CONTENEDOR DE MEDICAMENTOS ESTRUCTURADOS / EDITABLES -->
+                        <div style="flex:0.6; overflow-y:auto; padding-right:8px; display:flex; flex-direction:column;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid var(--c-border); padding-bottom:8px;">
+                                <h3 style="font-size:14px; font-weight:700; color:var(--c-text);">
+                                    💊 Lista de Medicamentos
+                                </h3>
+                                <button type="button" class="btn-aux" style="margin:0; padding:4px 8px; font-size:11px;" onclick="addMedRow()">
+                                    + Añadir Fila
+                                </button>
+                            </div>
+                            
+                            <div id="meds-container" style="display:flex; flex-direction:column; gap:12px;">
+                                <!-- Filas de inputs editables -->
                             </div>
                         </div>
                     </div>
@@ -953,7 +959,48 @@
             reader.readAsDataURL(file);
         }
 
-        let structuredMeds = [];
+        let medRowCount = 0;
+
+        function addMedRow(med = {}) {
+            medRowCount++;
+            const container = document.getElementById('meds-container');
+            
+            const div = document.createElement('div');
+            div.className = 'med-row-editable';
+            div.style.background = 'rgba(255,255,255,0.02)';
+            div.style.border = '1px solid var(--c-border)';
+            div.style.padding = '12px';
+            div.style.borderRadius = 'var(--radius-md)';
+            div.style.position = 'relative';
+
+            div.innerHTML = `
+                <button type="button" onclick="this.parentElement.remove()" style="position:absolute; top:8px; right:8px; background:none; border:none; color:#EF4444; cursor:pointer; font-size:14px;">✖</button>
+                <div class="form-group" style="margin-bottom:8px;">
+                    <label class="field-label" style="font-size:10px;">Medicamento y Dosis</label>
+                    <input type="text" class="field-input med-nombre" value="${med.nombre || ''}" required>
+                </div>
+                <div style="display:flex; gap:8px;">
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <label class="field-label" style="font-size:10px;">Frecuencia (Hrs)</label>
+                        <input type="number" class="field-input med-frecuencia" value="${med.frecuencia_horas || 12}" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <label class="field-label" style="font-size:10px;">Duración (Días)</label>
+                        <input type="number" class="field-input med-duracion" value="${med.duracion_dias || 30}" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0; flex:1;">
+                        <label class="field-label" style="font-size:10px;">Hora Inicio</label>
+                        <input type="time" class="field-input med-hora" value="${med.hora_sugerida || '08:00'}" required>
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+        }
+
+        // Initialize with one empty row
+        window.addEventListener('DOMContentLoaded', () => {
+            addMedRow();
+        });
 
         async function parseMedsWithAI() {
             const rawText = document.getElementById('m-indicaciones-copied').value.trim();
@@ -975,9 +1022,9 @@
                 
                 const data = await res.json();
                 if (data.success && data.medicamentos) {
-                    structuredMeds = data.medicamentos;
-                    renderStructuredMeds();
-                    document.getElementById('structured-meds-container').style.display = 'block';
+                    const container = document.getElementById('meds-container');
+                    container.innerHTML = ''; // Limpiar filas anteriores
+                    data.medicamentos.forEach(m => addMedRow(m));
                     showToast("Medicamentos estructurados con éxito");
                 } else {
                     alert("No se pudo extraer la información. Por favor revisa el texto.");
@@ -989,30 +1036,6 @@
                 btn.innerHTML = '✨ Ordenar con IA';
                 btn.disabled = false;
             }
-        }
-
-        function renderStructuredMeds() {
-            const container = document.getElementById('ai-meds-list');
-            container.innerHTML = '';
-            
-            structuredMeds.forEach((med, idx) => {
-                const div = document.createElement('div');
-                div.style.background = 'rgba(255,255,255,0.02)';
-                div.style.border = '1px solid var(--c-border)';
-                div.style.padding = '12px';
-                div.style.borderRadius = 'var(--radius-md)';
-                div.style.fontSize = '12px';
-                
-                div.innerHTML = `
-                    <div style="font-weight:700; color:var(--c-primary); margin-bottom:4px;">${med.nombre}</div>
-                    <div style="color:var(--c-text); display:flex; gap:16px; align-items:center;">
-                        <span>⏱️ Cada <b>${med.frecuencia_horas}</b> hrs</span>
-                        <span>🗓️ Por <b>${med.duracion_dias}</b> días</span>
-                        <span>🔔 Inicio sug: <b>${med.hora_sugerida}</b></span>
-                    </div>
-                `;
-                container.appendChild(div);
-            });
         }
 
         async function activarTratamiento(e) {
@@ -1050,22 +1073,38 @@
                 }
             });
 
-            // Si hay meds estructurados usamos esos, si no creamos uno genérico
+            // Recopilar medicamentos desde los campos DOM
+            const medRows = document.querySelectorAll('.med-row-editable');
             let medicamentos = [];
-            if (structuredMeds.length > 0) {
-                medicamentos = structuredMeds;
-            } else {
-                medicamentos = [{
+            
+            medRows.forEach(row => {
+                const nombre = row.querySelector('.med-nombre').value.trim();
+                const frecuencia_horas = parseInt(row.querySelector('.med-frecuencia').value) || 24;
+                const duracion_dias = parseInt(row.querySelector('.med-duracion').value) || 30;
+                const hora_sugerida = row.querySelector('.med-hora').value || '08:00';
+                
+                if (nombre) {
+                    medicamentos.push({
+                        nombre,
+                        frecuencia_horas,
+                        duracion_dias,
+                        hora_sugerida,
+                        indicacion: indicacionesCopied,
+                        descuentoAplicado: descuentoGlobalActivo
+                    });
+                }
+            });
+
+            if (medicamentos.length === 0) {
+                // Si el doctor borró todas las cajitas pero dejó texto, creamos uno genérico
+                medicamentos.push({
                     nombre: 'Receta Médica Copiada',
-                    dosis: '',
-                    cantPastillas: 1,
-                    tomasDia: 1,
-                    horaInicio: '08:00',
-                    comidaRel: '',
-                    duracion: 10,
-                    descuentoAplicado: descuentoGlobalActivo,
-                    indicacion: indicacionesCopied
-                }];
+                    frecuencia_horas: 24,
+                    duracion_dias: 30,
+                    hora_sugerida: '08:00',
+                    indicacion: indicacionesCopied,
+                    descuentoAplicado: descuentoGlobalActivo
+                });
             }
 
             const docContactActive = document.getElementById('toggle-doc-contact').checked;
@@ -1149,10 +1188,9 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
             document.getElementById('attached-pdf-preview').style.display = 'none';
             document.getElementById('photo-placeholder').style.display = 'block';
             
-            // Reset IA meds
-            structuredMeds = [];
-            document.getElementById('structured-meds-container').style.display = 'none';
-            document.getElementById('ai-meds-list').innerHTML = '';
+            // Reset editable meds to 1 empty row
+            document.getElementById('meds-container').innerHTML = '';
+            addMedRow();
 
             showToast("Listo para nueva prescripción");
             
