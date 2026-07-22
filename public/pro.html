@@ -205,36 +205,38 @@
             color: var(--c-text);
         }
 
-        /* ÁREA PRINCIPAL CONTENEDORA (DERECHA DEL SIDEBAR) */
+        /* ÁREA PRINCIPAL CONTENEDORA (DERECHA DEL SIDEBAR - EXPANSIVA Y SIN ESPACIOS VACÍOS) */
         .main-content {
             margin-left: var(--sidebar-width);
             width: calc(100% - var(--sidebar-width));
             min-height: 100vh;
-            padding: 32px;
+            padding: 16px; /* MARGEN FINO ELEGANTE (VERDE EN LA CAPTURA) */
             display: flex;
             flex-direction: column;
         }
 
         .desktop-container {
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
+            width: 100%; /* EXPANSIÓN HORIZONTAL COMPLETA SIN ESPACIOS LATERALES ROJOS */
+            flex: 1;
+            min-height: calc(100vh - 32px); /* EXPANSIÓN VERTICAL HASTA EL ALINEAMIENTO DEL SIDEBAR */
+            margin: 0;
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 28px;
+            grid-template-columns: 1fr 1.1fr;
+            gap: 16px; /* ESPACIO FINO ENTRE CUADRADOS */
             align-items: stretch;
         }
 
-        /* TARJETAS GLASSMORPHIC ELEGANTES */
+        /* TARJETAS GLASSMORPHIC ELEGANTES (CUADRADOS DE ALTO Y ANCHO COMPLETO) */
         .glass-card {
             background: var(--bg-card);
             border: 1px solid var(--c-border);
             border-radius: var(--radius-xl);
-            padding: 28px;
+            padding: 24px 28px;
             box-shadow: var(--shadow-card);
             backdrop-filter: blur(12px);
             display: flex;
             flex-direction: column;
+            justify-content: space-between;
             height: 100%;
         }
 
@@ -534,7 +536,7 @@
                 <div class="brand-icon">M</div>
                 <div>
                     <span class="brand-title">MediClock Pro</span>
-                    <div><span class="version-tag">v25.0 CHROME B2B</span></div>
+                    <div><span class="version-tag">v26.0 CHROME B2B</span></div>
                 </div>
             </div>
 
