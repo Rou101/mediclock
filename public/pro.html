@@ -354,6 +354,34 @@
             border-color: var(--c-primary);
         }
 
+        /* BOTÓN DE TRANSCRIBIR RECETA (Estética integrada y limpia) */
+        .btn-transcribe {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(16, 185, 129, 0.15));
+            border: 1px solid var(--c-primary);
+            color: var(--c-primary);
+            padding: 8px 18px;
+            border-radius: var(--radius-md);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-transcribe:hover {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(16, 185, 129, 0.3));
+            box-shadow: 0 0 12px var(--c-primary-glow);
+            color: #ffffff;
+        }
+
+        .btn-transcribe:disabled {
+            opacity: 0.6;
+            cursor: wait;
+        }
+
         /* GRID DE BOTONES CUADRADOS SIMÉTRICOS (50% / 50%) AL PIE */
         .square-actions-grid {
             display: grid;
@@ -667,18 +695,20 @@
                 <!-- COLUMNA DERECHA REFORMADA: INDICACIONES DEL MÉDICO (SIN PLACEHOLDER, EXPANSIVO 100% ALTO) -->
                 <section class="glass-card" style="display:flex; flex-direction:column; justify-content:space-between;">
                     <div style="flex:1; display:flex; flex-direction:column;">
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                        <div style="margin-bottom:16px;">
                             <h2 class="card-header-title" style="margin-bottom:0;">
                                 <span>📝</span> 2. Indicaciones del Médico
                             </h2>
-                            <button type="button" class="btn-green-light" style="padding:8px 16px; font-size:13px; margin:0;" onclick="parseMedsWithAI()">
-                                ✨ Ordenar con IA
-                            </button>
                         </div>
 
-                        <!-- ÁREA GIGANTE EXPANSIVA DE TEXTO (100% LIMPIA SIN PLACEHOLDER) -->
-                        <div class="form-group" style="margin-bottom:16px; flex:0.4; display:flex; flex-direction:column; min-height:150px;">
-                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="flex:1; min-height:100px;" required></textarea>
+                        <!-- ÁREA DE TEXTO Y ACCIÓN DE TRANSCRIBIR -->
+                        <div class="form-group" style="margin-bottom:20px; display:flex; flex-direction:column;">
+                            <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="min-height:110px; max-height:200px;" placeholder="Escribe o pega las indicaciones médicas aquí..." required></textarea>
+                            <div style="display:flex; justify-content:flex-end; margin-top:10px;">
+                                <button type="button" class="btn-transcribe" id="btn-parse-meds" onclick="parseMedsWithAI()">
+                                    Transcribir receta
+                                </button>
+                            </div>
                         </div>
                         
                         <!-- CONTENEDOR DE MEDICAMENTOS ESTRUCTURADOS / EDITABLES -->
@@ -1005,13 +1035,15 @@
         async function parseMedsWithAI() {
             const rawText = document.getElementById('m-indicaciones-copied').value.trim();
             if (!rawText) {
-                alert("Por favor pega las indicaciones primero.");
+                alert("Por favor escribe o pega las indicaciones médicas en el cuadro de texto primero.");
                 return;
             }
 
-            const btn = document.querySelector('button[onclick="parseMedsWithAI()"]');
-            btn.innerHTML = '✨ Procesando...';
-            btn.disabled = true;
+            const btn = document.getElementById('btn-parse-meds') || document.querySelector('button[onclick="parseMedsWithAI()"]');
+            if (btn) {
+                btn.textContent = 'Transcribiendo...';
+                btn.disabled = true;
+            }
 
             try {
                 const res = await fetch('/api/pro/parse-meds', {
@@ -1025,16 +1057,18 @@
                     const container = document.getElementById('meds-container');
                     container.innerHTML = ''; // Limpiar filas anteriores
                     data.medicamentos.forEach(m => addMedRow(m));
-                    showToast("Medicamentos estructurados con éxito");
+                    showToast("Medicamentos transcritos con éxito");
                 } else {
-                    alert("No se pudo extraer la información. Por favor revisa el texto.");
+                    alert("No se pudo extraer la información. Por favor revisa las indicaciones escritas.");
                 }
             } catch (err) {
                 console.error("Error parseando meds:", err);
-                alert("Error de conexión al usar IA.");
+                alert("Error de conexión al procesar la transcripción.");
             } finally {
-                btn.innerHTML = '✨ Ordenar con IA';
-                btn.disabled = false;
+                if (btn) {
+                    btn.textContent = 'Transcribir receta';
+                    btn.disabled = false;
+                }
             }
         }
 
