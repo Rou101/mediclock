@@ -70,9 +70,14 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
         }
         body[data-theme="light"] .glass-card {
-            background: #ffffff;
+            background: #f4f7fb;
             border-color: #cbd5e1;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        body[data-theme="light"] .btn-gear {
+            background: rgba(0,0,0,0.06) !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #0f172a !important;
         }
         body[data-theme="light"] .field-input,
         body[data-theme="light"] .field-textarea,
@@ -618,17 +623,20 @@
         <!-- BLOQUE SUPERIOR (LOGO Y NAVEGACIÓN) -->
         <div>
             <!-- LOGO Y MARCA CON MARGEN -->
-            <div class="brand-box" style="margin: 20px 0;">
-                <div class="brand-icon">M</div>
-                <div>
-                    <span class="brand-title">MediClock PRO</span>
+            <div class="brand-box" style="margin: 20px 0; justify-content: center; flex-direction: column; gap: 8px;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <img src="/icon-512.png" alt="MediClock" style="width:28px; height:28px; border-radius:6px; box-shadow:0 4px 12px rgba(56, 189, 248, 0.4);">
+                    <span class="brand-title" style="font-size:18px;">MediClock</span>
+                    <span style="background:linear-gradient(135deg, var(--c-primary), var(--c-accent)); color:#FFF; font-size:9px; font-weight:800; padding:3px 6px; border-radius:4px; letter-spacing:1px;">PRO</span>
                 </div>
             </div>
 
-            <!-- BOTONES DE NAVEGACIÓN -->
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.06); margin:16px 0;">
+
+            <!-- BOTONES DE NAVEGACION -->
             <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">
                 <button type="button" class="btn-sidebar-sub" onclick="openSearchModal()">
-                    Buscar prescripciones
+                    Buscar recetas
                 </button>
                 <button type="button" class="btn-sidebar-sub" onclick="closeDispatchModal()" style="color:var(--c-primary); font-weight:800; background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.1);">
                     Nueva receta
@@ -648,7 +656,7 @@
                         <div style="font-size:11px; color:var(--c-text-sub);">Cardiología | Box #4</div>
                     </div>
                 </div>
-                <button type="button" onclick="toggleDoctorConfigModal()" title="Configuración del Médico" style="background:rgba(255,255,255,0.06); border:1px solid var(--c-border); color:var(--c-text); border-radius:8px; width:34px; height:34px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:all 0.2s ease;">
+                <button type="button" class="btn-gear" onclick="toggleDoctorConfigModal()" title="Configuración del Médico" style="background:rgba(255,255,255,0.06); border:1px solid var(--c-border); color:var(--c-text); border-radius:8px; width:34px; height:34px; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:16px; transition:all 0.2s ease;">
                     ⚙️
                 </button>
             </div>
@@ -804,7 +812,7 @@
 
                             <!-- BOTÓN CUADRADO 2 (PRINCIPAL): EMITIR POR WHATSAPP -->
                             <button type="submit" class="square-btn square-btn-submit">
-                                <span class="square-btn-text">Emitir Prescripción</span>
+                                <span class="square-btn-text">Enviar</span>
                             </button>
                         </div>
                     </div>
@@ -931,14 +939,12 @@
                 </div>
             </div>
 
-            <!-- SECCIÓN 4: VERSIÓN Y CERRAR SESIÓN -->
-            <div style="display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid var(--c-border);">
-                <div style="font-size:11px; color:var(--c-text-sub);">
-                    MediClock Pro v29.0 · Build 2026-07-22
-                </div>
-                <button type="button" class="btn-aux" style="color:#f87171; border-color:rgba(248,113,113,0.3); background:rgba(248,113,113,0.1); font-weight:700;" onclick="logoutPro()">
-                    🚪 Cerrar Sesión
-                </button>
+            <!-- SECCIÓN 4: CERRAR SESION Y VERSION -->
+            <button type="button" onclick="logoutPro()" style="width:100%; padding:12px; margin-top:20px; border-radius:8px; border:1px solid #ef4444; color:#ef4444; background:rgba(239, 68, 68, 0.1); font-weight:800; cursor:pointer; text-align:center; transition:all 0.2s ease;">
+                🚪 Cerrar Sesión Médica
+            </button>
+            <div style="font-size:11px; color:var(--c-text-sub); text-align:center; margin-top:16px;">
+                MediClock Pro v29.0 · Build 2026-07-22
             </div>
         </div>
     </div>
@@ -1105,7 +1111,7 @@
 
         function logoutPro() {
             if (confirm("¿Deseas cerrar la sesión médica de MediClock Pro?")) {
-                location.href = '/';
+                location.href = 'index.html';
             }
         }
 
@@ -1536,7 +1542,10 @@
                 div.innerHTML = `
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                         <span style="font-weight:800; color:var(--c-primary);">${item.paciente}</span>
-                        <span style="font-size:11px; color:var(--c-text-sub);">${item.fechaEmision} (${item.creadoEn})</span>
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="font-size:11px; color:var(--c-text-sub);">${item.fechaEmision} (${item.creadoEn})</span>
+                            <button type="button" onclick="cancelarPrescripcion('${item.id}')" style="background:rgba(239,68,68,0.1); border:1px solid #ef4444; color:#ef4444; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:700; cursor:pointer;">Cancelar</button>
+                        </div>
                     </div>
                     <div style="font-size:12px; color:var(--c-text-sub); margin-bottom:6px;">WhatsApp: ${item.phone} ${item.descuento ? ' | Descuento Farmacia: Activado' : ''}</div>
                     <div style="background:rgba(0,0,0,0.3); padding:10px; border-radius:var(--radius-sm); font-size:12px; max-height:80px; overflow-y:auto; font-family:inherit;">
@@ -1545,6 +1554,12 @@
                 `;
                 container.appendChild(div);
             });
+        }
+
+        function cancelarPrescripcion(id) {
+            if (confirm("¿Estás seguro de que deseas cancelar los recordatorios por WhatsApp para esta receta?")) {
+                showToast("Recordatorios cancelados para la receta: " + id);
+            }
         }
     </script>
 </body>
