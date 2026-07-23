@@ -642,6 +642,17 @@
                 </button>
             </div>
 
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.06); margin:16px 0;">
+
+            <button type="button" class="btn-sidebar-sub" onclick="closeDispatchModal()" style="color:var(--c-primary); font-weight:800; background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.1);">
+                ✨ Nueva Prescripción
+            </button>
+            <button type="button" class="btn-sidebar-sub" onclick="openSearchModal()">
+                🔍 Buscar Prescripciones
+            </button>
+
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.06); margin:16px 0;">
+
             <!-- BOTONES SECUNDARIOS EN LA PARTE INFERIOR (SIN ÍCONOS) -->
             <button type="button" class="btn-sidebar-sub" onclick="openRecomendarModal()">
                 Recomiéndanos
@@ -692,16 +703,6 @@
                         </button>
                     </div>
 
-                    <!-- ACCIONES DE NAVEGACIÓN Y PRESCRIPCIÓN (CON ESPACIADO GENEROSO DE SEPARACIÓN) -->
-                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:28px; margin-bottom:28px; padding-top:20px; border-top:1px solid rgba(255,255,255,0.06);">
-                        <button type="button" class="btn-aux" style="justify-content:center; padding:12px; font-size:12px; font-weight:700; background:rgba(56, 189, 248, 0.1); border-color:var(--c-primary);" onclick="closeDispatchModal()">
-                            ✨ Nueva Prescripción
-                        </button>
-                        <button type="button" class="btn-aux" style="justify-content:center; padding:12px; font-size:12px; font-weight:700;" onclick="openSearchModal()">
-                            🔍 Buscar Prescripciones
-                        </button>
-                    </div>
-
                     <hr style="border:0; border-top:1px solid var(--c-border); margin:16px 0;">
 
                     <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS -->
@@ -740,24 +741,24 @@
                         <div class="form-group" style="margin-bottom:20px; display:flex; flex-direction:column;">
                             <textarea id="m-indicaciones-copied" class="field-textarea-giant-full" style="min-height:340px;" placeholder="Escribe o pega las indicaciones médicas aquí..." required></textarea>
                             
-                            <!-- BARRA DE ACCIÓN: ADJUNTAR ARCHIVO (SIN IA) & TRANSCRIBIR RECETA -->
-                            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:12px; flex-wrap:wrap; gap:10px;">
-                                <!-- LADO IZQUIERDO: ADJUNTAR RECETA (FOTO O PDF TAL CUAL) -->
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <input type="file" id="recipe-photo-file" accept="image/*,application/pdf,.pdf" style="display:none;" onchange="previewRecipeFile(this)">
-                                    <button type="button" class="btn-attach-recipe" id="btn-attach-recipe" onclick="document.getElementById('recipe-photo-file').click()">
-                                        <span>📁</span> Adjuntar Receta (Foto/PDF)
-                                    </button>
-                                    <div id="file-attached-badge" style="display:none; align-items:center; gap:6px; background:rgba(139, 92, 246, 0.18); border:1px solid #8b5cf6; padding:6px 12px; border-radius:var(--radius-md); font-size:12px; color:#c4b5fd; font-weight:600;">
-                                        <span id="file-attached-name">Receta.pdf</span>
-                                        <button type="button" onclick="clearAttachedFile()" style="background:none; border:none; color:#f87171; font-weight:700; cursor:pointer; padding:0 2px;" title="Remover archivo">✕</button>
-                                    </div>
-                                </div>
-
-                                <!-- LADO DERECHO: TRANSCRIBIR RECETA CON IA -->
-                                <button type="button" class="btn-transcribe" id="btn-parse-meds" onclick="parseMedsWithAI()">
+                            <!-- BARRA DE ACCION: TRANSCRIBIR RECETA ARRIBA Y ADJUNTAR ABAJO -->
+                            <div style="display:flex; flex-direction:column; gap:10px; margin-top:12px;">
+                                <!-- TRANSCRIBIR RECETA CON IA -->
+                                <button type="button" class="btn-transcribe" id="btn-parse-meds" onclick="parseMedsWithAI()" style="width:100%; justify-content:center;">
                                     Transcribir receta
                                 </button>
+                                
+                                <!-- ADJUNTAR RECETA (FOTO O PDF TAL CUAL) -->
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <input type="file" id="recipe-photo-file" accept="image/*,application/pdf,.pdf" style="display:none;" onchange="previewRecipeFile(this)">
+                                    <button type="button" class="btn-attach-recipe" id="btn-attach-recipe" onclick="document.getElementById('recipe-photo-file').click()" style="flex:1; justify-content:center;">
+                                        <span>📎</span> Adjuntar Receta (Foto/PDF)
+                                    </button>
+                                </div>
+                                <div id="file-attached-badge" style="display:none; align-items:center; justify-content:space-between; gap:6px; background:rgba(139, 92, 246, 0.18); border:1px solid #8b5cf6; padding:8px 12px; border-radius:var(--radius-md); font-size:12px; color:#c4b5fd; font-weight:600;">
+                                    <span id="file-attached-name" style="text-overflow:ellipsis; overflow:hidden; white-space:nowrap;">Receta.pdf</span>
+                                    <button type="button" onclick="clearAttachedFile()" style="background:none; border:none; color:#f87171; font-weight:700; cursor:pointer; padding:0 8px;" title="Remover archivo">✕</button>
+                                </div>
                             </div>
                         </div>
                         
@@ -792,7 +793,7 @@
 
                             <!-- BOTÓN CUADRADO 2 (PRINCIPAL): EMITIR POR WHATSAPP -->
                             <button type="submit" class="square-btn square-btn-submit">
-                                <span class="square-btn-text">Emitir por WhatsApp</span>
+                                <span class="square-btn-text">Emitir Prescripción</span>
                             </button>
                         </div>
                     </div>
@@ -800,6 +801,64 @@
 
             </main>
         </form>
+    </div>
+
+    <!-- MODAL DE CONFIRMACIÓN -->
+    <div id="confirm-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(8px);">
+        <div style="background:var(--c-surface); border:1px solid var(--c-border); width:100%; max-width:500px; border-radius:var(--radius-xl); padding:24px; color:var(--c-text); box-shadow:0 20px 40px rgba(0,0,0,0.5);">
+            
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:28px;">⚠️</span>
+                    <h2 style="font-size:18px; font-weight:800; margin:0;">Revisar Prescripción</h2>
+                </div>
+                <button type="button" onclick="document.getElementById('confirm-modal').style.display='none'" style="background:none; border:none; color:var(--c-text-sub); font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+
+            <p style="font-size:13px; color:var(--c-text-sub); margin-bottom:16px;">Por favor, revisa la información de la receta médica antes de notificar al paciente. <strong>No podemos equivocarnos.</strong></p>
+
+            <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:18px; border:1px solid var(--c-border); font-size:13px; line-height:1.6; margin-bottom:20px; max-height:300px; overflow-y:auto;">
+                <p><strong>Paciente:</strong> <span id="conf-paciente">--</span> (<span id="conf-phone">--</span>)</p>
+                <div id="conf-meds-summary"></div>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button type="button" onclick="document.getElementById('confirm-modal').style.display='none'" style="flex:1; background:rgba(255,255,255,0.05); color:var(--c-text); border:1px solid var(--c-border); padding:14px; border-radius:var(--radius-md); font-weight:700; cursor:pointer;">
+                    Cancelar / Editar
+                </button>
+                <button type="button" onclick="confirmarYEnviarTratamiento()" style="flex:1; background:linear-gradient(135deg, #3B82F6, #2563EB); color:#FFF; border:none; padding:14px; border-radius:var(--radius-md); font-weight:800; cursor:pointer; box-shadow:0 6px 20px rgba(59, 130, 246, 0.35);">
+                    Confirmar y Enviar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE DESPACHO (ÉXITO) -->
+    <div class="modal-overlay" id="dispatch-modal">
+        <div class="modal-card">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <div style="background:var(--c-green-dim); color:var(--c-green); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px;">✓</div>
+                    <h3 style="font-size:20px; font-weight:800;">¡Enviado con Éxito!</h3>
+                </div>
+                <button type="button" onclick="closeDispatchModal()" style="background:none; border:none; color:var(--c-text-sub); font-size:24px; cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:18px; border:1px solid var(--c-border); font-size:13px; line-height:1.6; margin-bottom:20px; max-height:320px; overflow-y:auto;">
+                <p style="color:var(--c-primary); font-weight:700; font-size:14px; margin-bottom:8px;">✅ Registrado en Firestore & Notificado por WhatsApp</p>
+                <p><strong>Paciente:</strong> <span id="rep-paciente">--</span> (<span id="rep-phone">--</span>)</p>
+                <p><strong>Fecha Emisión:</strong> <span id="rep-fecha">--</span></p>
+                <div id="rep-contactos-summary"></div>
+                <hr style="border:0; border-top:1px solid var(--c-border); margin:10px 0;">
+                <div id="rep-meds-summary"></div>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <button type="button" onclick="closeDispatchModal()" style="background:linear-gradient(135deg, #10B981, #059669); color:#FFF; border:none; padding:14px; border-radius:var(--radius-md); font-weight:800; font-size:15px; cursor:pointer; box-shadow:0 6px 20px rgba(16,185,129,0.35);">
+                    ✓ Cerrar y Nueva Prescripción
+                </button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL DE CONFIGURACIÓN DEL MÉDICO -->
@@ -1326,66 +1385,84 @@
                 paciente, phone, fechaEmision,
                 contactosAdicionales,
                 indicaciones: indicacionesCopied,
+                medicamentos,
                 descuento: descuentoGlobalActivo,
                 archivoAdjunto: !!currentFileBase64,
-                creadoEn: new Date().toLocaleString()
+                creadoEn: new Date().toLocaleString(),
+                docContactActive, docPhone, docNotaEmergency,
+                fotoBase64: currentFileBase64,
+                archivoTipo: currentFileType
             };
 
-            prescripcionesHistorial.unshift(nuevaPrescripcionObj);
-            localStorage.setItem('mediclock_history', JSON.stringify(prescripcionesHistorial.slice(0, 50)));
+            // Guardar en variable global para procesar tras confirmación
+            window.pendingPayload = nuevaPrescripcionObj;
+
+            // Poblar Modal de Confirmación
+            document.getElementById('conf-paciente').textContent = paciente;
+            document.getElementById('conf-phone').textContent = phone;
+            
+            let medsHTML = `<hr style="border:0; border-top:1px solid var(--c-border); margin:10px 0;">`;
+            medsHTML += `<strong>Medicamentos:</strong><ul style="margin:5px 0; padding-left:20px;">`;
+            medicamentos.forEach(m => {
+                const f = m.tomasDia > 1 ? `${m.tomasDia} veces al día` : `Cada ${m.frecuencia_horas || 24} hrs`;
+                const d = m.duracion_dias ? `x ${m.duracion_dias} días` : '';
+                medsHTML += `<li>${m.nombre} (${f} ${d})</li>`;
+            });
+            medsHTML += `</ul>`;
+            document.getElementById('conf-meds-summary').innerHTML = medsHTML;
+
+            // Mostrar Modal Confirmación
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+
+        async function confirmarYEnviarTratamiento() {
+            if (!window.pendingPayload) return;
+            const payload = window.pendingPayload;
+            
+            document.getElementById('confirm-modal').style.display = 'none';
+            showToast("Emitiendo prescripción y despachando WhatsApp...");
 
             try {
                 const res = await fetch('/api/pro/prescribir', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        paciente, phone, fechaEmision,
-                        contactosAdicionales,
-                        medicamentos,
-                        docContactActive, docPhone, docNotaEmergency,
-                        fotoBase64: currentFileBase64,
-                        archivoTipo: currentFileType
-                    })
+                    body: JSON.stringify(payload)
                 });
                 const data = await res.json();
                 console.log("Respuesta del servidor:", data);
                 if (!data.success) {
                     alert("⚠️ Error en el servidor al despachar WhatsApp:\n" + (data.error || JSON.stringify(data)));
-                    return; // Abortar modal de éxito si hubo error
+                    return; 
                 }
             } catch (err) {
                 console.error("Error en prescripción:", err);
                 alert("⚠️ Error de conexión con el servidor (ver consola).");
-                return; // Abortar modal de éxito si hay error de conexión
+                return; 
             }
 
-            // Poblar Modal de Reporte
-            document.getElementById('rep-paciente').textContent = paciente;
-            document.getElementById('rep-phone').textContent = phone;
-            document.getElementById('rep-fecha').textContent = fechaEmision;
+            // Registrar en historial local
+            prescripcionesHistorial.unshift(payload);
+            localStorage.setItem('mediclock_history', JSON.stringify(prescripcionesHistorial.slice(0, 50)));
+
+            // Poblar Modal de Reporte (Éxito)
+            document.getElementById('rep-paciente').textContent = payload.paciente;
+            document.getElementById('rep-phone').textContent = payload.phone;
+            document.getElementById('rep-fecha').textContent = payload.fechaEmision;
 
             const repContactosSummary = document.getElementById('rep-contactos-summary');
             repContactosSummary.innerHTML = '';
-            if (contactosAdicionales.length > 0) {
-                contactosAdicionales.forEach(c => {
+            if (payload.contactosAdicionales.length > 0) {
+                payload.contactosAdicionales.forEach(c => {
                     const p = document.createElement('p');
                     p.innerHTML = `<strong>${c.rol}:</strong> ${c.nombre} (${c.telefono})`;
-                repContactosSummary.appendChild(p);
+                    repContactosSummary.appendChild(p);
                 });
             }
 
             const repMedsSummary = document.getElementById('rep-meds-summary');
-            repMedsSummary.innerHTML = `<div><strong>Indicaciones de la Receta:</strong><br><pre style="white-space:pre-wrap; font-family:inherit;">${indicacionesCopied}</pre></div>`;
+            repMedsSummary.innerHTML = `<div><strong>Indicaciones de la Receta:</strong><br><pre style="white-space:pre-wrap; font-family:inherit;">${payload.indicaciones}</pre></div>`;
 
-            const cleanPhone = phone.replace(/\D/g, '');
-            const textMsg = `Hola ${paciente} 👋 Tu médico el Dr. Francisco Pérez ha emitido la receta con fecha *${fechaEmision}*.
-
-Indicaciones:
-${indicacionesCopied}
-
-Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirmar.`;
-
-            // Mostrar Modal
+            // Mostrar Modal de Éxito
             document.getElementById('dispatch-modal').style.display = 'flex';
         }
 
@@ -1396,6 +1473,14 @@ Recibirás tus recordatorios automáticos por WhatsApp. Responde OK para confirm
             document.getElementById('attached-pdf-preview').style.display = 'none';
             document.getElementById('photo-placeholder').style.display = 'block';
             
+            // Fix Ghost Effect (Limpieza total)
+            clearAttachedFile();
+            const docToggle = document.getElementById('toggle-doc-contact');
+            if (docToggle) {
+                docToggle.checked = false;
+                toggleDocContactFields(docToggle);
+            }
+
             // Reset editable meds to 1 empty row
             document.getElementById('meds-container').innerHTML = '';
             addMedRow();
