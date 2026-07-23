@@ -414,8 +414,9 @@ ${medsList[0].indicacion || 'Sin indicaciones adicionales'}${descTag}`;
             whatsappInstructions = `⚙️ *Para activar tus recordatorios automáticos responde:*
 *1* - Empezar a las ${horaSugerida} (Sugerido)
 *2* - Empezar AHORA mismo
+*O escribe la hora* a la que quieres empezar (ej. 14:30)
 
-🔑 _Si usas la app MediClock, tu código de receta es: ${medRef.id}_`;
+📱 _Si usas la app MediClock, tu código de receta es: ${medRef.id}_`;
         }
 
         // Bloque opcional de contacto del médico
@@ -1105,12 +1106,27 @@ app.post('/api/meta-webhook', async (req, res) => {
                 for (const med of meds) {
                     // Limpiar el teléfono de la DB para compararlo con el formato de Meta
                     const telDB = (med.telefono || '').replace(/\D/g, ''); 
-                    
+
                     if (telDB === numero) {
                         
-                        // 1. CHEQUEO DE ACTIVACIÓN DE RECETA (ONBOARDING)
+                        // 1. CHEQUEO DE ACTIVACION DE RECETA (ONBOARDING)
                         if (med.estado_paciente === 'pendiente_activacion') {
-                            if (texto === '1' || texto === '2' || texto.includes('empezar') || texto === 'ok') {
+                            const timeMatch = texto.match(/\b([01]?\d|2[0-3])[:.h]?([0-5]\d)?\b/i);
+                            const wantsCustomTime = !texto.includes('1') && !texto.includes('2') && timeMatch;
+
+                            if (texto === '1' || texto === '2' || texto.includes('empezar') || texto === 'ok' || wantsCustomTime) {
+                                
+                                let newStartTime = null;
+                                if (texto === '2' || texto.includes('ahora')) {
+                                    // Start NOW (Chile time)
+                                    const now = new Date();
+                                    newStartTime = new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', hour: '2-digit', minute: '2-digit', hour12: false }).format(now);
+                                } else if (wantsCustomTime) {
+                                    const hh = timeMatch[1].padStart(2, '0');
+                                    const mm = timeMatch[2] ? timeMatch[2].padStart(2, '0') : '00';
+                                    newStartTime = `${hh}:${mm}`;
+                                }
+
                                 // Activar TODOS los medicamentos pendientes de este número
                                 const snapPendientes = await grupoDoc.ref.collection('medicamentos')
                                     .where('telefono', '==', med.telefono)
@@ -1119,11 +1135,26 @@ app.post('/api/meta-webhook', async (req, res) => {
                                     
                                 const batchUpdate = db.batch();
                                 snapPendientes.docs.forEach(d => {
-                                    batchUpdate.update(d.ref, { estado_paciente: 'activo' });
+                                    let updateData = { estado_paciente: 'activo' };
+                                    if (newStartTime) {
+                                        const mData = d.data();
+                                        const freq = mData.frecuencia_horas || 24;
+                                        const tomasC = Math.floor(24 / freq) || 1;
+                                        const [hIni, mIni] = newStartTime.split(':').map(Number);
+                                        let newHoras = [];
+                                        for (let i = 0; i < tomasC; i++) {
+                                            let currH = (hIni + (i * freq)) % 24;
+                                            newHoras.push(`${String(currH).padStart(2, '0')}:${String(mIni).padStart(2, '0')}`);
+                                        }
+                                        updateData.hora = newStartTime;
+                                        updateData.horas = newHoras;
+                                    }
+                                    batchUpdate.update(d.ref, updateData);
                                 });
                                 await batchUpdate.commit();
                                 
-                                await enviarWA('+' + telDB, med.familiar, `✅ ¡Excelente! Tus recordatorios han sido activados.\nRecibirás tu primer aviso a la hora programada.\n\nCódigo de sincronización familiar: *${med.familiar.toUpperCase().substring(0,3)}${med.id.substring(0,4)}*`);
+                                const msgHora = newStartTime ? ` a las ${newStartTime}` : ' a la hora programada';
+                                await enviarWA('+' + telDB, med.familiar, `✅ ¡Excelente! Tus recordatorios han sido activados.\nRecibirás tu primer aviso${msgHora}.\n\nCódigo de sincronización familiar: *${med.familiar.toUpperCase().substring(0,3)}${med.id.substring(0,4)}*`);
                                 activacionExitosa = true;
                                 break;
                             }
