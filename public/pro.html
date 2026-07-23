@@ -695,9 +695,16 @@
                             <label class="field-label">Nombre y Apellido del Paciente *</label>
                             <input type="text" id="p-nombre" class="field-input" required>
                         </div>
-                        <div class="form-group" style="margin-bottom:0;">
+                        <div class="form-group" style="margin-bottom:12px;">
                             <label class="field-label">WhatsApp del Paciente *</label>
                             <input type="tel" id="p-phone" class="field-input" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="field-label" style="display:flex; justify-content:space-between;">
+                                <span>ID de App MediClock</span>
+                                <span style="color:var(--c-text-sub); font-size:10px; font-weight:normal;">(Opcional)</span>
+                            </label>
+                            <input type="text" id="p-mediclock-id" class="field-input" placeholder="Ej: MLTl4jwhPt6TWLmV7IVZ">
                         </div>
                     </div>
 
@@ -1287,6 +1294,7 @@
             
             const paciente = document.getElementById('p-nombre').value.trim();
             let phone = document.getElementById('p-phone').value.trim();
+            const patientAppId = document.getElementById('p-mediclock-id').value.trim();
             const indicacionesCopied = document.getElementById('m-indicaciones-copied').value.trim();
 
             if (!paciente || !phone) {
@@ -1357,7 +1365,7 @@
 
             const nuevaPrescripcionObj = {
                 id: 'REC-' + Date.now().toString().slice(-6),
-                paciente, phone,
+                paciente, phone, patientAppId,
                 contactosAdicionales,
                 indicaciones: indicacionesCopied,
                 medicamentos,
@@ -1558,7 +1566,10 @@
 
         function cancelarPrescripcion(id) {
             if (confirm("¿Estás seguro de que deseas cancelar los recordatorios por WhatsApp para esta receta?")) {
-                showToast("Recordatorios cancelados para la receta: " + id);
+                prescripcionesHistorial = prescripcionesHistorial.filter(item => item.id !== id);
+                localStorage.setItem('mediclock_history', JSON.stringify(prescripcionesHistorial));
+                filtrarPrescripcionesHistoricas();
+                showToast("Recordatorios cancelados para la receta.");
             }
         }
     </script>
