@@ -64,3 +64,5 @@ Este archivo contiene las directrices del proyecto **MediClock** para que cualqu
 
 
   8. **Estrategia de Negocios (Monetización)**: El servicio debe ser 100% gratuito para el paciente final y su familia (cero barrera de entrada). El modelo de negocio será B2B / B2G: Cobrar a Clínicas (SaaS), al Estado (reducción de reingresos hospitalarios) y a Farmacéuticas (mejora en la adherencia a tratamientos crónicos).
+  9. **API B2B para Clínicas**: Crear endpoints (/api/v1/clinicas/...) securizados con API Keys para que los softwares de fichas médicas (EHR) de las clínicas puedan inyectar pacientes y recetas directamente a MediClock de forma automática, sin intervención manual en nuestra interfaz web.
+  10. **API B2B para Farmacéuticas (Marketing Inteligente)**: Implementar control de inventario de pastillas por receta. Crear un motor de reglas en el "Vigilante" para inyectar cupones de descuento hiper-segmentados en los recordatorios de WhatsApp justo cuando al paciente le queden pocos días de tratamiento, permitiendo monetizar vía comisión o fee mensual cobrado a la farmacia.
