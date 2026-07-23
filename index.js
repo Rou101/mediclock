@@ -295,10 +295,19 @@ ${texto}
             const lineas = texto.split(/\n+/).filter(l => l.trim().length > 2);
             medsArray = lineas.map(linea => {
                 const freqMatch = linea.match(/cada\s*(\d+)\s*(hrs?|horas?)/i);
+                const vecesMatch = linea.match(/(\d+)\s*veces\s*(al|por)\s*d[ií]a/i);
                 const durMatch = linea.match(/(por|durante)\s*(\d+)\s*(d[ií]as?)/i);
+                
+                let tomasDia = 1;
+                if (freqMatch) {
+                    tomasDia = Math.floor(24 / parseInt(freqMatch[1], 10));
+                } else if (vecesMatch) {
+                    tomasDia = parseInt(vecesMatch[1], 10);
+                }
+
                 return {
-                    nombre: linea.replace(/cada\s*\d+\s*(hrs?|horas?).*/i, '').replace(/(por|durante)\s*\d+\s*(d[ií]as?).*/i, '').trim() || linea.trim(),
-                    tomasDia: freqMatch ? Math.floor(24 / parseInt(freqMatch[1], 10)) : 1,
+                    nombre: linea.replace(/cada\s*\d+\s*(hrs?|horas?).*/i, '').replace(/\d+\s*veces\s*(al|por)\s*d[ií]a.*/i, '').replace(/(por|durante)\s*\d+\s*(d[ií]as?).*/i, '').trim() || linea.trim(),
+                    tomasDia: tomasDia,
                     duracion_dias: durMatch ? parseInt(durMatch[2], 10) : 30,
                     horaInicio: "08:00"
                 };
@@ -438,10 +447,9 @@ ${whatsappInstructions}`;
 
         // Despachar a Paciente
         if (!isFreeFormText) {
-            const horaSugerida = medsList[0]?.horaInicio || medsList[0]?.hora_sugerida || '08:00';
             await enviarWAInteractivos('+' + telLimpio, paciente, mensajeWA, [
-                { id: `START_SUGGESTED_${horaSugerida}`, title: horaSugerida },
-                { id: 'START_NOW', title: 'Empezar Ahora' },
+                { id: 'START_NOW', title: 'Empezar ahora' },
+                { id: 'ASSIGN_TIME', title: 'Asignar una hora' },
                 { id: 'CANCEL_REMINDERS', title: 'Cancelar' }
             ]);
         } else {
@@ -1092,10 +1100,10 @@ app.post('/api/meta-webhook', async (req, res) => {
                 texto = message.text.body.trim().toLowerCase();
             } else if (messageType === 'interactive' && message.interactive.type === 'button_reply') {
                 const btnId = message.interactive.button_reply.id;
-                if (btnId.startsWith('START_SUGGESTED')) {
-                    texto = '1';
-                } else if (btnId === 'START_NOW') {
+                if (btnId === 'START_NOW') {
                     texto = '2';
+                } else if (btnId === 'ASSIGN_TIME') {
+                    texto = 'asignar_hora';
                 } else if (btnId === 'CANCEL_REMINDERS') {
                     texto = 'cancelar';
                 }
@@ -1134,10 +1142,16 @@ app.post('/api/meta-webhook', async (req, res) => {
                             return res.sendStatus(200);
                         }
 
-                        // 2. CHEQUEO DE ACTIVACION DE RECETA (ONBOARDING)
-                        if (med.estado_paciente === 'pendiente_activacion') {
-                            const timeMatch = texto.match(/\b([01]?\d|2[0-3])[:.h]?([0-5]\d)?\b/i);
-                            const wantsCustomTime = !texto.includes('1') && !texto.includes('2') && timeMatch;
+                        if (texto === 'asignar_hora') {
+                            await enviarWA('+' + numero, 'Paciente', `🕰️ Por favor, escribe la hora exacta a la que deseas comenzar tus recordatorios.\n\n👉 *Ejemplo: 14:30 o 9 AM*`);
+                            return res.sendStatus(200);
+                        }
+
+                        // 2. CHEQUEO DE ACTIVACION DE RECETA (ONBOARDING Y EDICIÓN)
+                        const timeMatch = texto.match(/\b([01]?\d|2[0-3])[:.h]?([0-5]\d)?\b/i);
+                        const wantsCustomTime = !texto.includes('1') && !texto.includes('2') && timeMatch;
+
+                        if (med.estado_paciente === 'pendiente_activacion' || (med.estado_paciente === 'activo' && wantsCustomTime)) {
 
                             if (texto === '1' || texto === '2' || texto.includes('empezar') || texto === 'ok' || wantsCustomTime) {
                                 
