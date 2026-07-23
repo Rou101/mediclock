@@ -236,14 +236,14 @@ app.post('/api/pro/parse-meds', async (req, res) => {
         const { texto } = req.body;
         if (!texto || !texto.trim()) return res.status(400).json({ error: 'No text provided' });
 
-        const prompt = `Analiza las siguientes indicaciones médicas y extrae los medicamentos recetados. 
+const prompt = `Analiza las siguientes indicaciones médicas y extrae los medicamentos recetados. 
 ESTRICTAMENTE devuelve un arreglo en formato JSON puro (sin comillas invertidas ni bloques markdown, SOLO el array JSON válido).
 El formato de cada objeto debe ser:
 {
   "nombre": "Nombre del medicamento y dosis (ej. Losartan 50mg)",
-  "frecuencia_horas": número (ej. 12 para cada 12 hrs, 24 para diario, por defecto 24),
+  "tomasDia": número (cantidad de veces al día que se debe tomar. ej. 3 para '3 veces al día', 1 para '1 al día', por defecto 1),
   "duracion_dias": número (ej. 30, por defecto 30),
-  "hora_sugerida": "string HH:MM (asume 08:00 si no se indica o no es clara)"
+  "horaInicio": "string HH:MM (asume 08:00 si no se indica o no es clara)"
 }
 
 Indicaciones:
@@ -298,9 +298,9 @@ ${texto}
                 const durMatch = linea.match(/(por|durante)\s*(\d+)\s*(d[ií]as?)/i);
                 return {
                     nombre: linea.replace(/cada\s*\d+\s*(hrs?|horas?).*/i, '').replace(/(por|durante)\s*\d+\s*(d[ií]as?).*/i, '').trim() || linea.trim(),
-                    frecuencia_horas: freqMatch ? parseInt(freqMatch[1], 10) : 24,
+                    tomasDia: freqMatch ? Math.floor(24 / parseInt(freqMatch[1], 10)) : 1,
                     duracion_dias: durMatch ? parseInt(durMatch[2], 10) : 30,
-                    hora_sugerida: "08:00"
+                    horaInicio: "08:00"
                 };
             });
         }
@@ -404,12 +404,13 @@ ${medsList[0].indicacion || 'Sin indicaciones adicionales'}${descTag}`;
             whatsappInstructions = `🔒 *Privacidad & Seguridad MediClock:* Datos cifrados bajo Google Cloud / Firebase. Sin uso de IA para lectura de datos sensibles. Responde *OK* para confirmar.`;
         } else {
             medsList.forEach((m, idx) => {
-                const frec = m.frecuencia_horas ? `Cada ${m.frecuencia_horas} hrs` : '';
+                const tomasC = m.tomasDia || (m.frecuencia_horas ? Math.floor(24 / m.frecuencia_horas) : 1);
+                const frec = tomasC > 1 ? `${tomasC} veces al día` : '1 vez al día';
                 const dur = m.duracion_dias ? `por ${m.duracion_dias} días` : '';
                 medsDetalle += `\n💊 *${m.nombre}* (${frec} ${dur})`;
             });
             
-            const horaSugerida = medsList[0]?.hora_sugerida || '08:00';
+            const horaSugerida = medsList[0]?.horaInicio || medsList[0]?.hora_sugerida || '08:00';
             whatsappInstructions = `⚙️ *Para activar tus recordatorios automáticos responde:*
 *1* - Empezar a las ${horaSugerida} (Sugerido)
 *2* - Empezar AHORA mismo

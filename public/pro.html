@@ -1185,16 +1185,16 @@
                 </div>
                 <div style="display:flex; gap:8px;">
                     <div class="form-group" style="margin-bottom:0; flex:1;">
-                        <label class="field-label" style="font-size:10px;">Frecuencia (Hrs)</label>
-                        <input type="number" class="field-input med-frecuencia" value="${med.frecuencia_horas || 12}" required>
+                        <label class="field-label" style="font-size:10px;">Tomas al día</label>
+                        <input type="number" class="field-input med-tomas" value="${med.tomasDia || 1}" required>
                     </div>
                     <div class="form-group" style="margin-bottom:0; flex:1;">
                         <label class="field-label" style="font-size:10px;">Duración (Días)</label>
                         <input type="number" class="field-input med-duracion" value="${med.duracion_dias || 30}" required>
                     </div>
                     <div class="form-group" style="margin-bottom:0; flex:1;">
-                        <label class="field-label" style="font-size:10px;">Hora Inicio</label>
-                        <input type="time" class="field-input med-hora" value="${med.hora_sugerida || '08:00'}" required>
+                        <label class="field-label" style="font-size:10px;">1ra Hora</label>
+                        <input type="time" class="field-input med-hora" value="${med.horaInicio || '08:00'}" required>
                     </div>
                 </div>
             `;
@@ -1287,16 +1287,16 @@
             
             medRows.forEach(row => {
                 const nombre = row.querySelector('.med-nombre').value.trim();
-                const frecuencia_horas = parseInt(row.querySelector('.med-frecuencia').value) || 24;
+                const tomasDia = parseInt(row.querySelector('.med-tomas').value) || 1;
                 const duracion_dias = parseInt(row.querySelector('.med-duracion').value) || 30;
-                const hora_sugerida = row.querySelector('.med-hora').value || '08:00';
+                const horaInicio = row.querySelector('.med-hora').value || '08:00';
                 
                 if (nombre) {
                     medicamentos.push({
                         nombre,
-                        frecuencia_horas,
+                        tomasDia,
                         duracion_dias,
-                        hora_sugerida,
+                        horaInicio,
                         indicacion: indicacionesCopied,
                         descuentoAplicado: descuentoGlobalActivo
                     });
