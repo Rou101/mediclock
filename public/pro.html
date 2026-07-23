@@ -680,13 +680,14 @@
             <main class="desktop-container">
                 
                 <!-- COLUMNA IZQUIERDA: FICHA PACIENTE, CONTACTOS Y ACCIONES -->
-                <section class="glass-card">
-                    <h2 class="card-header-title" style="margin-bottom:12px;">
+                <section class="glass-card" style="display:flex; flex-direction:column;">
+                    <h2 class="card-header-title" style="margin-bottom:16px; flex-shrink:0;">
                         <span>👤</span> 1. Ficha del Paciente & Contactos
                     </h2>
                     
-                    <!-- SUBVENTANA 1: PACIENTE PRINCIPAL (SIEMPRE ABIERTA) -->
-                    <div class="doc-contact-container" style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px; margin-bottom:16px;">
+                    <div style="flex:1; display:flex; flex-direction:column; justify-content:space-between; gap:16px;">
+                        <!-- SUBVENTANA 1: PACIENTE PRINCIPAL (SIEMPRE ABIERTA) -->
+                        <div class="doc-contact-container" style="flex:1; display:flex; flex-direction:column; justify-content:center; background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
                         <h3 style="font-size:13px; font-weight:700; color:var(--c-text); margin-bottom:12px; display:flex; align-items:center; gap:6px;">
                             <span>👤</span> 1. Paciente Principal
                         </h3>
@@ -706,10 +707,11 @@
                             </label>
                             <input type="text" id="p-mediclock-id" class="field-input" placeholder="Ej: MLTl4jwhPt6TWLmV7IVZ">
                         </div>
+                        </div>
                     </div>
 
                     <!-- SUBVENTANA 2: CONTACTO ADICIONAL (CHECKBOX) -->
-                    <div id="additional-contact-wrapper" class="doc-contact-container disabled" style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px; margin-bottom:16px;">
+                    <div id="additional-contact-wrapper" class="doc-contact-container disabled" style="flex:1; display:flex; flex-direction:column; justify-content:center; background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                             <h3 style="font-size:13px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:6px;">
                                 <span>👥</span> 2. Contacto Adicional
@@ -729,10 +731,8 @@
                         </div>
                     </div>
 
-                    <hr style="border:0; border-top:1px solid var(--c-border); margin:16px 0;">
-
                     <!-- SECCIÓN: CONTACTO DEL MÉDICO & EMERGENCIAS -->
-                    <div id="doc-contact-wrapper" class="doc-contact-container disabled" style="background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
+                    <div id="doc-contact-wrapper" class="doc-contact-container disabled" style="flex:1; display:flex; flex-direction:column; justify-content:center; background:rgba(56, 189, 248, 0.04); border:1px solid rgba(56, 189, 248, 0.15); border-radius:var(--radius-lg); padding:16px;">
                         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;">
                             <h3 style="font-size:13px; font-weight:700; color:var(--c-primary); display:flex; align-items:center; gap:6px;">
                                 <span>📞</span> 3. Compartir Contacto del Médico & Emergencias
@@ -751,6 +751,7 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
                 </section>
 
