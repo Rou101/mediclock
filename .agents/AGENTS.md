@@ -62,3 +62,5 @@ Este archivo contiene las directrices del proyecto **MediClock** para que cualqu
   6. **Firestore (Historial en Nube)**: Reemplazar el almacenamiento local (LocalStorage) en el Frontend por Firebase real, para que el historial sea cruzado en todos los dispositivos del médico.
   7. **Botón Cancelar (Historial)**: Ligar el botón cancelar en UI con el endpoint del Backend (/api/pro/cancelar) para borrar recetas reales y detener el Vigilante (cronjob).
 
+
+  8. **Estrategia de Negocios (Monetización)**: El servicio debe ser 100% gratuito para el paciente final y su familia (cero barrera de entrada). El modelo de negocio será B2B / B2G: Cobrar a Clínicas (SaaS), al Estado (reducción de reingresos hospitalarios) y a Farmacéuticas (mejora en la adherencia a tratamientos crónicos).
