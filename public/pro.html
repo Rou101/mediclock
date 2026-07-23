@@ -1463,9 +1463,12 @@
             document.getElementById('p-nombre').value = '';
             document.getElementById('p-phone').value = '';
             document.getElementById('p-mediclock-id').value = '';
-            document.getElementById('attached-photo-preview').style.display = 'none';
-            document.getElementById('attached-pdf-preview').style.display = 'none';
-            document.getElementById('photo-placeholder').style.display = 'block';
+            const photoPreview = document.getElementById('attached-photo-preview');
+            if (photoPreview) photoPreview.style.display = 'none';
+            const pdfPreview = document.getElementById('attached-pdf-preview');
+            if (pdfPreview) pdfPreview.style.display = 'none';
+            const photoPlaceholder = document.getElementById('photo-placeholder');
+            if (photoPlaceholder) photoPlaceholder.style.display = 'block';
             
             // Fix Ghost Effect (Limpieza total)
             clearAttachedFile();

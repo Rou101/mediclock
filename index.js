@@ -1,4 +1,4 @@
-// ==========================================
+﻿// ==========================================
 // MEDICLOCK - BACKEND COMPLETO v2 (Multi-usuario con Grupos)
 // ==========================================
 
@@ -1142,8 +1142,8 @@ app.post('/api/meta-webhook', async (req, res) => {
                             return res.sendStatus(200);
                         }
 
-                        if (texto === 'asignar_hora') {
-                            await enviarWA('+' + numero, 'Paciente', `🕰️ Por favor, escribe la hora exacta a la que deseas comenzar tus recordatorios.\n\n👉 *Ejemplo: 14:30 o 9 AM*`);
+                        if (texto === 'asignar_hora' || texto === 'asignar una hora') {
+                            await enviarWA('+' + numero, 'Paciente', `⏰ Por favor, escribe la hora exacta a la que deseas comenzar tus recordatorios.\n\n👇 *Ejemplo: 14:30 o 9 AM*`);
                             return res.sendStatus(200);
                         }
 
@@ -1214,7 +1214,7 @@ app.post('/api/meta-webhook', async (req, res) => {
 
                         if (horaPendiente) {
                             const esOk = texto.includes('tome') || texto.includes('ok') ||
-                                texto.includes('si') || texto.includes('sí') ||
+                                /\bs[ií]\b/i.test(texto) ||
                                 texto.includes('listo') || texto.includes('ya') ||
                                 esFoto || esVoz;
 
