@@ -41,10 +41,14 @@ Este archivo contiene las directrices del proyecto **MediClock** para que cualqu
 ### 📝 Estado de la Sesión Actual (MediClock Pro)
 
 - **Maquetación UI (`public/pro.html`)**:
-  - Área de texto para indicaciones médicas expandida a `min-height: 340px`.
-  - Columna izquierda reorganizada: campos compactados arriba, botones `✨ Nueva Prescripción` y `🔍 Buscar Prescripciones` ubicados a continuación de `+ Agregar Persona` con espaciado generoso.
-  - Perfil del médico en el sidebar equipado con botón `⚙️` que despliega el modal flotante de **Configuración del Médico** (Modo Oscuro/Claro, Estado de Conexión, Aviso de Privacidad y Cifrado, Versión y Cierre de Sesión).
+  - Todo el layout principal fue estabilizado. Se corrigió un bug grave en CSS Grid (un `</div>` huérfano) que rompía la simetría de las columnas.
+  - Se implementó la limpieza forzosa (`form.reset()` y `value = ''`) al cerrar la ventana de éxito para evitar datos "fantasmas" de pacientes anteriores.
+  - Se agregó el campo opcional "ID de App MediClock" en la ficha del paciente.
+  - El modal de confirmación ahora formatea visualmente los números chilenos a `+56 9 XXXX XXXX` para evitar errores.
 - **Backend (`index.js`) & Transcripción IA**:
-  - Endpoint `/api/pro/parse-meds` configurado para consultar modelos oficiales de Google AI Studio (`gemini-1.5-flash`, `gemini-2.0-flash`) con fallback local por expresiones regulares.
-  - *Nota para continuación:* Cuando desees habilitar la IA de Google AI Studio en Cloud Run, ejecuta: `gcloud run services update mediclock --update-env-vars GEMINI_API_KEY=tu_api_key`.
-
+  - Expresiones Regulares (Regex) reforzadas para atrapar formatos como "12 veces al día" cuando la IA de Gemini falla o no está activa.
+  - Interacciones WhatsApp Meta: El webhook procesa correctamente botones interactivos y reasignaciones de hora manuales (ej: "14:30") *incluso para recetas que ya estaban activas*.
+- **PENDIENTE / PRÓXIMOS PASOS**:
+  - **Meta Webhook**: Se requiere configurar manualmente la URL del Webhook (`https://mediclock-961339509446.us-central1.run.app/api/meta-webhook`) en el Dashboard de Meta (con el token `mediclock_secure_token_123`) y suscribirse a `messages` para que el bot empiece a interactuar y recibir los botones.
+  - **Firestore (Historial en Nube)**: Reemplazar el almacenamiento local (LocalStorage) en el Frontend por Firebase real, para que el historial sea cruzado en todos los dispositivos del médico.
+  - **Botón Cancelar (Historial)**: Ligar el botón cancelar en UI con el endpoint del Backend (`/api/pro/cancelar`) para borrar recetas reales y detener el Vigilante (cronjob).
