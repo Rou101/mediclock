@@ -681,18 +681,9 @@
                         <input type="text" id="p-nombre" class="field-input" required>
                     </div>
 
-                    <div class="form-row" style="margin-bottom:12px;">
-                        <!-- TELÉFONO WHATSAPP PACIENTE (LIMPIO) -->
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="field-label">WhatsApp del Paciente *</label>
-                            <input type="tel" id="p-phone" class="field-input" required>
-                        </div>
-
-                        <!-- FECHA DE EMISIÓN DE LA RECETA -->
-                        <div class="form-group" style="margin-bottom:0;">
-                            <label class="field-label">Fecha de Emisión *</label>
-                            <input type="date" id="r-fecha" class="field-input" required>
-                        </div>
+                    <div class="form-group" style="margin-bottom:12px;">
+                        <label class="field-label">WhatsApp del Paciente *</label>
+                        <input type="tel" id="p-phone" class="field-input" required>
                     </div>
 
                     <!-- SECCIÓN DE CONTACTOS ADICIONALES (ENFERMERA, TUTOR, CUIDADOR) -->
@@ -818,7 +809,11 @@
             <p style="font-size:13px; color:var(--c-text-sub); margin-bottom:16px;">Por favor, revisa la información de la receta médica antes de notificar al paciente. <strong>No podemos equivocarnos.</strong></p>
 
             <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:18px; border:1px solid var(--c-border); font-size:13px; line-height:1.6; margin-bottom:20px; max-height:300px; overflow-y:auto;">
-                <p><strong>Paciente:</strong> <span id="conf-paciente">--</span> (<span id="conf-phone">--</span>)</p>
+                <p><strong>Paciente:</strong> <span id="conf-paciente">--</span></p>
+                <div style="background:rgba(239, 68, 68, 0.15); border:1px dashed #ef4444; padding:12px; border-radius:var(--radius-md); margin:12px 0; text-align:center;">
+                    <span style="font-size:11px; color:#fca5a5; font-weight:800; display:block; margin-bottom:4px; text-transform:uppercase;">⚠️ Corroborar WhatsApp del Paciente</span>
+                    <span id="conf-phone" style="font-size:22px; font-weight:800; color:var(--c-text); letter-spacing:1px;">--</span>
+                </div>
                 <div id="conf-meds-summary"></div>
             </div>
 
@@ -847,7 +842,6 @@
             <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:18px; border:1px solid var(--c-border); font-size:13px; line-height:1.6; margin-bottom:20px; max-height:320px; overflow-y:auto;">
                 <p style="color:var(--c-primary); font-weight:700; font-size:14px; margin-bottom:8px;">✅ Registrado en Firestore & Notificado por WhatsApp</p>
                 <p><strong>Paciente:</strong> <span id="rep-paciente">--</span> (<span id="rep-phone">--</span>)</p>
-                <p><strong>Fecha Emisión:</strong> <span id="rep-fecha">--</span></p>
                 <div id="rep-contactos-summary"></div>
                 <hr style="border:0; border-top:1px solid var(--c-border); margin:10px 0;">
                 <div id="rep-meds-summary"></div>
@@ -1012,33 +1006,7 @@
         </div>
     </div>
 
-    <!-- MODAL EMERGENTE DE REPORTE -->
-    <div class="modal-overlay" id="dispatch-modal">
-        <div class="modal-card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <div style="display:flex; align-items:center; gap:10px;">
-                    <div style="background:var(--c-green-dim); color:var(--c-green); width:32px; height:32px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:16px;">✓</div>
-                    <h3 style="font-size:20px; font-weight:800;">¡Enviado con Éxito!</h3>
-                </div>
-                <button type="button" onclick="closeDispatchModal()" style="background:none; border:none; color:var(--c-text-sub); font-size:24px; cursor:pointer;">&times;</button>
-            </div>
 
-            <div style="background:rgba(0,0,0,0.35); border-radius:var(--radius-lg); padding:18px; border:1px solid var(--c-border); font-size:13px; line-height:1.6; margin-bottom:20px; max-height:320px; overflow-y:auto;">
-                <p style="color:var(--c-primary); font-weight:700; font-size:14px; margin-bottom:8px;">✅ Registrado en Firestore & Notificado por WhatsApp</p>
-                <p><strong>Paciente:</strong> <span id="rep-paciente">--</span> (<span id="rep-phone">--</span>)</p>
-                <p><strong>Fecha Emisión:</strong> <span id="rep-fecha">--</span></p>
-                <div id="rep-contactos-summary"></div>
-                <hr style="border:0; border-top:1px solid var(--c-border); margin:10px 0;">
-                <div id="rep-meds-summary"></div>
-            </div>
-
-            <div style="display:flex; flex-direction:column; gap:10px;">
-                <button type="button" onclick="closeDispatchModal()" style="background:linear-gradient(135deg, #10B981, #059669); color:#FFF; border:none; padding:14px; border-radius:var(--radius-md); font-weight:800; font-size:15px; cursor:pointer; box-shadow:0 6px 20px rgba(16,185,129,0.35);">
-                    ✓ Cerrar y Nueva Prescripción
-                </button>
-            </div>
-        </div>
-    </div>
 
     <!-- TOAST -->
     <div class="toast" id="toast-box">
@@ -1071,13 +1039,13 @@
         function toggleDoctorConfigModal() {
             const modal = document.getElementById('doc-config-modal');
             if (modal) {
-                modal.classList.toggle('active');
+                modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
             }
         }
 
         function closeDoctorConfigModal() {
             const modal = document.getElementById('doc-config-modal');
-            if (modal) modal.classList.remove('active');
+            if (modal) modal.style.display = 'none';
         }
 
         function changeProTheme(mode) {
@@ -1310,7 +1278,6 @@
             
             const paciente = document.getElementById('p-nombre').value.trim();
             let phone = document.getElementById('p-phone').value.trim();
-            const fechaEmision = document.getElementById('r-fecha').value;
             const indicacionesCopied = document.getElementById('m-indicaciones-copied').value.trim();
 
             if (!paciente || !phone) {
@@ -1382,7 +1349,7 @@
 
             const nuevaPrescripcionObj = {
                 id: 'REC-' + Date.now().toString().slice(-6),
-                paciente, phone, fechaEmision,
+                paciente, phone,
                 contactosAdicionales,
                 indicaciones: indicacionesCopied,
                 medicamentos,
@@ -1447,7 +1414,6 @@
             // Poblar Modal de Reporte (Éxito)
             document.getElementById('rep-paciente').textContent = payload.paciente;
             document.getElementById('rep-phone').textContent = payload.phone;
-            document.getElementById('rep-fecha').textContent = payload.fechaEmision;
 
             const repContactosSummary = document.getElementById('rep-contactos-summary');
             repContactosSummary.innerHTML = '';
@@ -1491,9 +1457,6 @@
             
             document.getElementById('contacts-container').innerHTML = '';
             contactCount = 0;
-
-            const today = new Date().toISOString().split('T')[0];
-            document.getElementById('r-fecha').value = today;
         }
 
         function openPrivacyModal(e) {

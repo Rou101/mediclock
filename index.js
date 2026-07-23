@@ -411,12 +411,10 @@ ${medsList[0].indicacion || 'Sin indicaciones adicionales'}${descTag}`;
             });
             
             const horaSugerida = medsList[0]?.horaInicio || medsList[0]?.hora_sugerida || '08:00';
-            whatsappInstructions = `⚙️ *Para activar tus recordatorios automáticos responde:*
-*1* - Empezar a las ${horaSugerida} (Sugerido)
-*2* - Empezar AHORA mismo
-*O escribe la hora* a la que quieres empezar (ej. 14:30)
+            whatsappInstructions = `⚙️ *Para activar tus recordatorios automáticos escoge una opción abajo:*
+(O escribe la hora a la que quieres empezar, ej. 14:30)
 
-📱 _Si usas la app MediClock, tu código de receta es: ${medRef.id}_`;
+❌ *Si deseas cancelar los recordatorios en cualquier momento, presiona el botón Cancelar o escribe CANCELAR.*`;
         }
 
         // Bloque opcional de contacto del médico
@@ -439,7 +437,16 @@ ${medsList[0].indicacion || 'Sin indicaciones adicionales'}${descTag}`;
 ${whatsappInstructions}`;
 
         // Despachar a Paciente
-        await enviarWA('+' + telLimpio, paciente, mensajeWA);
+        if (!isFreeFormText) {
+            const horaSugerida = medsList[0]?.horaInicio || medsList[0]?.hora_sugerida || '08:00';
+            await enviarWAInteractivos('+' + telLimpio, paciente, mensajeWA, [
+                { id: `START_SUGGESTED_${horaSugerida}`, title: horaSugerida },
+                { id: 'START_NOW', title: 'Empezar Ahora' },
+                { id: 'CANCEL_REMINDERS', title: 'Cancelar' }
+            ]);
+        } else {
+            await enviarWA('+' + telLimpio, paciente, mensajeWA);
+        }
 
         // 6. Despachar a todos los contactos adicionales (Tutor, Enfermera, Cuidador)
         for (const cont of contactosList) {
@@ -1083,6 +1090,15 @@ app.post('/api/meta-webhook', async (req, res) => {
 
             if (messageType === 'text') {
                 texto = message.text.body.trim().toLowerCase();
+            } else if (messageType === 'interactive' && message.interactive.type === 'button_reply') {
+                const btnId = message.interactive.button_reply.id;
+                if (btnId.startsWith('START_SUGGESTED')) {
+                    texto = '1';
+                } else if (btnId === 'START_NOW') {
+                    texto = '2';
+                } else if (btnId === 'CANCEL_REMINDERS') {
+                    texto = 'cancelar';
+                }
             } else if (messageType === 'audio') {
                 esVoz = true;
                 mediaUrl = message.audio.id; // En Meta, los adjuntos se descargan vía un ID
@@ -1109,7 +1125,16 @@ app.post('/api/meta-webhook', async (req, res) => {
 
                     if (telDB === numero) {
                         
-                        // 1. CHEQUEO DE ACTIVACION DE RECETA (ONBOARDING)
+                        // 1. CHEQUEO DE CANCELACIÓN EN CUALQUIER MOMENTO
+                        if (texto === 'cancelar' || texto === 'cancel') {
+                            await med.ref.update({ estado_paciente: 'cancelado' });
+                            activacionExitosa = true; // Flag to send response later
+                            // If they cancel, we send a cancellation message
+                            await enviarWA('+' + numero, 'Paciente', '❌ Tus recordatorios de MediClock han sido cancelados. No recibirás más mensajes para esta receta.');
+                            return res.sendStatus(200);
+                        }
+
+                        // 2. CHEQUEO DE ACTIVACION DE RECETA (ONBOARDING)
                         if (med.estado_paciente === 'pendiente_activacion') {
                             const timeMatch = texto.match(/\b([01]?\d|2[0-3])[:.h]?([0-5]\d)?\b/i);
                             const wantsCustomTime = !texto.includes('1') && !texto.includes('2') && timeMatch;
@@ -1315,6 +1340,47 @@ async function enviarWA(telefono, familiar, mensaje) {
         console.log(`[OK] WA Meta → ${familiar} (${telLimpio}). MsgID: ${response.data.messages[0].id}`);
     } catch (e) {
         console.error(`[ERROR] WA Meta:`, e.response?.data || e.message);
+    }
+}
+
+async function enviarWAInteractivos(telefono, familiar, mensaje, botones) {
+    if (!META_WA_ACCESS_TOKEN) {
+        console.log(`[SIMULADO WA Meta] (Interactivos) Para ${familiar} (${telefono}): ${mensaje} | Botones:`, botones.map(b => b.title));
+        return;
+    }
+
+    const telLimpio = (telefono || '').replace(/\D/g, ''); 
+    const url = `https://graph.facebook.com/v20.0/${META_WA_PHONE_NUMBER_ID}/messages`;
+    
+    try {
+        const payloadBotones = botones.map(b => ({
+            type: 'reply',
+            reply: {
+                id: b.id,
+                title: b.title.substring(0, 20) // max 20 chars allowed by WhatsApp
+            }
+        }));
+
+        const response = await axios.post(url, {
+            messaging_product: 'whatsapp',
+            to: telLimpio,
+            type: 'interactive',
+            interactive: {
+                type: 'button',
+                body: { text: mensaje },
+                action: {
+                    buttons: payloadBotones
+                }
+            }
+        }, {
+            headers: {
+                'Authorization': `Bearer ${META_WA_ACCESS_TOKEN}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log(`[OK] WA Meta Interactivos → ${familiar} (${telLimpio}). MsgID: ${response.data.messages[0].id}`);
+    } catch (e) {
+        console.error(`[ERROR] WA Meta Interactivos:`, e.response?.data || e.message);
     }
 }
 
