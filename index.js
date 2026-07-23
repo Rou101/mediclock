@@ -350,21 +350,48 @@ app.post('/api/pro/prescribir', async (req, res) => {
         
         const isFreeFormText = medsList.length === 1 && (!medsList[0].nombre || medsList[0].nombre === 'Medicamento' || medsList[0].nombre === 'Receta Médica Copiada');
         
-        const medRef = await grupoDoc.collection('medicamentos').add({
-            familiar: paciente,
-            telefono: '+' + telLimpio,
-            fechaEmision: fechaEmision || new Date().toISOString().split('T')[0],
-            contactosAdicionales: contactosList,
-            medicamentos: medsList,
-            docContactActive: !!docContactActive,
-            docPhone: docPhone || '',
-            docNotaEmergency: docNotaEmergency || '',
-            archivoReceta: fotoBase64 || '',
-            archivoTipo: archivoTipo || 'image',
-            doctor: 'Dr. Francisco Pérez',
-            estado_paciente: isFreeFormText ? 'activo' : 'pendiente_activacion',
-            creadoEn: new Date().toISOString()
-        });
+        const batch = db.batch();
+        let primerMedId = null;
+
+        for (const m of medsList) {
+            let horasArr = [];
+            let hIni = m.hora_sugerida || m.horaInicio || '08:00';
+            const [hh, mm] = hIni.split(':').map(Number);
+            const tomasC = m.tomasDia || (m.frecuencia_horas ? Math.floor(24 / m.frecuencia_horas) : 1);
+            const freq = m.frecuencia_horas || (tomasC ? Math.floor(24 / tomasC) : 24);
+            
+            for (let i = 0; i < tomasC; i++) {
+                let currH = (hh + (i * freq)) % 24;
+                horasArr.push(`${String(currH).padStart(2, '0')}:${String(mm).padStart(2, '0')}`);
+            }
+
+            const docRef = grupoDoc.collection('medicamentos').doc();
+            batch.set(docRef, {
+                familiar: paciente,
+                telefono: '+' + telLimpio,
+                nombre: m.nombre || 'Medicamento',
+                dosis: m.dosis || '',
+                horas: horasArr,
+                hora: hIni,
+                tomas: {},
+                duracion_dias: parseInt(m.duracion_dias || m.duracion || 10),
+                frecuencia_horas: parseInt(m.frecuencia_horas || freq),
+                pastillasRestantes: parseInt(m.duracion_dias || m.duracion || 10) * tomasC,
+                fechaEmision: fechaEmision || new Date().toISOString().split('T')[0],
+                contactosAdicionales: contactosList,
+                docContactActive: !!docContactActive,
+                docPhone: docPhone || '',
+                docNotaEmergency: docNotaEmergency || '',
+                archivoReceta: fotoBase64 || '',
+                archivoTipo: archivoTipo || 'image',
+                doctor: 'Dr. Francisco Pérez',
+                estado_paciente: isFreeFormText ? 'activo' : 'pendiente_activacion',
+                creadoEn: new Date().toISOString()
+            });
+            if (!primerMedId) primerMedId = docRef.id;
+        }
+        await batch.commit();
+        const medRef = { id: primerMedId };
 
         // 4. Formatear detalle de medicamentos / indicaciones del médico
         let medsDetalle = '';
@@ -1083,8 +1110,19 @@ app.post('/api/meta-webhook', async (req, res) => {
                         // 1. CHEQUEO DE ACTIVACIÓN DE RECETA (ONBOARDING)
                         if (med.estado_paciente === 'pendiente_activacion') {
                             if (texto === '1' || texto === '2' || texto.includes('empezar') || texto === 'ok') {
-                                await med._ref.update({ estado_paciente: 'activo' });
-                                await enviarWA('+' + telDB, med.familiar, `✅ ¡Excelente! Tus recordatorios han sido activados.\nRecibirás tu primer aviso a la hora programada.\n\nCódigo de sincronización familiar: *${med.id}*`);
+                                // Activar TODOS los medicamentos pendientes de este número
+                                const snapPendientes = await grupoDoc.ref.collection('medicamentos')
+                                    .where('telefono', '==', med.telefono)
+                                    .where('estado_paciente', '==', 'pendiente_activacion')
+                                    .get();
+                                    
+                                const batchUpdate = db.batch();
+                                snapPendientes.docs.forEach(d => {
+                                    batchUpdate.update(d.ref, { estado_paciente: 'activo' });
+                                });
+                                await batchUpdate.commit();
+                                
+                                await enviarWA('+' + telDB, med.familiar, `✅ ¡Excelente! Tus recordatorios han sido activados.\nRecibirás tu primer aviso a la hora programada.\n\nCódigo de sincronización familiar: *${med.familiar.toUpperCase().substring(0,3)}${med.id.substring(0,4)}*`);
                                 activacionExitosa = true;
                                 break;
                             }
