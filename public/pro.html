@@ -614,22 +614,33 @@
 
     <!-- BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B) -->
     <aside class="vertical-sidebar">
-        <!-- SECCIÓN SUPERIOR CON MARCA Y LOGO -->
+        
+        <!-- BLOQUE SUPERIOR (LOGO Y NAVEGACIÓN) -->
         <div>
-            <!-- LOGO Y MARCA -->
-            <div class="brand-box">
+            <!-- LOGO Y MARCA CON MARGEN -->
+            <div class="brand-box" style="margin: 20px 0;">
                 <div class="brand-icon">M</div>
                 <div>
-                    <span class="brand-title">MediClock Pro</span>
-                    <div><span class="version-tag">v29.0 CHROME B2B</span></div>
+                    <span class="brand-title">MediClock PRO</span>
                 </div>
+            </div>
+
+            <!-- BOTONES DE NAVEGACIÓN -->
+            <div style="display:flex; flex-direction:column; gap:12px; margin-top:20px;">
+                <button type="button" class="btn-sidebar-sub" onclick="openSearchModal()">
+                    Buscar prescripciones
+                </button>
+                <button type="button" class="btn-sidebar-sub" onclick="closeDispatchModal()" style="color:var(--c-primary); font-weight:800; background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.1);">
+                    Nueva receta
+                </button>
             </div>
         </div>
 
-        <!-- SECCIÓN INFERIOR: PERFIL DEL DR. Y BOTONES SIN ÍCONOS ABAJO -->
-        <div class="sidebar-footer-box">
-            <!-- PERFIL DEL DOCTOR (UBICADO ABAJO CON BOTÓN DE CONFIGURACIÓN ⚙️) -->
-            <div class="doctor-badge-sidebar" style="display:flex; justify-content:space-between; align-items:center;">
+        <!-- BLOQUE INFERIOR (DOCTOR Y SECUNDARIOS) -->
+        <div class="sidebar-footer-box" style="display:flex; flex-direction:column; gap:12px;">
+            
+            <!-- PERFIL DEL DOCTOR -->
+            <div class="doctor-badge-sidebar" style="display:flex; justify-content:space-between; align-items:center; background:rgba(0,0,0,0.2); padding:12px; border-radius:12px; border:1px solid rgba(255,255,255,0.05);">
                 <div style="display:flex; align-items:center; gap:10px;">
                     <div class="avatar-circle">DR</div>
                     <div>
@@ -642,16 +653,7 @@
                 </button>
             </div>
 
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.06); margin:16px 0;">
-
-            <button type="button" class="btn-sidebar-sub" onclick="closeDispatchModal()" style="color:var(--c-primary); font-weight:800; background:rgba(56, 189, 248, 0.05); border:1px solid rgba(56, 189, 248, 0.1);">
-                ✨ Nueva Prescripción
-            </button>
-            <button type="button" class="btn-sidebar-sub" onclick="openSearchModal()">
-                🔍 Buscar Prescripciones
-            </button>
-
-            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.06); margin:16px 0;">
+            <hr style="border:0; border-top:1px solid rgba(255,255,255,0.06); margin:4px 0;">
 
             <!-- BOTONES SECUNDARIOS EN LA PARTE INFERIOR (SIN ÍCONOS) -->
             <button type="button" class="btn-sidebar-sub" onclick="openRecomendarModal()">
@@ -690,7 +692,7 @@
                     <div style="margin-bottom:28px;">
                         <div id="contacts-container"></div>
                         <button type="button" class="btn-aux" style="width:100%; justify-content:center;" onclick="addContactRow()">
-                            <span>+</span> Agregar Persona / Contacto Adicional (Enfermera, Cuidador, etc.)
+                            + Contacto Adicional
                         </button>
                     </div>
 
