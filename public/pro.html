@@ -1382,7 +1382,15 @@
 
             // Poblar Modal de Confirmación
             document.getElementById('conf-paciente').textContent = paciente;
-            document.getElementById('conf-phone').textContent = phone;
+            
+            let cleanPhone = phone.replace(/[^\d+]/g, '');
+            let formattedPhone = cleanPhone;
+            if (cleanPhone.startsWith('+569') && cleanPhone.length === 12) {
+                formattedPhone = cleanPhone.replace(/(\+56)(9)(\d{4})(\d{4})/, '$1 $2 $3 $4');
+            } else if (cleanPhone.startsWith('569') && cleanPhone.length === 11) {
+                formattedPhone = cleanPhone.replace(/(56)(9)(\d{4})(\d{4})/, '+$1 $2 $3 $4');
+            }
+            document.getElementById('conf-phone').textContent = formattedPhone;
             
             let medsHTML = `<hr style="border:0; border-top:1px solid var(--c-border); margin:10px 0;">`;
             medsHTML += `<strong>Medicamentos:</strong><ul style="margin:5px 0; padding-left:20px;">`;
@@ -1451,6 +1459,10 @@
         function closeDispatchModal() {
             document.getElementById('dispatch-modal').style.display = 'none';
             document.getElementById('pro-prescription-form').reset();
+            document.getElementById('instrucciones-ai').value = '';
+            document.getElementById('p-nombre').value = '';
+            document.getElementById('p-phone').value = '';
+            document.getElementById('p-mediclock-id').value = '';
             document.getElementById('attached-photo-preview').style.display = 'none';
             document.getElementById('attached-pdf-preview').style.display = 'none';
             document.getElementById('photo-placeholder').style.display = 'block';
