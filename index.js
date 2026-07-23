@@ -1,4 +1,4 @@
-﻿// ==========================================
+// ==========================================
 // MEDICLOCK - BACKEND COMPLETO v2 (Multi-usuario con Grupos)
 // ==========================================
 
@@ -1149,7 +1149,7 @@ app.post('/api/meta-webhook', async (req, res) => {
 
                         // 2. CHEQUEO DE ACTIVACION DE RECETA (ONBOARDING Y EDICIÓN)
                         const timeMatch = texto.match(/\b([01]?\d|2[0-3])[:.h]?([0-5]\d)?\b/i);
-                        const wantsCustomTime = !texto.includes('1') && !texto.includes('2') && timeMatch;
+                        const wantsCustomTime = texto !== '1' && texto !== '2' && timeMatch;
 
                         if (med.estado_paciente === 'pendiente_activacion' || (med.estado_paciente === 'activo' && wantsCustomTime)) {
 
