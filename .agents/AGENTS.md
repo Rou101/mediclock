@@ -20,9 +20,13 @@ Este archivo contiene las directrices del proyecto **MediClock** para que cualqu
 1. **Codificación de Archivos (UTF-8 obligatorio):**
    - Asegurarse de que todos los archivos .js, .html y .css se guarden con codificación **UTF-8 sin BOM**. Evitar errores de mojibake con caracteres o emojis.
 
-2. **Arquitectura:**
-   - Mantener la lógica modular. index.js gestiona los endpoints de Express.
-   - El frontend principal habita en public/.
+2. **Arquitectura (Modular desde Fase 4):**
+   - `index.js` es solo el entry point (~42 líneas): Express, middlewares globales y montaje de rutas.
+   - `services/` contiene la lógica reutilizable: Firebase, WhatsApp, Motor Vigilante.
+   - `middleware/` contiene la autenticación JWT.
+   - `controllers/` contiene la lógica de negocio por dominio (PRO, Grupos, Webhook).
+   - `routes/` define los endpoints Express agrupados por dominio.
+   - El frontend principal habita en `public/`.
    - Las consultas a Firestore deben respetar el esquema de grupos familiares (/api/grupos/:id/...) y la separación por pacientes.
 
 3. **Interfaz de Usuario (UI/UX):**
@@ -38,7 +42,7 @@ Este archivo contiene las directrices del proyecto **MediClock** para que cualqu
 
 ---
 
-### 📝 Estado de la Sesión Actual (MediClock Pro v31.0.0)
+### 📝 Estado de la Sesión Actual (MediClock Pro v32.0.0)
 
 - **Hitos Alcanzados (Fase 1 y Fase 2 Completadas):**
   - **Historial en la Nube Real (Fase 1):** La interfaz PRO ya lee y graba directo en Firestore (`historial_pro`), superando las limitaciones y desincronizaciones de localStorage.
@@ -54,5 +58,12 @@ Este archivo contiene las directrices del proyecto **MediClock** para que cualqu
   - **Resolución Colisiones Multi-Medicamento:** El bot ya no confirma medicamentos erróneos. Ahora calcula la diferencia en minutos entre la hora actual y las dosis del paciente, auto-confirmando el más cercano.
   - **Remoción de Paréntesis Vacíos:** Se oculta el formato `()` en los recordatorios cuando no hay dosis definida.
 
-- **BACKLOG / PRÓXIMO PASO URGENTE (Fase 4):**
-  - **Refactorización y Separación de Capas:** Desacoplar el archivo monolítico `index.js` (Express) en una estructura modular de rutas (`/routes`), controladores (`/controllers`) y servicios (`/services`) para reducir `index.js` a menos de 100 líneas.
+- **Hitos Alcanzados (Fase 4 Completada):**
+  - **Refactorización Modular:** `index.js` reducido de 1661 a 42 líneas. Lógica desacoplada en:
+    - `services/` (firebase.js, whatsapp.js, vigilante.js)
+    - `middleware/` (authMiddleware.js)
+    - `controllers/` (proController.js, grupoController.js, webhookController.js)
+    - `routes/` (proRoutes.js, grupoRoutes.js, webhookRoutes.js, generalRoutes.js)
+
+- **BACKLOG / PRÓXIMO PASO:**
+  - Desplegar la nueva arquitectura modular en Cloud Run y validar en producción.
