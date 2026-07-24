@@ -628,8 +628,12 @@
         };
         firebase.initializeApp(firebaseConfig);
     </script>
-</head>
-<body style="display: none;">
+<body>
+    <div id="pro-auth-overlay" style="position:fixed; inset:0; background:#0B0F19; z-index:99999; display:flex; align-items:center; justify-content:center; flex-direction:column; gap:16px; font-family:'Plus Jakarta Sans',sans-serif;">
+        <div style="width:48px; height:48px; border:3px solid rgba(56,189,248,0.2); border-top-color:#38BDF8; border-radius:50%; animation:spin 1s linear infinite;"></div>
+        <div style="color:#9CA3AF; font-size:14px; font-weight:600;">Verificando credenciales médicas...</div>
+        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+    </div>
 
     <!-- BARRA LATERAL IZQUIERDA (SIDEBAR VERTICAL CHROME B2B) -->
     <aside class="vertical-sidebar">
@@ -1062,12 +1066,12 @@
 
     <!-- SCRIPTS DE OPERACIÓN -->
     <script>
-        // Ruta Protegida: Forzar redirección al login si no está autenticado
         firebase.auth().onAuthStateChanged(async (user) => {
             if (!user) {
                 window.location.href = 'login.html';
             } else {
-                document.body.style.display = 'block';
+                const overlay = document.getElementById('pro-auth-overlay');
+                if (overlay) overlay.style.display = 'none';
             }
         });
 

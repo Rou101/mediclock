@@ -140,12 +140,10 @@ window.addEventListener('unhandledrejection', (event) => {
     toast("Rejection: " + (event.reason?.message || event.reason), "error");
 });
 
-document.getElementById('btn-google-login').addEventListener('click', async () => {
+window.loginGoogle = async function() {
     toast('Iniciando sesión con Google...', 'info');
     const provider = new firebase.auth.GoogleAuthProvider();
     try {
-        // Use popup instead of redirect to avoid Chrome Bounce Tracking Mitigation
-        // which blocks the firebaseapp.com intermediate redirect domain
         const result = await firebase.auth().signInWithPopup(provider);
         console.log('[AUTH] Popup login successful:', result.user.email);
     } catch (error) {
@@ -158,7 +156,9 @@ document.getElementById('btn-google-login').addEventListener('click', async () =
             toast('Error de login: ' + error.message, 'error');
         }
     }
-});
+};
+
+document.getElementById('btn-google-login')?.addEventListener('click', window.loginGoogle);
 
 firebase.auth().onAuthStateChanged(async (user) => {
     console.log('[AUTH] onAuthStateChanged fired. user:', user ? user.email : 'null');
