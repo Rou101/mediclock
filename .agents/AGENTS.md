@@ -58,12 +58,12 @@ Este archivo contiene las directrices del proyecto **MediClock** para que cualqu
   - **Resolución Colisiones Multi-Medicamento:** El bot ya no confirma medicamentos erróneos. Ahora calcula la diferencia en minutos entre la hora actual y las dosis del paciente, auto-confirmando el más cercano.
   - **Remoción de Paréntesis Vacíos:** Se oculta el formato `()` en los recordatorios cuando no hay dosis definida.
 
-- **Hitos Alcanzados (Fase 4 Completada):**
-  - **Refactorización Modular:** `index.js` reducido de 1661 a 42 líneas. Lógica desacoplada en:
-    - `services/` (firebase.js, whatsapp.js, vigilante.js)
-    - `middleware/` (authMiddleware.js)
-    - `controllers/` (proController.js, grupoController.js, webhookController.js)
-    - `routes/` (proRoutes.js, grupoRoutes.js, webhookRoutes.js, generalRoutes.js)
+- **Hitos Alcanzados (Fase 4 Completada & Desplegada):**
+  - **Refactorización Modular:** `index.js` reducido de 1661 a 42 líneas. Capas separadas en `services/`, `middleware/`, `controllers/` y `routes/`.
+  - **Despliegue Exitoso en Cloud Run:** Revisión en vivo v32.5 (`mediclock-00145-zgk`).
+  - **Integración PWA Familiar + Pro:** Banner de receta médica vigente, insignias de doctor tratante, previsualización de receta digital (imagen/PDF) y botón de llamadas de urgencia.
+  - **Resolución de Bugs de Autenticación:** Popup de Google Auth reparado y overlay de carga fluido en `pro.html`.
 
-- **BACKLOG / PRÓXIMO PASO:**
-  - Desplegar la nueva arquitectura modular en Cloud Run y validar en producción.
+- **VISIÓN ESTRATÉGICA & PRÓXIMO PASO (Fase 5 - Rediseño UI/UX Estilo MyTherapy):**
+  - Evolucionar la PWA familiar a la estética y arquitectura de MyTherapy (5M+ descargas, bordes punteados pastel, navegación de 4 pestañas: Hoy, Progreso, Red/Soporte, Tratamiento).
+  - Mantener la **ventaja competitiva única**: Cero fricción en el adulto mayor a través de **WhatsApp** + Prescripción médica por **MediClock Pro** + Monetización con **Farmacias/Farmacéuticas (B2B2C)**.
