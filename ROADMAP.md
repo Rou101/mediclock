@@ -22,16 +22,11 @@
 ### **Fase 2: Resolución del Webhook y Motor NLP**
 * **Estado:** ✅ Completado y Verificado.
 
-### **Fase 3: Autenticación y Blindaje (El Candado de Seguridad) ➔ 🚨 PRÓXIMO PASO**
-* **Objetivo:** Restringir el acceso a la plataforma PRO mediante Firebase Auth.
-* **Criterios de Éxito:**
-  1. Si un usuario no logueado intenta entrar a `/pro.html`, es redirigido a `/login.html`.
-  2. Implementar una vista de login segura (`/login.html`) con estilo neumórfico.
-  3. Todos los llamados `fetch` del frontend a `/api/pro/*` incluyen el Firebase Auth Token en la cabecera.
-  4. Los endpoints del backend validan dicho token contra Firebase Admin antes de devolver datos, retornando `401` ante tokens inválidos.
-* **Dependencias:** Fases 1 y 2 terminadas.
+### **Fase 3: Autenticación y Blindaje (El Candado de Seguridad)**
+* **Estado:** ✅ Completado y Verificado.
+* **Hitos:** Creado `login.html`, protegido `pro.html` con comprobación de sesión y getAuthHeaders asíncronos, y asegurados los endpoints `/api/pro/*` con el middleware de verificación de tokens JWT contra Firebase Admin.
 
-### **Fase 4: Refactorización y Separación de Capas (Operación Limpieza)**
+### **Fase 4: Refactorización y Separación de Capas (Operación Limpieza) ➔ 🚨 PRÓXIMO PASO**
 * **Objetivo:** Desacoplar el backend monolítico (`index.js`) y modularizar las carpetas (`/routes`, `/controllers`, `/services`).
 * **Criterios de Éxito:** El archivo `index.js` principal se reduce a menos de 100 líneas, delegando toda la lógica pesada a archivos aislados.
 * **Dependencias:** Fase 3 completa y testeada.
@@ -45,11 +40,11 @@
 ## 3. Estrategia de Versionado y Pruebas
 
 **Versionado Activo:**
-- **v30.0.0 (Build 2026-07-23):** Versión estable actual desplegada en Google Cloud Run y visible de manera consistente en la pestaña del navegador y el pie de página de la aplicación PRO.
+- **v31.0.0 (Build 2026-07-24):** Versión estable actual desplegada en Google Cloud Run con blindaje Firebase Auth y lógica multi-med/paréntesis pulida.
 
 ---
 
 ## 4. Siguiente Acción Inmediata (Próximo Micro-Paso)
 
-👉 **Fase 3 (Micro-Paso 1): Creación de login.html y Configuración de Rutas Protegidas en el Frontend.**
-* **Misión:** Diseñar la interfaz de login conectada a Firebase Auth y configurar el observador en `pro.html` para denegar el acceso a no autenticados.
+👉 **Fase 4 (Micro-Paso 1): Creación de la estructura de carpetas de controladores y rutas.**
+* **Misión:** Diseñar la modularización del servidor Express para extraer controladores independientes del webhook de WhatsApp, los endpoints de la API PRO y el motor de alertas.

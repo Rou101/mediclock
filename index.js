@@ -42,7 +42,7 @@ app.get('/api/version', (req, res) => {
 // ===========================================
 // API: PRO OCR RECETAS (Gemini 1.5 Flash Vision Multimodal IA + Cloud Vision Fallback)
 // ===========================================
-app.post('/api/pro/scan-prescription', async (req, res) => {
+app.post('/api/pro/scan-prescription', authMiddleware, async (req, res) => {
     try {
         const { imageBase64 } = req.body || {};
         if (!imageBase64) {
@@ -235,7 +235,7 @@ Responde únicamente con el JSON.`;
 // ===========================================
 // API: PRO OBTENER HISTORIAL DE RECETAS ENVIADAS
 // ===========================================
-app.get('/api/pro/historial', async (req, res) => {
+app.get('/api/pro/historial', authMiddleware, async (req, res) => {
     try {
         const snap = await db.collection('historial_pro').orderBy('creadoEn_ts', 'desc').limit(50).get();
         const historial = [];
@@ -249,7 +249,7 @@ app.get('/api/pro/historial', async (req, res) => {
     }
 });
 
-app.post('/api/pro/parse-meds', async (req, res) => {
+app.post('/api/pro/parse-meds', authMiddleware, async (req, res) => {
     try {
         const { texto } = req.body;
         if (!texto || !texto.trim()) return res.status(400).json({ error: 'No text provided' });
@@ -355,7 +355,7 @@ ${texto}
 // ===========================================
 // API: PRO PRESCRIPCIÓN & ENVÍO AUTOMÁTICO WHATSAPP (MULTI-MEDICAMENTO + MULTI-CONTACTOS + PDF + FARMACIA)
 // ===========================================
-app.post('/api/pro/prescribir', async (req, res) => {
+app.post('/api/pro/prescribir', authMiddleware, async (req, res) => {
     try {
         const { paciente, phone, patientAppId, fechaEmision, tutorNombre, tutorPhone, contactosAdicionales, medicamentos, med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion, fotoBase64, archivoTipo, docContactActive, docPhone, docNotaEmergency } = req.body || {};
 
@@ -1152,7 +1152,7 @@ app.get('/api/test-meds', async (req, res) => {
 // ===========================================
 // API: PRO CANCELAR RECETA Y VIGILANTE
 // ===========================================
-app.post('/api/pro/cancelar', async (req, res) => {
+app.post('/api/pro/cancelar', authMiddleware, async (req, res) => {
     try {
         const { phone, patientAppId, id } = req.body;
         if (!phone) {
@@ -1241,171 +1241,200 @@ app.post('/api/meta-webhook', async (req, res) => {
 
             console.log(`[Webhook Meta] De ${numero}: "${texto}" (Tipo: ${messageType})`);
 
-            // Buscar en todos los grupos
+            // 1. Recolectar todas las medicinas asociadas a este número de teléfono en todos los grupos
             const fechaChile = new Date().toLocaleDateString('sv-SE', { timeZone: 'America/Santiago' });
             const gruposSnap = await db.collection('grupos').get();
-            let medConfirmado = null;
-            let activacionExitosa = false;
-
+            const matchingMeds = [];
             for (const grupoDoc of gruposSnap.docs) {
                 const medsSnap = await grupoDoc.ref.collection('medicamentos').get();
-                const meds = medsSnap.docs.map(d => ({ id: d.id, ...d.data(), _ref: d.ref }));
-
-                for (const med of meds) {
-                    // Limpiar el teléfono de la DB para compararlo con el formato de Meta
-                    const telDB = (med.telefono || '').replace(/\D/g, ''); 
-
+                medsSnap.forEach(d => {
+                    const medData = d.data();
+                    const telDB = (medData.telefono || '').replace(/\D/g, '');
                     if (telDB === numero) {
-                        
-                        // 1. CHEQUEO DE CANCELACIÓN EN CUALQUIER MOMENTO
-                        if (texto === 'cancelar' || texto === 'cancel') {
-                            await med._ref.update({ estado_paciente: 'cancelado' });
-                            activacionExitosa = true; // Flag to send response later
-                            // If they cancel, we send a cancellation message
-                            await enviarWA('+' + numero, 'Paciente', '❌ Tus recordatorios de MediClock han sido cancelados. No recibirás más mensajes para esta receta.');
-                            return res.sendStatus(200);
+                        matchingMeds.push({
+                            id: d.id,
+                            ...medData,
+                            _ref: d.ref,
+                            _grupoDoc: grupoDoc
+                        });
+                    }
+                });
+            }
+
+            // 2. Si no hay medicamentos para este número, responder
+            if (matchingMeds.length === 0) {
+                if (texto.length > 0) {
+                    console.log(`[Webhook Meta] Mensaje de ${numero} sin medicamentos en la base de datos.`);
+                }
+                return res.sendStatus(200);
+            }
+
+            // 3. Procesar acciones globales (cancelación o configuración de hora)
+            if (texto === 'cancelar' || texto === 'cancel') {
+                for (const med of matchingMeds) {
+                    await med._ref.update({ estado_paciente: 'cancelado' });
+                }
+                await enviarWA('+' + numero, 'Paciente', '❌ Tus recordatorios de MediClock han sido cancelados. No recibirás más mensajes para esta receta.');
+                return res.sendStatus(200);
+            }
+
+            if (texto === 'asignar_hora' || texto === 'asignar una hora') {
+                await enviarWA('+' + numero, 'Paciente', `⏰ Por favor, escribe la hora exacta a la que deseas comenzar tus recordatorios.\n\n👇 *Ejemplo: 14:30 o 9 AM*`);
+                return res.sendStatus(200);
+            }
+
+            // 4. Chequeo de activación de receta (Onboarding / Edición de hora de inicio)
+            const timeMatch = texto.match(/\b([01]?\d|2[0-3])[:.h]?([0-5]\d)?\b/i);
+            const isButtonResponse = texto.trim() === '1' || texto.trim() === '2';
+            const wantsCustomTime = !isButtonResponse && timeMatch;
+
+            let pendingActivationMeds = matchingMeds.filter(m => m.estado_paciente === 'pendiente_activacion' || (m.estado_paciente === 'activo' && wantsCustomTime));
+            let activacionExitosa = false;
+            let medConfirmado = null;
+            
+            if (pendingActivationMeds.length > 0 && (isButtonResponse || wantsCustomTime)) {
+                let newStartTime = null;
+                if (texto === '2' || texto.includes('ahora')) {
+                    const now = new Date();
+                    newStartTime = new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', hour: '2-digit', minute: '2-digit', hour12: false }).format(now);
+                } else if (wantsCustomTime) {
+                    const hh = timeMatch[1].padStart(2, '0');
+                    const mm = timeMatch[2] ? timeMatch[2].padStart(2, '0') : '00';
+                    newStartTime = `${hh}:${mm}`;
+                }
+
+                const batchUpdate = db.batch();
+                for (const med of pendingActivationMeds) {
+                    let updateData = { estado_paciente: 'activo' };
+                    if (newStartTime) {
+                        const freq = med.frecuencia_horas || 24;
+                        const tomasC = Math.floor(24 / freq) || 1;
+                        const [hIni, mIni] = newStartTime.split(':').map(Number);
+                        let newHoras = [];
+                        for (let i = 0; i < tomasC; i++) {
+                            let currH = (hIni + (i * freq)) % 24;
+                            newHoras.push(`${String(currH).padStart(2, '0')}:${String(mIni).padStart(2, '0')}`);
                         }
+                        updateData.hora = newStartTime;
+                        updateData.horas = newHoras;
+                    }
+                    batchUpdate.update(med._ref, updateData);
+                }
+                await batchUpdate.commit();
+                
+                const firstMed = pendingActivationMeds[0];
+                const msgHora = newStartTime ? ` a las ${newStartTime}` : ' a la hora programada';
+                await enviarWA('+' + numero, firstMed.familiar, `✅ ¡Excelente! Tus recordatorios han sido activados.\nRecibirás tu primer aviso${msgHora}.\n\nCódigo de sincronización familiar: *${firstMed.familiar.toUpperCase().substring(0,3)}${firstMed.id.substring(0,4)}*`);
+                activacionExitosa = true;
+                return res.sendStatus(200);
+            }
 
-                        if (texto === 'asignar_hora' || texto === 'asignar una hora') {
-                            await enviarWA('+' + numero, 'Paciente', `⏰ Por favor, escribe la hora exacta a la que deseas comenzar tus recordatorios.\n\n👇 *Ejemplo: 14:30 o 9 AM*`);
-                            return res.sendStatus(200);
-                        }
+            // 5. Procesar confirmación de toma de medicamentos
+            const esOk = texto.includes('tome') || texto.includes('ok') ||
+                         /\bs[ií]\b/i.test(texto) ||
+                         texto.includes('listo') || texto.includes('ya') ||
+                         esFoto || esVoz;
 
-                        // 2. CHEQUEO DE ACTIVACION DE RECETA (ONBOARDING Y EDICIÓN)
-                        const timeMatch = texto.match(/\b([01]?\d|2[0-3])[:.h]?([0-5]\d)?\b/i);
-                        const isButtonResponse = texto.trim() === '1' || texto.trim() === '2';
-                        const wantsCustomTime = !isButtonResponse && timeMatch;
+            if (esOk) {
+                // Obtener todos los pendientes para hoy de todas las medicinas de este usuario
+                const pendingDoses = [];
+                const currentChileTime = horaChile().hora;
+                const toMinutes = (timeStr) => { 
+                    const [h, m] = timeStr.split(':').map(Number); 
+                    return h * 60 + m; 
+                };
+                const currentMin = toMinutes(currentChileTime);
 
-                        if (med.estado_paciente === 'pendiente_activacion' || (med.estado_paciente === 'activo' && wantsCustomTime)) {
-
-                            if (texto === '1' || texto === '2' || texto.includes('empezar') || texto === 'ok' || wantsCustomTime) {
-                                
-                                let newStartTime = null;
-                                if (texto === '2' || texto.includes('ahora')) {
-                                    // Start NOW (Chile time)
-                                    const now = new Date();
-                                    newStartTime = new Intl.DateTimeFormat('es-CL', { timeZone: 'America/Santiago', hour: '2-digit', minute: '2-digit', hour12: false }).format(now);
-                                } else if (wantsCustomTime) {
-                                    const hh = timeMatch[1].padStart(2, '0');
-                                    const mm = timeMatch[2] ? timeMatch[2].padStart(2, '0') : '00';
-                                    newStartTime = `${hh}:${mm}`;
-                                }
-
-                                // Activar TODOS los medicamentos de este número (pendientes o activos)
-                                const snapPendientes = await grupoDoc.ref.collection('medicamentos')
-                                    .where('telefono', '==', med.telefono)
-                                    .where('estado_paciente', 'in', ['pendiente_activacion', 'activo'])
-                                    .get();
-                                    
-                                const batchUpdate = db.batch();
-                                snapPendientes.docs.forEach(d => {
-                                    let updateData = { estado_paciente: 'activo' };
-                                    if (newStartTime) {
-                                        const mData = d.data();
-                                        const freq = mData.frecuencia_horas || 24;
-                                        const tomasC = Math.floor(24 / freq) || 1;
-                                        const [hIni, mIni] = newStartTime.split(':').map(Number);
-                                        let newHoras = [];
-                                        for (let i = 0; i < tomasC; i++) {
-                                            let currH = (hIni + (i * freq)) % 24;
-                                            newHoras.push(`${String(currH).padStart(2, '0')}:${String(mIni).padStart(2, '0')}`);
-                                        }
-                                        updateData.hora = newStartTime;
-                                        updateData.horas = newHoras;
-                                    }
-                                    batchUpdate.update(d.ref, updateData);
-                                });
-                                await batchUpdate.commit();
-                                
-                                const msgHora = newStartTime ? ` a las ${newStartTime}` : ' a la hora programada';
-                                await enviarWA('+' + telDB, med.familiar, `✅ ¡Excelente! Tus recordatorios han sido activados.\nRecibirás tu primer aviso${msgHora}.\n\nCódigo de sincronización familiar: *${med.familiar.toUpperCase().substring(0,3)}${med.id.substring(0,4)}*`);
-                                activacionExitosa = true;
-                                break;
-                            }
-                        }
-
-                        const horasList = med.horas && med.horas.length > 0 ? med.horas : [med.hora || '08:00'];
-                        // Buscar una hora pendiente para hoy
-                        let horaPendiente = null;
-                        for (const h of horasList) {
-                            const key = `${fechaChile}_${h}`;
-                            const toma = med.tomas?.[key];
-                            const estadoDose = toma?.estado || 'pendiente';
-                            if (estadoDose === 'pendiente') {
-                                horaPendiente = h;
-                                break; // Encontramos la primera dosis pendiente del día
-                            }
-                        }
-
-                        if (horaPendiente) {
-                            const esOk = texto.includes('tome') || texto.includes('ok') ||
-                                /\bs[ií]\b/i.test(texto) ||
-                                texto.includes('listo') || texto.includes('ya') ||
-                                esFoto || esVoz;
-
-                            if (esOk) {
-                                const extras = {};
-                                if (esFoto) extras.fotoConfirmacion = mediaUrl;
-                                if (esVoz) extras.vozConfirmacion = mediaUrl;
-
-                                const key = `${fechaChile}_${horaPendiente}`;
-                                const updateData = {};
-                                updateData[`tomas.${key}`] = {
-                                    estado: 'tomada',
-                                    confirmadoEn: new Date().toISOString(),
-                                    tomadoPor: 'Paciente (WhatsApp)',
-                                    ...extras
-                                };
-
-                                // Decrementar inventario si corresponde
-                                let restantes = med.pastillasRestantes;
-                                if (restantes != null) {
-                                    restantes = restantes - 1;
-                                    if (restantes < 0) restantes = 0;
-                                    updateData.pastillasRestantes = restantes;
-
-                                    // Verificar alerta de stock
-                                    const umbral = med.alertaStockMinimo !== undefined && med.alertaStockMinimo !== null 
-                                        ? parseInt(med.alertaStockMinimo) 
-                                        : 5;
-                                    
-                                    if (restantes <= umbral) {
-                                        const cfgDoc = await grupoDoc.ref.collection('config').doc('principal').get();
-                                        const cfg = cfgDoc.exists ? cfgDoc.data() : {};
-                                        const ADMIN = cfg.adminPhone || '';
-                                        if (ADMIN) {
-                                            const alerta = `⚠️ *ALERTA MediClock: Stock Bajo* ⚠️\n\nQuedan pocas unidades de *${med.nombre}* para *${med.familiar}*.\n\nStock actual: *${restantes}* pastillas.\n¡Por favor, reabastece el medicamento pronto!`;
-                                            await enviarWA(ADMIN, 'Admin', alerta);
-                                        }
-                                    }
-                                }
-
-                                await med._ref.update(updateData);
-                                
-                                await grupoDoc.ref.collection('historial').add({
-                                    medicamentoId: med.id,
-                                    familiar: med.familiar,
-                                    nombre: med.nombre,
-                                    dosis: med.dosis || '',
-                                    horaProgram: horaPendiente,
-                                    fecha: fechaChile,
-                                    estado: 'tomada',
-                                    tomadoPor: 'Paciente (WhatsApp)',
-                                    timestamp: new Date().toISOString(),
-                                    ...extras
-                                });
-
-                                medConfirmado = { ...med, hora: horaPendiente };
-                                break;
-                            }
+                for (const med of matchingMeds) {
+                    const horasList = med.horas && med.horas.length > 0 ? med.horas : [med.hora || '08:00'];
+                    for (const h of horasList) {
+                        const key = `${fechaChile}_${h}`;
+                        const toma = med.tomas?.[key];
+                        const estadoDose = toma?.estado || 'pendiente';
+                        if (estadoDose === 'pendiente') {
+                            const diff = Math.abs(currentMin - toMinutes(h));
+                            pendingDoses.push({
+                                med,
+                                hora: h,
+                                diff,
+                                key
+                            });
                         }
                     }
                 }
-                if (medConfirmado || activacionExitosa) break;
-            }
 
-            if (!medConfirmado && !activacionExitosa && texto.length > 0) {
-                console.log(`[Webhook Meta] Mensaje de ${numero} no procesado o sin tareas pendientes.`);
+                if (pendingDoses.length > 0) {
+                    let targetDoses = pendingDoses;
+                    const textoLimpio = texto.toLowerCase();
+                    
+                    // Si el usuario mencionó el nombre o palabra clave de algún medicamento, priorizar ese
+                    const matchingNameDoses = pendingDoses.filter(d => {
+                        const name = (d.med.nombre || '').toLowerCase();
+                        return textoLimpio.includes(name) || name.split(' ').some(word => word.length > 3 && textoLimpio.includes(word));
+                    });
+
+                    if (matchingNameDoses.length > 0) {
+                        targetDoses = matchingNameDoses;
+                    }
+
+                    // Ordenar por cercanía a la hora actual (diferencia mínima)
+                    targetDoses.sort((a, b) => a.diff - b.diff);
+
+                    const chosen = targetDoses[0];
+                    const chosenMed = chosen.med;
+                    const chosenKey = chosen.key;
+
+                    const extras = {};
+                    if (esFoto) extras.fotoConfirmacion = mediaUrl;
+                    if (esVoz) extras.vozConfirmacion = mediaUrl;
+
+                    const updateData = {};
+                    updateData[`tomas.${chosenKey}`] = {
+                        estado: 'tomada',
+                        confirmadoEn: new Date().toISOString(),
+                        tomadoPor: 'Paciente (WhatsApp)',
+                        ...extras
+                    };
+
+                    // Decrementar inventario si corresponde
+                    let restantes = chosenMed.pastillasRestantes;
+                    if (restantes != null) {
+                        restantes = restantes - 1;
+                        if (restantes < 0) restantes = 0;
+                        updateData.pastillasRestantes = restantes;
+
+                        const umbral = chosenMed.alertaStockMinimo !== undefined && chosenMed.alertaStockMinimo !== null 
+                            ? parseInt(chosenMed.alertaStockMinimo) 
+                            : 5;
+                        
+                        if (restantes <= umbral) {
+                            const cfgDoc = await chosenMed._grupoDoc.ref.collection('config').doc('principal').get();
+                            const cfg = cfgDoc.exists ? cfgDoc.data() : {};
+                            const ADMIN = cfg.adminPhone || '';
+                            if (ADMIN) {
+                                const alerta = `⚠️ *ALERTA MediClock: Stock Bajo* ⚠️\n\nQuedan pocas unidades de *${chosenMed.nombre}* para *${chosenMed.familiar}*.\n\nStock actual: *${restantes}* pastillas.\n¡Por favor, reabastece el medicamento pronto!`;
+                                await enviarWA(ADMIN, 'Admin', alerta);
+                            }
+                        }
+                    }
+
+                    await chosenMed._ref.update(updateData);
+
+                    await chosenMed._grupoDoc.ref.collection('historial').add({
+                        medicamentoId: chosenMed.id,
+                        familiar: chosenMed.familiar,
+                        nombre: chosenMed.nombre,
+                        dosis: chosenMed.dosis || '',
+                        horaProgram: chosen.hora,
+                        fecha: fechaChile,
+                        estado: 'tomada',
+                        tomadoPor: 'Paciente (WhatsApp)',
+                        timestamp: new Date().toISOString(),
+                        ...extras
+                    });
+
+                    medConfirmado = { ...chosenMed, hora: chosen.hora };
+                }
             }
 
             if (medConfirmado) {
@@ -1574,7 +1603,8 @@ async function verificarReloj() {
                     };
                     await med._ref.update(updateData);
                     
-                    const msg = `🔔 *RECORDATORIO:* Hola *${med.familiar}*, es hora de tomar tu *${med.nombre}* (${med.dosis}).\n\n👉 _Responde *Listo*, *Ok*, envía una 📷 foto o 🎤 nota de voz para confirmar._`;
+                    const dosisInfo = med.dosis ? ` (${med.dosis})` : '';
+                    const msg = `🔔 *RECORDATORIO:* Hola *${med.familiar}*, es hora de tomar tu *${med.nombre}*${dosisInfo}.\n\n👉 _Responde *Listo*, *Ok*, envía una 📷 foto o 🎤 nota de voz para confirmar._`;
                     await enviarWA(med.telefono, med.familiar, msg);
                 }
 

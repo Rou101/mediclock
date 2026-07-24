@@ -38,17 +38,21 @@ Este archivo contiene las directrices del proyecto **MediClock** para que cualqu
 
 ---
 
-### 📝 Estado de la Sesión Actual (MediClock Pro v30.0.0)
+### 📝 Estado de la Sesión Actual (MediClock Pro v31.0.0)
 
-- **Hitos Alcanzados (Fase 1 Completada):**
-  - **Historial en la Nube Real:** La interfaz PRO ya lee y graba directo en Firestore (`historial_pro`), superando las limitaciones y desincronizaciones de localStorage.
-  - **Resolución de Bugs en UI (DOM Purge):** El modal de éxito ahora limpia completamente el DOM (medicamentos y contactos adicionales) y soluciona un error de Javascript (`r-fecha` nulo) que congelaba la consola al cargar la página.
-  - **Conversión Inteligente de Días:** Si el usuario ingresa semanas o meses en el transcriptor (ej: "1 semana" o "1 mes"), el servidor convierte automáticamente los tiempos a días (7 o 30 respectivamente) tanto por IA como por regex de respaldo.
-  - **Endpoint de Cancelación:** Creado `/api/pro/cancelar` que marca las alarmas inactivas en el grupo familiar del paciente y le envía una confirmación inmediata por WhatsApp.
-  - **Webhook de WhatsApp:** Corregido bug de referencia (`med.ref` vs `med._ref`) que provocaba que el bot de Meta diera error 500 al recibir cancelaciones por chat.
+- **Hitos Alcanzados (Fase 1 y Fase 2 Completadas):**
+  - **Historial en la Nube Real (Fase 1):** La interfaz PRO ya lee y graba directo en Firestore (`historial_pro`), superando las limitaciones y desincronizaciones de localStorage.
+  - **Resolución de Bugs en UI (Fase 1):** El modal de éxito ahora limpia completamente el DOM (medicamentos y contactos adicionales) y soluciona un error de Javascript (`r-fecha` nulo) que congelaba la consola al cargar la página.
+  - **Conversión Inteligente de Días (Fase 1):** Conversión automática de semanas/meses a días en el transcriptor.
+  - **Endpoint de Cancelación (Fase 1):** Endpoint `/api/pro/cancelar` con confirmación por WhatsApp.
+  - **Webhook de WhatsApp (Fase 1):** Corregido bug de referencia (`med.ref` vs `med._ref`).
+  - **Webhook "Asignar hora" (Fase 2):** Implementada la regla exacta `/\bs[ií]\b/i` para el trigger de confirmación en `index.js`.
 
-- **Webhook "Asignar hora" (Fase 2 Completada):**
-  - Ya está implementada y funcionando la regla exacta `/\bs[ií]\b/i.test(texto)` para el trigger de confirmación en `index.js`, resolviendo la colisión con la sílaba "si" de la palabra "asignar".
+- **Hitos Alcanzados (Fase 3 Completada):**
+  - **Seguridad / Autenticación Pro:** Creada la página `/login.html` conectada a Firebase Auth y protegido el acceso a `/pro.html` redirigiendo a usuarios sin sesión activa.
+  - **Blindaje Backend:** Asegurados todos los endpoints médicos `/api/pro/*` con un middleware de servidor que valida los tokens JWT enviados en las cabeceras HTTP `Authorization: Bearer <TOKEN>`.
+  - **Resolución Colisiones Multi-Medicamento:** El bot ya no confirma medicamentos erróneos. Ahora calcula la diferencia en minutos entre la hora actual y las dosis del paciente, auto-confirmando el más cercano.
+  - **Remoción de Paréntesis Vacíos:** Se oculta el formato `()` en los recordatorios cuando no hay dosis definida.
 
-- **BACKLOG / PRÓXIMO PASO URGENTE (Fase 3):**
-  - **Seguridad / Autenticación Pro:** Crear una página de inicio con Login (Firebase Auth) para MediClock Pro. Proteger la ruta `/pro.html` y los endpoints del API `/api/pro/*` con un middleware que valide los tokens de Firebase Admin.
+- **BACKLOG / PRÓXIMO PASO URGENTE (Fase 4):**
+  - **Refactorización y Separación de Capas:** Desacoplar el archivo monolítico `index.js` (Express) en una estructura modular de rutas (`/routes`), controladores (`/controllers`) y servicios (`/services`) para reducir `index.js` a menos de 100 líneas.
