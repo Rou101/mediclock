@@ -1,4 +1,4 @@
-const CLIENT_VERSION = 'v24';
+const CLIENT_VERSION = 'v32.5';
 
 // Auto-verificar versión del servidor e inyectarla dinámicamente en el HTML
 async function sincronizarVersionDinamica() {
@@ -8,10 +8,10 @@ async function sincronizarVersionDinamica() {
         if (data.version) {
             window.CURRENT_SERVER_VERSION = data.version;
             document.querySelectorAll('#app-version, .login-version-tag').forEach(el => {
-                el.textContent = `${data.version} · BUILD ${data.buildDate || '2026-07-19'}`;
+                el.textContent = `${data.version} · BUILD ${data.buildDate || '2026-07-24'}`;
             });
             const badge = document.getElementById('cfg-version-badge');
-            if (badge) badge.textContent = `${data.version} · MediClock · ${data.buildDate || '2026-07-19'}`;
+            if (badge) badge.textContent = `${data.version} · MediClock · ${data.buildDate || '2026-07-24'}`;
             
             const statusEl = document.getElementById('cfg-update-status');
             if (data.version !== CLIENT_VERSION) {

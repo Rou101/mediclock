@@ -4,10 +4,10 @@ const path = require('path');
 const router = express.Router();
 const { verificarReloj } = require('../services/vigilante');
 
-const APP_VERSION = 'v32';
+const APP_VERSION = 'v32.5';
 
 router.get('/version', (req, res) => {
-    res.json({ version: APP_VERSION, buildDate: '2026-07-19', forceUpdate: true });
+    res.json({ version: APP_VERSION, buildDate: '2026-07-24', forceUpdate: true });
 });
 
 router.get('/cron', async (req, res) => {
