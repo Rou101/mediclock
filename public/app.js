@@ -337,13 +337,14 @@ async function cargarDatosGrupo() {
     if (!state.activeGrupoId) return;
     try {
         const id = state.activeGrupoId;
-        [state.medicamentos, state.historial, state.biblioteca, state.config, state.miembros, state.pacientes] = await Promise.all([
+        [state.medicamentos, state.historial, state.biblioteca, state.config, state.miembros, state.pacientes, state.grupoInfo] = await Promise.all([
             api('GET', `/api/grupos/${id}/medicamentos`),
             api('GET', `/api/grupos/${id}/historial`),
             api('GET', `/api/grupos/${id}/biblioteca`),
             api('GET', `/api/grupos/${id}/config`),
             api('GET', `/api/grupos/${id}/miembros`),
             api('GET', `/api/grupos/${id}/pacientes`),
+            api('GET', `/api/grupos/${id}`).catch(() => ({})),
         ]);
 
         const miUser = state.miembros.find(m => m.uid === state.user?.uid);
@@ -583,6 +584,7 @@ function renderHoy() {
     }
 
     document.getElementById('btn-add-hoy').style.display = 'block';
+    renderBannerReceta();
     const hoy = new Date();
     const diasNombre = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
     const meses = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
@@ -689,6 +691,7 @@ function renderHoy() {
                     <div class="med-info">
                         <div class="med-name">💊 ${m.nombre}</div>
                         <div class="med-dose">${m.dosis || ''} • 🗓️ ${frecLabel(m)}</div>
+                        ${renderDoctorBadge(m)}
                         ${renderStockBadge(m)}
                     </div>
                     <span class="med-status ${statusClass(m.estado)}">${estadoLabel(m.estado)}</span>
@@ -698,6 +701,119 @@ function renderHoy() {
         `;
     }).join('');
 }
+
+function renderDoctorBadge(m) {
+    if (!m.doctor) return '';
+    return `<div class="badge-doctor" onclick="event.stopPropagation(); abrirModalFichaMedica('${m.origId || m.id}', '${m._grupoId || state.activeGrupoId}')">👨‍⚕️ ${m.doctor} • Ver Receta</div>`;
+}
+
+function renderBannerReceta() {
+    const el = document.getElementById('banner-receta-vigente');
+    if (!el) return;
+    const info = state.grupoInfo?.receta_vigente;
+    if (info) {
+        el.className = 'banner-receta';
+        el.innerHTML = `
+            <div class="banner-receta-info">
+                <h4>🩺 Receta Médica Vigente</h4>
+                <p style="white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:230px;">${info}</p>
+            </div>
+            <button class="btn-primary btn-sm" style="font-size:11px; padding:6px 10px; background:linear-gradient(135deg,#6366F1,#a855f7); border:none;" onclick="abrirModalFichaMedicaGeneral()">Ver Ficha</button>
+        `;
+    } else {
+        el.className = 'hidden';
+        el.innerHTML = '';
+    }
+}
+
+window.abrirModalFichaMedicaGeneral = function() {
+    const info = state.grupoInfo?.receta_vigente || "Sin receta médica adjunta";
+    const ts = state.grupoInfo?.ultima_receta_ts ? new Date(state.grupoInfo.ultima_receta_ts).toLocaleDateString('es-CL') : 'Reciente';
+    abrirModal(`🩺 Receta Médica del Grupo`, `
+        <div style="text-align:left;">
+            <div style="font-size:14px; font-weight:700; color:var(--c-green); margin-bottom:8px;">Receta Administrada vía MediClock Pro</div>
+            <div style="background:var(--c-surface2); border-left:3px solid #6366f1; padding:12px; border-radius:8px; font-size:13px; margin-bottom:12px;">
+                📝 <strong>Indicaciones de la Clínica:</strong><br>${info}
+            </div>
+            <div style="font-size:12px; color:var(--c-text-2);">Fecha de emisión: ${ts}</div>
+        </div>
+    `);
+};
+
+window.abrirModalFichaMedica = function(medId, grupoId) {
+    const targetGid = grupoId || state.activeGrupoId;
+    let med = state.medicamentos.find(m => m.id === medId);
+    if (!med && state.todosLosMedicamentos) {
+        med = state.todosLosMedicamentos.find(m => m.id === medId);
+    }
+    if (!med) return;
+
+    let docBloque = '';
+    if (med.doctor || med.docContactActive) {
+        const docTel = med.docPhone || '+56957838682';
+        docBloque = `
+            <div style="background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3); border-radius:12px; padding:14px; margin-top:12px;">
+                <div style="font-weight:700; color:#6366f1; font-size:14px;">👨‍⚕️ Médico Tratante: ${med.doctor || 'Dr. Francisco Pérez'}</div>
+                <div style="font-size:12px; color:var(--c-text-2); margin-top:4px;">${med.docNotaEmergency || 'Atención y consultas médicas de urgencia.'}</div>
+                <a href="tel:${docTel.replace(/\s+/g,'')}" class="btn-emergency-doc">
+                    📞 Llamar al Médico (${docTel})
+                </a>
+            </div>
+        `;
+    }
+
+    let recetaMediaHtml = '';
+    if (med.archivoReceta) {
+        if (med.archivoTipo === 'pdf') {
+            recetaMediaHtml = `
+                <div style="margin-top:14px;">
+                    <div style="font-weight:600; font-size:13px; margin-bottom:6px;">📄 Receta Digital PDF Adjunta</div>
+                    <a href="${med.archivoReceta}" target="_blank" class="btn-primary btn-sm" style="display:inline-flex; align-items:center; gap:6px;">
+                        Descargar Receta PDF
+                    </a>
+                </div>
+            `;
+        } else {
+            const imgSrc = med.archivoReceta.startsWith('data:') ? med.archivoReceta : 'data:image/jpeg;base64,' + med.archivoReceta;
+            recetaMediaHtml = `
+                <div style="margin-top:14px;">
+                    <div style="font-weight:600; font-size:13px; margin-bottom:6px;">📷 Receta Médica Adjunta</div>
+                    <img src="${imgSrc}" class="receta-img-preview" alt="Receta Médica" onclick="window.open(this.src)" />
+                </div>
+            `;
+        }
+    }
+
+    let contactosListHtml = '';
+    if (Array.isArray(med.contactosAdicionales) && med.contactosAdicionales.length > 0) {
+        contactosListHtml = `
+            <div style="margin-top:14px;">
+                <div style="font-weight:600; font-size:13px; margin-bottom:8px; color:var(--c-text);">👥 Contactos de Cuidado Asignados</div>
+                <div style="display:flex; flex-direction:column; gap:6px;">
+                    ${med.contactosAdicionales.map(c => `
+                        <div style="display:flex; justify-content:space-between; align-items:center; background:var(--c-surface2); padding:8px 12px; border-radius:8px; font-size:12px;">
+                            <span><strong>${c.nombre}</strong> (${c.rol || 'Tutor'})</span>
+                            <a href="tel:${(c.telefono||'').replace(/\D/g,'')}" style="color:var(--c-green); text-decoration:none; font-weight:700;">📞 ${c.telefono}</a>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    }
+
+    abrirModal(`💊 Ficha de ${med.nombre}`, `
+        <div style="text-align:left;">
+            <div style="font-size:16px; font-weight:700; color:var(--c-text);">${med.nombre}</div>
+            <div style="font-size:13px; color:var(--c-text-2); margin-top:2px;">Paciente: <strong>${med.familiar}</strong> • Dosis: ${med.dosis || '1 comprimido'}</div>
+            
+            ${med.indicacion ? `<div style="background:var(--c-surface2); border-left:3px solid var(--c-green); padding:10px 12px; border-radius:6px; margin-top:12px; font-size:13px;">📝 <strong>Indicaciones:</strong> ${med.indicacion}</div>` : ''}
+
+            ${docBloque}
+            ${recetaMediaHtml}
+            ${contactosListHtml}
+        </div>
+    `);
+};
 
 function frecLabel(m) {
     if (m.frecuencia === 'diaria') return 'Diario';

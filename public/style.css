@@ -1551,3 +1551,74 @@ input:checked + .slider:before {
     line-height: 1.4;
 }
 
+/* ========================================
+   RECETA MÉDICA PRO INTEGRATION STYLES
+   ======================================== */
+.banner-receta {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(168, 85, 247, 0.15));
+    border: 1px solid rgba(168, 85, 247, 0.3);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 4px 16px rgba(168, 85, 247, 0.1);
+}
+.banner-receta-info h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: #a855f7;
+    margin: 0 0 2px 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.banner-receta-info p {
+    font-size: 12px;
+    color: var(--c-text-2);
+    margin: 0;
+}
+
+.badge-doctor {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(99, 102, 241, 0.12);
+    color: #6366f1;
+    border: 1px solid rgba(99, 102, 241, 0.25);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.btn-emergency-doc {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    font-weight: 700;
+    font-size: 13px;
+    border: none;
+    border-radius: 10px;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    text-decoration: none;
+    margin-top: 10px;
+}
+
+.receta-img-preview {
+    width: 100%;
+    max-height: 220px;
+    object-fit: cover;
+    border-radius: 12px;
+    border: 1px solid var(--c-border);
+    margin-top: 10px;
+}
+
+
