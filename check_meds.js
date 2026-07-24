@@ -1,17 +1,13 @@
-﻿const admin = require("firebase-admin");
-const serviceAccount = require("./firebase-admin.json");
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json');
 admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
+
 async function run() {
-    const grupos = await db.collection("grupos").get();
+    const grupos = await db.collection('grupos').get();
     for (const g of grupos.docs) {
-        const meds = await g.ref.collection("medicamentos").get();
-        for (const m of meds.docs) {
-            const data = m.data();
-            if (data.telefono && data.telefono.includes("56957838682")) {
-                console.log(`Med: ${data.nombre}, Estado: ${data.estado_paciente}`);
-            }
-        }
+        const meds = await g.ref.collection('medicamentos').where('telefono', '==', '+56957838682').get();
+        meds.docs.forEach(m => console.log(`ID: ${m.id} | Estado: ${m.data().estado_paciente} | Nombre: ${m.data().nombre}`));
     }
 }
-run();
+run().then(() => process.exit(0));

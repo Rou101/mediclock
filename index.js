@@ -231,6 +231,24 @@ Responde únicamente con el JSON.`;
 // ===========================================
 // API: PRO PARSE MEDS (Gemini Text-to-JSON + Fallback)
 // ===========================================
+
+// ===========================================
+// API: PRO OBTENER HISTORIAL DE RECETAS ENVIADAS
+// ===========================================
+app.get('/api/pro/historial', async (req, res) => {
+    try {
+        const snap = await db.collection('historial_pro').orderBy('creadoEn_ts', 'desc').limit(50).get();
+        const historial = [];
+        snap.forEach(doc => {
+            historial.push({ id: doc.id, ...doc.data() });
+        });
+        res.json(historial);
+    } catch (e) {
+        console.error("Error al obtener historial_pro:", e);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
 app.post('/api/pro/parse-meds', async (req, res) => {
     try {
         const { texto } = req.body;
@@ -242,7 +260,7 @@ El formato de cada objeto debe ser:
 {
   "nombre": "Nombre del medicamento y dosis (ej. Losartan 50mg)",
   "tomasDia": número (cantidad de veces al día que se debe tomar. ej. 3 para '3 veces al día', 1 para '1 al día', por defecto 1),
-  "duracion_dias": número (ej. 30, por defecto 30),
+  "duracion_dias": número (Convierte duraciones expresadas en semanas o meses a su equivalente en días, ej. '1 semana' a 7, '2 semanas' a 14, '1 mes' a 30. Por defecto 30 si no se indica),
   "horaInicio": "string HH:MM (asume 08:00 si no se indica o no es clara)"
 }
 
@@ -295,8 +313,8 @@ ${texto}
             const lineas = texto.split(/\n+/).filter(l => l.trim().length > 2);
             medsArray = lineas.map(linea => {
                 const freqMatch = linea.match(/cada\s*(\d+)\s*(hrs?|horas?)/i);
-                const vecesMatch = linea.match(/(\d+)\s*veces\s*(al|por)\s*d[ií]a/i);
-                const durMatch = linea.match(/(por|durante)\s*(\d+)\s*(d[ií]as?)/i);
+                const vecesMatch = linea.match(/(\d+)\s*(?:veces\s*)?(?:al|por)\s*d[ií]a/i);
+                const durMatch = linea.match(/(?:(?:por|durante)\s+)?(\d+)\s*(d[ií]as?|semanas?|mes(es)?)/i);
                 
                 let tomasDia = 1;
                 if (freqMatch) {
@@ -305,10 +323,23 @@ ${texto}
                     tomasDia = parseInt(vecesMatch[1], 10);
                 }
 
+                let duracion = 30;
+                if (durMatch) {
+                    const cantidad = parseInt(durMatch[1], 10);
+                    const unidad = durMatch[2].toLowerCase();
+                    if (unidad.startsWith('dia') || unidad.startsWith('día')) {
+                        duracion = cantidad;
+                    } else if (unidad.startsWith('semana')) {
+                        duracion = cantidad * 7;
+                    } else if (unidad.startsWith('mes')) {
+                        duracion = cantidad * 30;
+                    }
+                }
+
                 return {
-                    nombre: linea.replace(/cada\s*\d+\s*(hrs?|horas?).*/i, '').replace(/\d+\s*veces\s*(al|por)\s*d[ií]a.*/i, '').replace(/(por|durante)\s*\d+\s*(d[ií]as?).*/i, '').trim() || linea.trim(),
+                    nombre: linea.replace(/cada\s*\d+\s*(hrs?|horas?).*/i, '').replace(/\d+\s*(?:veces\s*)?(?:al|por)\s*d[ií]a.*/i, '').replace(/(?:(?:por|durante)\s+)?\d+\s*(d[ií]as?|semanas?|mes(es)?).*/i, '').trim() || linea.trim(),
                     tomasDia: tomasDia,
-                    duracion_dias: durMatch ? parseInt(durMatch[2], 10) : 30,
+                    duracion_dias: duracion,
                     horaInicio: "08:00"
                 };
             });
@@ -326,7 +357,7 @@ ${texto}
 // ===========================================
 app.post('/api/pro/prescribir', async (req, res) => {
     try {
-        const { paciente, phone, fechaEmision, tutorNombre, tutorPhone, contactosAdicionales, medicamentos, med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion, fotoBase64, archivoTipo, docContactActive, docPhone, docNotaEmergency } = req.body || {};
+        const { paciente, phone, patientAppId, fechaEmision, tutorNombre, tutorPhone, contactosAdicionales, medicamentos, med, dosis, cantPastillas, tomasDia, horaInicio, comidaRel, duracion, indicacion, fotoBase64, archivoTipo, docContactActive, docPhone, docNotaEmergency } = req.body || {};
 
         if (!paciente || !phone) {
             return res.status(400).json({ error: 'Faltan campos obligatorios (paciente y teléfono)' });
@@ -355,11 +386,12 @@ app.post('/api/pro/prescribir', async (req, res) => {
         }
 
         // 3. Guardar en Firestore para paciente, tutores y contactos
-        const grupoDoc = db.collection('grupos').doc('default_pro');
+        const grupoDoc = db.collection('grupos').doc(patientAppId || `default_${telLimpio}`);
         
         const isFreeFormText = medsList.length === 1 && (!medsList[0].nombre || medsList[0].nombre === 'Medicamento' || medsList[0].nombre === 'Receta Médica Copiada');
         
         const batch = db.batch();
+        batch.set(grupoDoc, { created: true, updatedAt: new Date() }, { merge: true });
         let primerMedId = null;
 
         for (const m of medsList) {
@@ -469,6 +501,36 @@ Hola ${cont.nombre}, el Dr. Francisco Pérez ha registrado el tratamiento médic
 🔒 *Privacidad & Seguridad:* Información protegida en Google Cloud / Firebase. Recibirás notificaciones y alertas si ${paciente} requiere asistencia con sus dosis.`;
                 await enviarWA('+' + numContLimpio, cont.nombre, mensajeContacto);
             }
+        }
+
+        // Guardamos en la coleccion de la APP Familia si corresponde
+        if (patientAppId) {
+            try {
+                // Inyectamos las indicaciones del medico a la app de la familia
+                await db.collection('grupos').doc(patientAppId).update({
+                    receta_vigente: indicacion || "Receta administrada vía WhatsApp por el Dr.",
+                    ultima_receta_ts: new Date().toISOString()
+                });
+            } catch (err) {
+                console.error("No se pudo inyectar a la app de la familia", err);
+            }
+        }
+
+        // Guardamos el historial en Firestore para el portal PRO
+        try {
+            const historyId = req.body.id || ('REC-' + Date.now().toString().slice(-6));
+            await db.collection('historial_pro').doc(historyId).set({
+                paciente,
+                phone,
+                patientAppId: patientAppId || '',
+                indicaciones: indicacion || '',
+                fechaEmision: fechaEmision || new Date().toLocaleDateString(),
+                creadoEn: new Date().toLocaleString(),
+                creadoEn_ts: new Date().toISOString(),
+                estado: 'activo'
+            });
+        } catch (err) {
+            console.error("Error guardando historial pro:", err);
         }
 
         res.json({
@@ -1076,6 +1138,68 @@ app.get('/api/meta-webhook', (req, res) => {
     }
 });
 
+app.get('/api/test-meds', async (req, res) => {
+    try {
+        const grupoDoc = await db.collection('grupos').doc('default_pro').get();
+        const medsSnap = await grupoDoc.ref.collection('medicamentos').where('telefono', '==', '+56957838682').get();
+        const result = medsSnap.docs.map(d => ({ id: d.id, estado: d.data().estado_paciente, hora: d.data().hora, nombre: d.data().nombre, horas: d.data().horas, tomas: d.data().tomas }));
+        res.json(result);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// ===========================================
+// API: PRO CANCELAR RECETA Y VIGILANTE
+// ===========================================
+app.post('/api/pro/cancelar', async (req, res) => {
+    try {
+        const { phone, patientAppId, id } = req.body;
+        if (!phone) {
+            return res.status(400).json({ error: 'Falta teléfono' });
+        }
+        
+        let telLimpio = phone.replace(/\D/g, '');
+        const grupoId = patientAppId || `default_${telLimpio}`;
+        
+        const medsSnap = await db.collection('grupos').doc(grupoId).collection('medicamentos').where('telefono', '==', '+' + telLimpio).get();
+        
+        let batch = db.batch();
+        let docCount = 0;
+        medsSnap.forEach(doc => {
+            if (doc.data().estado_paciente !== 'cancelado') {
+                batch.update(doc.ref, { estado_paciente: 'cancelado' });
+                docCount++;
+            }
+        });
+        
+        await batch.commit();
+
+        // Actualizamos estado en historial_pro
+        if (id) {
+            try {
+                await db.collection('historial_pro').doc(id).update({
+                    estado: 'cancelado'
+                });
+            } catch (err) {
+                console.error("Error actualizando estado en historial_pro:", err);
+            }
+        }
+
+        // Notificar al paciente por WhatsApp
+        try {
+            await enviarWA('+' + telLimpio, 'Paciente', '❌ Tus recordatorios de MediClock han sido cancelados por tu médico. No recibirás más de estos mensajes.');
+        } catch (waErr) {
+            console.error("Error despachando WA de cancelacion:", waErr);
+        }
+        
+        res.json({ success: true, count: docCount });
+    } catch (err) {
+        console.error('Error cancelando receta:', err);
+        res.status(500).json({ error: 'Error interno al cancelar' });
+    }
+});
+
 // 2. Recepción de mensajes (POST)
 app.post('/api/meta-webhook', async (req, res) => {
     const body = req.body;
@@ -1135,7 +1259,7 @@ app.post('/api/meta-webhook', async (req, res) => {
                         
                         // 1. CHEQUEO DE CANCELACIÓN EN CUALQUIER MOMENTO
                         if (texto === 'cancelar' || texto === 'cancel') {
-                            await med.ref.update({ estado_paciente: 'cancelado' });
+                            await med._ref.update({ estado_paciente: 'cancelado' });
                             activacionExitosa = true; // Flag to send response later
                             // If they cancel, we send a cancellation message
                             await enviarWA('+' + numero, 'Paciente', '❌ Tus recordatorios de MediClock han sido cancelados. No recibirás más mensajes para esta receta.');
@@ -1149,7 +1273,8 @@ app.post('/api/meta-webhook', async (req, res) => {
 
                         // 2. CHEQUEO DE ACTIVACION DE RECETA (ONBOARDING Y EDICIÓN)
                         const timeMatch = texto.match(/\b([01]?\d|2[0-3])[:.h]?([0-5]\d)?\b/i);
-                        const wantsCustomTime = texto !== '1' && texto !== '2' && timeMatch;
+                        const isButtonResponse = texto.trim() === '1' || texto.trim() === '2';
+                        const wantsCustomTime = !isButtonResponse && timeMatch;
 
                         if (med.estado_paciente === 'pendiente_activacion' || (med.estado_paciente === 'activo' && wantsCustomTime)) {
 
@@ -1166,10 +1291,10 @@ app.post('/api/meta-webhook', async (req, res) => {
                                     newStartTime = `${hh}:${mm}`;
                                 }
 
-                                // Activar TODOS los medicamentos pendientes de este número
+                                // Activar TODOS los medicamentos de este número (pendientes o activos)
                                 const snapPendientes = await grupoDoc.ref.collection('medicamentos')
                                     .where('telefono', '==', med.telefono)
-                                    .where('estado_paciente', '==', 'pendiente_activacion')
+                                    .where('estado_paciente', 'in', ['pendiente_activacion', 'activo'])
                                     .get();
                                     
                                 const batchUpdate = db.batch();
@@ -1419,12 +1544,22 @@ async function verificarReloj() {
         const meds = medsSnap.docs.map(d => ({ id: d.id, ...d.data(), _ref: d.ref }));
 
         for (const med of meds) {
-            const hoy = med.frecuencia === 'diaria' || (med.frecuencia === 'especifica' && med.dias?.map(Number).includes(dia));
-            if (!hoy) continue;
+            if (med.telefono === '+56957838682') {
+                console.log(`[DEBUG] Check Med: ${med.nombre} | Frec: ${med.frecuencia} | Horas: ${JSON.stringify(med.horas)} | HoraChile: ${hora}`);
+            }
+            
+            const hoy = !med.frecuencia || med.frecuencia === 'diaria' || (med.frecuencia === 'especifica' && med.dias?.map(Number).includes(dia));
+            if (!hoy) {
+                if (med.telefono === '+56957838682') console.log(`[DEBUG] Skipped ${med.nombre} due to !hoy`);
+                continue;
+            }
 
             const horasList = med.horas && med.horas.length > 0 ? med.horas : [med.hora || '08:00'];
 
             for (const H of horasList) {
+                if (med.telefono === '+56957838682') {
+                    console.log(`[DEBUG] H: ${H} | hora: ${hora} | enviados: ${!!enviados[`${grupoDoc.id}-${med.id}-${H}`]}`);
+                }
                 const kEnvio = `${grupoDoc.id}-${med.id}-${H}`;
                 const kOlvido = `olvido-${grupoDoc.id}-${med.id}-${H}`;
 
@@ -1479,9 +1614,17 @@ async function verificarReloj() {
 
 app.listen(PORT, () => {
     console.log(`=========================================`);
-    console.log(`¡MediClock en marcha! Puerto: ${PORT}`);
+    console.log(`🚀 MediClock en marcha! Puerto: ${PORT}`);
     console.log(`=========================================`);
 });
 
-setInterval(verificarReloj, 30000);
-verificarReloj();
+// Endpoint for Google Cloud Scheduler
+app.get('/api/cron', async (req, res) => {
+    try {
+        await verificarReloj();
+        res.status(200).send('Cron ejecutado correctamente');
+    } catch (error) {
+        console.error('[Cron Error]', error);
+        res.status(500).send('Error en cron');
+    }
+});

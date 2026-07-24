@@ -6,7 +6,7 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
-    <title>MediClock Pro v25.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
+    <title>MediClock Pro v30.0.0 B2B - Plataforma Médica de Prescripción & Adherencia</title>
     
     <!-- GOOGLE FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -951,7 +951,7 @@
                 🚪 Cerrar Sesión Médica
             </button>
             <div style="font-size:11px; color:var(--c-text-sub); text-align:center; margin-top:16px;">
-                MediClock Pro v29.0 · Build 2026-07-22
+                MediClock Pro v30.0.0 · Build 2026-07-23
             </div>
         </div>
     </div>
@@ -1052,11 +1052,12 @@
         let currentFileType = 'image';
         let contactCount = 0;
         let descuentoGlobalActivo = true;
-        let prescripcionesHistorial = JSON.parse(localStorage.getItem('mediclock_history') || '[]');
+        let prescripcionesHistorial = [];
 
         document.addEventListener('DOMContentLoaded', () => {
             const today = new Date().toISOString().split('T')[0];
-            document.getElementById('r-fecha').value = today;
+            const rFecha = document.getElementById('r-fecha');
+            if (rFecha) rFecha.value = today;
             if (localStorage.getItem('pro_theme') === 'light') {
                 changeProTheme('light');
             }
@@ -1263,6 +1264,7 @@
             }
 
             try {
+                console.log("Enviando texto a transcribir:", rawText);
                 const res = await fetch('/api/pro/parse-meds', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1270,6 +1272,7 @@
                 });
                 
                 const data = await res.json();
+                console.log("Respuesta transcripción recibida:", data);
                 if (data.success && data.medicamentos) {
                     const container = document.getElementById('meds-container');
                     container.innerHTML = ''; // Limpiar filas anteriores
@@ -1431,9 +1434,7 @@
                 return; 
             }
 
-            // Registrar en historial local
             prescripcionesHistorial.unshift(payload);
-            localStorage.setItem('mediclock_history', JSON.stringify(prescripcionesHistorial.slice(0, 50)));
 
             // Poblar Modal de Reporte (Éxito)
             document.getElementById('rep-paciente').textContent = payload.paciente;
@@ -1457,16 +1458,33 @@
         }
 
         function closeDispatchModal() {
-            document.getElementById('dispatch-modal').style.display = 'none';
-            document.getElementById('pro-prescription-form').reset();
-            document.getElementById('instrucciones-ai').value = '';
-            document.getElementById('p-nombre').value = '';
-            document.getElementById('p-phone').value = '';
-            document.getElementById('p-mediclock-id').value = '';
+            const dispatchModal = document.getElementById('dispatch-modal');
+            if (dispatchModal) dispatchModal.style.display = 'none';
+
+            const form = document.getElementById('pro-prescription-form');
+            if (form) form.reset();
+
+            const instAi = document.getElementById('instrucciones-ai');
+            if (instAi) instAi.value = '';
+
+            const pNombre = document.getElementById('p-nombre');
+            if (pNombre) pNombre.value = '';
+
+            const pPhone = document.getElementById('p-phone');
+            if (pPhone) pPhone.value = '';
+
+            const pMediclockId = document.getElementById('p-mediclock-id');
+            if (pMediclockId) pMediclockId.value = '';
+
+            const mIndicacionesCopied = document.getElementById('m-indicaciones-copied');
+            if (mIndicacionesCopied) mIndicacionesCopied.value = '';
+
             const photoPreview = document.getElementById('attached-photo-preview');
             if (photoPreview) photoPreview.style.display = 'none';
+
             const pdfPreview = document.getElementById('attached-pdf-preview');
             if (pdfPreview) pdfPreview.style.display = 'none';
+
             const photoPlaceholder = document.getElementById('photo-placeholder');
             if (photoPlaceholder) photoPlaceholder.style.display = 'block';
             
@@ -1485,14 +1503,20 @@
             }
 
             // Reset editable meds to 1 empty row
-            document.getElementById('meds-container').innerHTML = '';
+            const medsContainer = document.getElementById('meds-container');
+            if (medsContainer) {
+                medsContainer.innerHTML = '';
+            }
             addMedRow();
 
             showToast("Listo para nueva prescripción");
             
             currentFileBase64 = '';
             
-            document.getElementById('contacts-container').innerHTML = '';
+            const contactsContainer = document.getElementById('contacts-container');
+            if (contactsContainer) {
+                contactsContainer.innerHTML = '';
+            }
             contactCount = 0;
         }
 
@@ -1529,9 +1553,23 @@
         }
 
         /* BUSCAR / CORROBORAR PRESCRIPCIONES ENVIADAS (SOLO LECTURA) */
-        function openSearchModal() {
+        async function openSearchModal() {
             document.getElementById('search-modal').style.display = 'flex';
-            filtrarPrescripcionesHistoricas();
+            const container = document.getElementById('search-results-list');
+            container.innerHTML = '<div style="color:var(--c-text-sub); text-align:center; padding:20px;">Cargando historial desde la nube...</div>';
+            
+            try {
+                const res = await fetch('/api/pro/historial');
+                if (res.ok) {
+                    prescripcionesHistorial = await res.json();
+                    filtrarPrescripcionesHistoricas();
+                } else {
+                    container.innerHTML = '<div style="color:var(--c-danger); text-align:center; padding:20px;">Error al cargar historial</div>';
+                }
+            } catch (e) {
+                console.error("Error obteniendo historial:", e);
+                container.innerHTML = '<div style="color:var(--c-danger); text-align:center; padding:20px;">Error de conexión</div>';
+            }
         }
 
         function closeSearchModal() {
@@ -1544,8 +1582,8 @@
             container.innerHTML = '';
 
             const filtrados = prescripcionesHistorial.filter(item => 
-                item.paciente.toLowerCase().includes(query) || 
-                item.fechaEmision.includes(query) ||
+                (item.paciente && item.paciente.toLowerCase().includes(query)) || 
+                (item.fechaEmision && item.fechaEmision.includes(query)) ||
                 (item.indicaciones && item.indicaciones.toLowerCase().includes(query))
             );
 
@@ -1566,8 +1604,11 @@
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
                         <span style="font-weight:800; color:var(--c-primary);">${item.paciente}</span>
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span style="font-size:11px; color:var(--c-text-sub);">${item.fechaEmision} (${item.creadoEn})</span>
-                            <button type="button" onclick="cancelarPrescripcion('${item.id}')" style="background:rgba(239,68,68,0.1); border:1px solid #ef4444; color:#ef4444; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:700; cursor:pointer;">Cancelar</button>
+                            <span style="font-size:11px; color:var(--c-text-sub);">${item.fechaEmision || ''} ${item.creadoEn ? '(' + item.creadoEn + ')' : ''}</span>
+                            ${item.estado !== 'cancelado' 
+                              ? `<button type="button" onclick="cancelarPrescripcion('${item.id}')" style="background:rgba(239,68,68,0.1); border:1px solid #ef4444; color:#ef4444; padding:4px 8px; border-radius:4px; font-size:10px; font-weight:700; cursor:pointer;">Cancelar</button>`
+                              : `<span style="margin-left:10px; color:#ef4444; font-size:12px; font-weight:bold;">Cancelada</span>`
+                            }
                         </div>
                     </div>
                     <div style="font-size:12px; color:var(--c-text-sub); margin-bottom:6px;">WhatsApp: ${item.phone} ${item.descuento ? ' | Descuento Farmacia: Activado' : ''}</div>
@@ -1579,12 +1620,33 @@
             });
         }
 
-        function cancelarPrescripcion(id) {
-            if (confirm("¿Estás seguro de que deseas cancelar los recordatorios por WhatsApp para esta receta?")) {
-                prescripcionesHistorial = prescripcionesHistorial.filter(item => item.id !== id);
-                localStorage.setItem('mediclock_history', JSON.stringify(prescripcionesHistorial));
+        async function cancelarPrescripcion(id) {
+            if (confirm("¿Estás seguro de que deseas cancelar los recordatorios por WhatsApp para esta receta y detener el Vigilante?")) {
+                const item = prescripcionesHistorial.find(i => i.id === id);
+                if (item) {
+                    try {
+                        const res = await fetch('/api/pro/cancelar', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ phone: item.phone, patientAppId: item.patientAppId, id: item.id })
+                        });
+                        const data = await res.json();
+                        if (!data.success) {
+                            console.error(data.error);
+                            alert("Error al cancelar en el servidor: " + data.error);
+                            return;
+                        }
+                    } catch (e) {
+                        console.error(e);
+                        alert("Error de conexión al servidor.");
+                        return;
+                    }
+                }
+                
+                // Actualizar estado sin borrar
+                if(item) item.estado = 'cancelado';
                 filtrarPrescripcionesHistoricas();
-                showToast("Recordatorios cancelados para la receta.");
+                showToast("Recordatorios cancelados en el servidor y localmente.");
             }
         }
     </script>
