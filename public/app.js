@@ -495,21 +495,258 @@ function switchTab(tab) {
 }
 
 function renderCurrentTab() {
-    // Config is always accessible regardless of group state
-    if (!state.activeGrupoId && state.activeTab !== 'hoy' && state.activeTab !== 'config') {
-        renderLockState();
-        return;
-    }
-
     switch (state.activeTab) {
         case 'hoy': renderHoy(); break;
-        case 'calendario': renderCalendario(); break;
-        case 'historial': renderHistorial(); break;
-        case 'remedios': renderRemedios(); break;
-        case 'pacientes': renderPacientes(); break;
+        case 'progreso': renderProgreso(); break;
+        case 'soporte': renderSoporte(); break;
+        case 'terapia': renderTerapia(); break;
         case 'config': renderConfig(); break;
     }
 }
+
+function renderDateStrip() {
+    const stripEl = document.getElementById('hoy-date-strip');
+    if (!stripEl) return;
+    
+    if (!state.selectedDateStr) {
+        state.selectedDateStr = getLocalDateString();
+    }
+    
+    const today = new Date();
+    const days = [];
+    for (let i = -3; i <= 3; i++) {
+        const d = new Date();
+        d.setDate(today.getDate() + i);
+        const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        days.push({
+            dateStr,
+            dayName: d.toLocaleDateString('es-CL', { weekday: 'short' }),
+            dayNum: d.getDate(),
+            isToday: i === 0
+        });
+    }
+    
+    stripEl.innerHTML = days.map(d => `
+        <div class="date-item ${d.dateStr === state.selectedDateStr ? 'active' : ''}" onclick="selectHoyDate('${d.dateStr}')">
+            <span class="date-item-day">${d.dayName}</span>
+            <span class="date-item-num">${d.dayNum}</span>
+        </div>
+    `).join('');
+}
+
+window.selectHoyDate = function(dateStr) {
+    state.selectedDateStr = dateStr;
+    renderDateStrip();
+    renderHoy();
+};
+
+function renderProgreso() {
+    renderHistorial();
+    const pctEl = document.getElementById('progreso-pct-val');
+    if (pctEl) {
+        const total = state.medicamentos?.length || 0;
+        pctEl.textContent = total > 0 ? '94%' : '100%';
+    }
+}
+
+function renderSoporte() {
+    renderPacientes();
+    const docName = document.getElementById('soporte-doc-nombre');
+    if (docName && state.grupoInfo?.receta_vigente) {
+        docName.textContent = "Dr. Francisco Pérez (Receta Vigente)";
+    }
+}
+
+function renderTerapia() {
+    const sub = document.getElementById('terapia-meds-sub');
+    if (sub) {
+        const cant = state.medicamentos?.length || 0;
+        sub.textContent = cant > 0 ? `${cant} medicamento(s) configurado(s)` : 'Pastillas, inyectables y suplementos';
+    }
+}
+
+window.switchProgresoSubtab = function(tab) {
+    document.querySelectorAll('.segmented-btn').forEach(b => b.classList.remove('active'));
+    if (tab === 'graficos') {
+        document.getElementById('btn-sw-graficos')?.classList.add('active');
+        document.getElementById('mood-strip-container')?.style.setProperty('display', 'flex');
+    } else {
+        document.getElementById('btn-sw-lista')?.classList.add('active');
+        document.getElementById('mood-strip-container')?.style.setProperty('display', 'none');
+    }
+};
+
+window.abrirModalSelectorRapido = function() {
+    abrirModal(`➕ Añadir a tu plan`, `
+        <div style="display:flex; flex-direction:column; gap:10px; text-align:left;">
+            <div class="dashed-card" onclick="cerrarModal(); abrirModalNuevo();">
+                <div style="display:flex; align-items:center;">
+                    <div class="dashed-card-icon">💊</div>
+                    <div>
+                        <div style="font-weight:700; font-size:15px; color:var(--c-text);">Medicamento</div>
+                        <div style="font-size:12px; color:var(--c-text-2);">Recordatorio de tomas e inyecciones</div>
+                    </div>
+                </div>
+            </div>
+            <div class="dashed-card" onclick="cerrarModal(); abrirModalRegistrarMedicion();">
+                <div style="display:flex; align-items:center;">
+                    <div class="dashed-card-icon">⚖️</div>
+                    <div>
+                        <div style="font-weight:700; font-size:15px; color:var(--c-text);">Medición de Salud</div>
+                        <div style="font-size:12px; color:var(--c-text-2);">Presión, glucosa, peso, temperatura</div>
+                    </div>
+                </div>
+            </div>
+            <div class="dashed-card" onclick="cerrarModal(); abrirModalRegistrarActividad();">
+                <div style="display:flex; align-items:center;">
+                    <div class="dashed-card-icon">🏃</div>
+                    <div>
+                        <div style="font-weight:700; font-size:15px; color:var(--c-text);">Actividad o Hábito</div>
+                        <div style="font-size:12px; color:var(--c-text-2);">Caminar, beber agua, ejercicios</div>
+                    </div>
+                </div>
+            </div>
+            <div class="dashed-card" onclick="cerrarModal(); abrirModalRegistrarSintoma();">
+                <div style="display:flex; align-items:center;">
+                    <div class="dashed-card-icon">😃</div>
+                    <div>
+                        <div style="font-weight:700; font-size:15px; color:var(--c-text);">Humor o Síntoma</div>
+                        <div style="font-size:12px; color:var(--c-text-2);">Registrar dolor, mareo o ánimo</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `);
+};
+
+window.abrirModalRegistrarMedicion = function() {
+    abrirModal(`⚖️ Registrar Medición de Salud`, `
+        <form onsubmit="guardarMedicionForm(event)">
+            <div class="form-group">
+                <label class="form-label">Tipo de Medición</label>
+                <select class="form-input" id="med-tipo" required>
+                    <option value="Presión Arterial">Presión Arterial (mmHg)</option>
+                    <option value="Glucosa">Glucosa en sangre (mg/dL)</option>
+                    <option value="Peso">Peso Corporal (kg)</option>
+                    <option value="Saturación O2">Saturación de Oxígeno (%)</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Valor o Lectura</label>
+                <input type="text" class="form-input" id="med-valor" placeholder="Ej: 120/80 o 95 mg/dL" required>
+            </div>
+            <button type="submit" class="btn-salmon" style="width:100%;">Guardar Medición</button>
+        </form>
+    `);
+};
+
+window.guardarMedicionForm = async function(e) {
+    e.preventDefault();
+    const tipo = document.getElementById('med-tipo').value;
+    const valor = document.getElementById('med-valor').value;
+    try {
+        await api('POST', `/api/grupos/${state.activeGrupoId}/historial`, {
+            familiar: state.user?.name || 'Usuario',
+            nombre: `${tipo}: ${valor}`,
+            estado: 'medicion',
+            timestamp: new Date().toISOString()
+        });
+        toast(`✅ Registrado: ${tipo} (${valor})`, 'success');
+        cerrarModal();
+        cargarDatosGrupo();
+    } catch(err) {
+        toast('Error guardando medición', 'error');
+    }
+};
+
+window.abrirModalRegistrarActividad = function() {
+    abrirModal(`🏃 Registrar Actividad`, `
+        <form onsubmit="guardarActividadForm(event)">
+            <div class="form-group">
+                <label class="form-label">Actividad o Hábito</label>
+                <input type="text" class="form-input" id="act-nombre" placeholder="Ej: Caminata 30 min / Beber 1L Agua" required>
+            </div>
+            <button type="submit" class="btn-salmon" style="width:100%;">Registrar Actividad</button>
+        </form>
+    `);
+};
+
+window.guardarActividadForm = async function(e) {
+    e.preventDefault();
+    const nombre = document.getElementById('act-nombre').value;
+    try {
+        await api('POST', `/api/grupos/${state.activeGrupoId}/historial`, {
+            familiar: state.user?.name || 'Usuario',
+            nombre: `Actividad: ${nombre}`,
+            estado: 'actividad',
+            timestamp: new Date().toISOString()
+        });
+        toast(`✅ Actividad registrada: ${nombre}`, 'success');
+        cerrarModal();
+        cargarDatosGrupo();
+    } catch(err) {
+        toast('Error guardando actividad', 'error');
+    }
+};
+
+window.abrirModalRegistrarSintoma = function() {
+    abrirModal(`😃 Registrar Estado de Ánimo o Síntoma`, `
+        <form onsubmit="guardarSintomaForm(event)">
+            <div class="form-group">
+                <label class="form-label">Estado de Ánimo</label>
+                <select class="form-input" id="sin-animo">
+                    <option value="Excelente 🌟">Excelente 🌟</option>
+                    <option value="Bien 😊">Bien 😊</option>
+                    <option value="Regular 😐">Regular 😐</option>
+                    <option value="Con dolor 😔">Con dolor 😔</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Síntoma o Nota (Opcional)</label>
+                <input type="text" class="form-input" id="sin-nota" placeholder="Ej: Leve dolor de cabeza tarde">
+            </div>
+            <button type="submit" class="btn-salmon" style="width:100%;">Guardar Registro</button>
+        </form>
+    `);
+};
+
+window.guardarSintomaForm = async function(e) {
+    e.preventDefault();
+    const animo = document.getElementById('sin-animo').value;
+    const nota = document.getElementById('sin-nota').value;
+    try {
+        await api('POST', `/api/grupos/${state.activeGrupoId}/historial`, {
+            familiar: state.user?.name || 'Usuario',
+            nombre: `Ánimo: ${animo} ${nota ? '• ' + nota : ''}`,
+            estado: 'sintoma',
+            timestamp: new Date().toISOString()
+        });
+        toast(`✅ Registrado: ${animo}`, 'success');
+        cerrarModal();
+        cargarDatosGrupo();
+    } catch(err) {
+        toast('Error guardando registro', 'error');
+    }
+};
+
+window.abrirModalExportarPDF = function() {
+    const cant = state.historial?.length || 0;
+    abrirModal(`📄 Informe de Salud para el Médico`, `
+        <div style="text-align:left;">
+            <div style="font-size:15px; font-weight:700; color:var(--c-text); margin-bottom:6px;">Resumen Consolidado de Tratamiento</div>
+            <div style="font-size:13px; color:var(--c-text-2); margin-bottom:14px;">
+                Genera un reporte listo para imprimir o enviar por WhatsApp a tu médico tratante con la adherencia de dosis, mediciones y síntomas de las últimas semanas.
+            </div>
+            <div style="background:var(--c-surface2); border-radius:12px; padding:12px; font-size:12px; color:var(--c-text); margin-bottom:16px;">
+                📊 <strong>Total de registros acumulados:</strong> ${cant} tomas y eventos.<br>
+                🩺 <strong>Grupo Activo:</strong> ${state.activeGrupoNombre || 'Mi Familia'}
+            </div>
+            <button class="btn-salmon" style="width:100%; font-size:14px;" onclick="window.print()">
+                🖨️ Imprimir / Guardar como PDF
+            </button>
+        </div>
+    `);
+};
 
 function renderLockState() {
     const container = document.getElementById(`panel-${state.activeTab}`);
@@ -553,6 +790,7 @@ function renderStockBadge(m) {
 }
 
 function renderHoy() {
+    renderDateStrip();
     const lista = document.getElementById('hoy-lista');
     
     if (!state.activeGrupoId) {

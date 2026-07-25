@@ -1621,4 +1621,212 @@ input:checked + .slider:before {
     margin-top: 10px;
 }
 
+/* ========================================
+   MYTHERAPY REDESIGN STYLES
+   ======================================== */
+:root {
+    --c-salmon: #E07A5F;
+    --c-salmon-hover: #D97757;
+    --c-lavender: #C4B5FD;
+    --c-lavender-bg: rgba(196, 181, 253, 0.12);
+    --c-border-dashed: rgba(255, 255, 255, 0.18);
+}
+
+/* Selector Horizontal de Días (Top Date Strip) */
+.date-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    overflow-x: auto;
+    padding: 12px 4px;
+    margin-bottom: 16px;
+    gap: 8px;
+    scrollbar-width: none;
+}
+.date-strip::-webkit-scrollbar { display: none; }
+
+.date-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 44px;
+    padding: 6px 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.date-item-day {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--c-text-2);
+    margin-bottom: 6px;
+    text-transform: capitalize;
+}
+.date-item-num {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--c-text);
+    transition: all 0.2s ease;
+}
+.date-item.active .date-item-day {
+    color: var(--c-salmon);
+    font-weight: 700;
+}
+.date-item.active .date-item-num {
+    background: var(--c-salmon);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(224, 122, 95, 0.4);
+}
+
+/* Banner Educativo Lavender Pastel */
+.lavender-banner {
+    background: var(--c-lavender-bg);
+    border: 1px solid rgba(196, 181, 253, 0.3);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 16px;
+    position: relative;
+}
+.lavender-banner-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--c-lavender);
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.lavender-banner-desc {
+    font-size: 12px;
+    color: var(--c-text-2);
+    line-height: 1.4;
+}
+
+/* Tarjetas con Borde Punteado (Dashed Cards) */
+.dashed-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px dashed var(--c-border-dashed);
+    border-radius: 16px;
+    padding: 16px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.2s, border-color 0.2s;
+    cursor: pointer;
+}
+.dashed-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: var(--c-salmon);
+}
+.dashed-card-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--c-surface2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin-right: 12px;
+}
+.dashed-card-info { flex: 1; text-align: left; }
+.dashed-card-title { font-size: 15px; font-weight: 700; color: var(--c-text); }
+.dashed-card-subtitle { font-size: 12px; color: var(--c-text-2); margin-top: 2px; }
+
+/* Botones de Acción Salmon / Terracota */
+.btn-salmon {
+    background: linear-gradient(135deg, #E07A5F, #D97757);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 15px;
+    border: none;
+    border-radius: 50px;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 16px rgba(224, 122, 95, 0.35);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-salmon:active { transform: scale(0.97); }
+
+/* FAB Flotante (+ Añadir) */
+.fab-add-btn {
+    position: fixed;
+    bottom: 84px;
+    right: 20px;
+    background: linear-gradient(135deg, #E07A5F, #D97757);
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 14px;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 6px 20px rgba(224, 122, 95, 0.45);
+    z-index: 40;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.fab-add-btn:active { transform: scale(0.94); }
+
+/* Switch de Progreso (Gráficos | Lista) */
+.segmented-switch {
+    display: flex;
+    background: var(--c-surface2);
+    border-radius: 12px;
+    padding: 4px;
+    margin-bottom: 16px;
+    border: 1px solid var(--c-border);
+}
+.segmented-btn {
+    flex: 1;
+    text-align: center;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--c-text-2);
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+.segmented-btn.active {
+    background: var(--c-salmon);
+    color: #ffffff;
+    box-shadow: 0 2px 8px rgba(224, 122, 95, 0.3);
+}
+
+/* Racha de Humor (Mood Tracker Strip) */
+.mood-strip {
+    display: flex;
+    justify-content: space-between;
+    background: var(--c-surface);
+    border-radius: 16px;
+    padding: 12px 14px;
+    border: 1px solid var(--c-border);
+    margin-bottom: 16px;
+}
+.mood-day-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+.mood-day-label { font-size: 11px; color: var(--c-text-2); }
+.mood-emoji { font-size: 20px; opacity: 0.8; }
+
+
 
