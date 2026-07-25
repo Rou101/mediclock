@@ -821,7 +821,8 @@ function renderHoy() {
         return;
     }
 
-    document.getElementById('btn-add-hoy').style.display = 'block';
+    const btnAddH = document.getElementById('btn-add-hoy');
+    if (btnAddH) btnAddH.style.display = 'block';
     renderBannerReceta();
     const hoy = new Date();
     const diasNombre = ['Domingo','Lunes','Martes','Miércoles','Jueves','Viernes','Sábado'];
@@ -1082,12 +1083,14 @@ function renderCalendario() {
 
     // Deshabilitar ir al pasado
     const btnPrev = document.getElementById('cal-prev');
-    if (state.calOffset <= 0) {
-        btnPrev.style.opacity = '0.3';
-        btnPrev.style.pointerEvents = 'none';
-    } else {
-        btnPrev.style.opacity = '1';
-        btnPrev.style.pointerEvents = 'auto';
+    if (btnPrev) {
+        if (state.calOffset <= 0) {
+            btnPrev.style.opacity = '0.3';
+            btnPrev.style.pointerEvents = 'none';
+        } else {
+            btnPrev.style.opacity = '1';
+            btnPrev.style.pointerEvents = 'auto';
+        }
     }
 
     const grid = document.getElementById('calendario-grid');
@@ -1727,12 +1730,18 @@ function buildMedForm(data = {}) {
 }
 
 window.toggleDias = function() {
-    const v = document.getElementById('f-frec').value;
-    document.getElementById('f-dias-group').style.display = v === 'especifica' ? 'flex' : 'none';
+    const fFrec = document.getElementById('f-frec');
+    const fDiasGroup = document.getElementById('f-dias-group');
+    if (fFrec && fDiasGroup) {
+        fDiasGroup.style.display = fFrec.value === 'especifica' ? 'flex' : 'none';
+    }
 };
 
 window.toggleStockFields = function(checked) {
-    document.getElementById('stock-fields-container').style.display = checked ? 'block' : 'none';
+    const stockContainer = document.getElementById('stock-fields-container');
+    if (stockContainer) {
+        stockContainer.style.display = checked ? 'block' : 'none';
+    }
 };
 
 window.agregarHoraInput = function(val = '08:00') {
