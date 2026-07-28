@@ -2014,32 +2014,358 @@ input:checked + .slider:before {
         color: var(--c-text);
     }
 
-    /* Simulador Marco de Teléfono */
-    .desktop-device-frame {
-        width: 414px;
-        height: 840px;
-        max-height: 90vh;
-        background: #09090b;
-        border-radius: 44px;
-        padding: 10px;
-        border: 6px solid rgba(255, 255, 255, 0.12);
-        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7), inset 0 0 2px rgba(255,255,255,0.2);
-        position: relative;
-        overflow: hidden;
-        flex-shrink: 0;
-    }
+    /* ========================================
+   MAQUETA HYPER-REALISTA IPHONE 15 PRO & WHATSAPP UI
+   ======================================== */
+.desktop-device-frame {
+    width: 414px;
+    height: 840px;
+    max-height: 92vh;
+    background: #000000;
+    border-radius: 52px;
+    padding: 10px;
+    border: 8px solid #27272a;
+    outline: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow:
+        0 30px 90px rgba(0, 0, 0, 0.85),
+        inset 0 0 4px rgba(255, 255, 255, 0.2);
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+}
 
-    .app, #login-screen {
-        border-radius: 34px !important;
-        overflow: hidden !important;
-        height: 100% !important;
-        max-height: 100% !important;
-        width: 100% !important;
-        max-width: 100% !important;
-        border: none !important;
-        margin: 0 !important;
-        box-shadow: none !important;
-    }
+/* Dynamic Island */
+.iphone-dynamic-island {
+    width: 110px;
+    height: 28px;
+    background: #000000;
+    border-radius: 20px;
+    position: absolute;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    padding-right: 10px;
+}
+.iphone-camera-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #111827;
+    border: 1px solid #1f2937;
+}
+
+/* Status Bar iOS */
+.iphone-status-bar {
+    height: 38px;
+    background: #111b21;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 22px 0 22px;
+    color: #f3f4f6;
+    font-size: 12px;
+    font-weight: 600;
+    z-index: 90;
+}
+.iphone-status-icons {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.iphone-battery {
+    width: 22px;
+    height: 11px;
+    border: 1px solid #ffffff;
+    border-radius: 3px;
+    padding: 1px;
+    position: relative;
+}
+.iphone-battery::after {
+    content: '';
+    position: absolute;
+    right: -3px;
+    top: 3px;
+    width: 2px;
+    height: 3px;
+    background: #ffffff;
+    border-radius: 0 1px 1px 0;
+}
+.iphone-battery-fill {
+    width: 70%;
+    height: 100%;
+    background: #30d158;
+    border-radius: 1px;
+}
+
+/* Home Indicator */
+.iphone-home-indicator {
+    width: 130px;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.4);
+    border-radius: 2px;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100;
+}
+
+/* WhatsApp Client Interface */
+.wa-full-screen {
+    width: 100%;
+    height: 100%;
+    background: #0b141a;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: 38px;
+}
+
+.wa-full-header {
+    background: #111b21;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wa-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wa-avatar-box {
+    position: relative;
+}
+.wa-avatar-circle {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00a884, #008f6f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+}
+.wa-badge-check {
+    position: absolute;
+    bottom: 0;
+    right: -2px;
+    background: #00a884;
+    color: #111b21;
+    font-size: 9px;
+    font-weight: 900;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #111b21;
+}
+
+.wa-user-details {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.wa-full-name {
+    font-size: 14px;
+    font-weight: 700;
+    color: #e9edef;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.wa-official-tag {
+    background: rgba(0, 168, 132, 0.15);
+    color: #00a884;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 6px;
+    border: 1px solid rgba(0, 168, 132, 0.3);
+}
+
+.wa-full-sub {
+    font-size: 11px;
+    color: #8696a0;
+}
+
+.wa-header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.wa-full-chat-body {
+    flex: 1;
+    padding: 16px 12px;
+    background-color: #0b141a;
+    background-image: radial-gradient(rgba(255,255,255,0.035) 1px, transparent 0);
+    background-size: 16px 16px;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+}
+
+.wa-date-divider {
+    align-self: center;
+    background: #182229;
+    color: #8696a0;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    letter-spacing: 0.5px;
+}
+
+/* Burbuja de Mensaje Auténtica */
+.wa-bubble-wrapper {
+    display: flex;
+    justify-content: flex-start;
+    margin-bottom: 12px;
+}
+
+.wa-full-msg {
+    position: relative;
+    background: #202c33;
+    border-radius: 0px 14px 14px 14px;
+    padding: 12px;
+    color: #e9edef;
+    max-width: 92%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: left;
+}
+
+.wa-full-msg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -8px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid #202c33;
+    border-left: 8px solid transparent;
+}
+
+.wa-msg-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.wa-msg-badge-med {
+    font-size: 10px;
+    font-weight: 800;
+    color: #00a884;
+}
+.wa-msg-doc-name {
+    font-size: 10px;
+    color: #8696a0;
+}
+
+.wa-msg-greeting {
+    font-size: 13px;
+    font-weight: 600;
+    color: #e9edef;
+    margin-bottom: 6px;
+}
+.wa-msg-intro {
+    font-size: 12px;
+    color: #aebac1;
+    line-height: 1.4;
+    margin-bottom: 10px;
+}
+
+.wa-med-card {
+    background: rgba(11, 20, 26, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 10px;
+    padding: 10px;
+    margin-bottom: 8px;
+    border-left: 3px solid #00a884;
+}
+
+.wa-med-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2px;
+}
+.wa-med-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e9edef;
+}
+.wa-med-time {
+    font-size: 10px;
+    font-weight: 700;
+    color: #00a884;
+    background: rgba(0, 168, 132, 0.15);
+    padding: 2px 6px;
+    border-radius: 6px;
+}
+.wa-med-detail {
+    font-size: 11px;
+    color: #8696a0;
+}
+
+.wa-recipe-footer {
+    font-size: 11px;
+    color: #aebac1;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 8px;
+    padding: 8px 10px;
+    margin-top: 8px;
+}
+
+.wa-msg-footer-info {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+.wa-time-stamp {
+    font-size: 10px;
+    color: #8696a0;
+}
+.wa-blue-ticks {
+    font-size: 11px;
+    color: #53bdeb;
+    font-weight: 900;
+}
+
+.wa-reply-box {
+    margin-top: 10px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.wa-reply-btn {
+    width: 100%;
+    background: #00a884;
+    color: #111b21;
+    font-weight: 800;
+    font-size: 12px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 168, 132, 0.3);
 }
 
 /* Modo Pantalla Completa en Desktop */
@@ -2169,91 +2495,10 @@ input:checked + .slider:before {
     color: #0b141a;
 }
 
-/* Pantalla WhatsApp Full Client para Simulador */
-.wa-full-screen {
-    width: 100%;
-    height: 100%;
-    background: #0b141a;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
-
-.wa-full-header {
-    background: #202c33;
-    padding: 16px 18px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.wa-avatar-lg {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: #00a884;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-}
-
-.wa-full-name {
-    font-size: 15px;
-    font-weight: 700;
-    color: #e9edef;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.wa-full-sub {
-    font-size: 11px;
-    color: #8696a0;
-    margin-top: 2px;
-}
-
-.wa-full-chat-body {
-    flex: 1;
-    padding: 20px 16px;
-    background-color: #0b141a;
-    background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 0);
-    background-size: 18px 18px;
-    display: flex;
-    flex-direction: column;
-}
-
-.wa-date-divider {
-    align-self: center;
-    background: #182229;
-    color: #8696a0;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 8px;
-    margin-bottom: 16px;
-    text-transform: uppercase;
-}
-
-.wa-full-msg {
-    background: #202c33;
-    border-radius: 16px 16px 16px 4px;
-    padding: 16px;
-    color: #e9edef;
-    border-left: 4px solid #00a884;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
-}
-
 .wa-msg-content {
     font-size: 13px;
     line-height: 1.5;
     color: #e9edef;
     margin-top: 8px;
-}
-
-
-
-
 
 

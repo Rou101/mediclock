@@ -100,35 +100,108 @@
         </div>
     </aside>
 
-    <!-- MARCO SMARTPHONE: MUESTRA EXCLUSIVAMENTE LA PANTALLA DE WHATSAPP QUE RECIBE EL PACIENTE -->
+    <!-- MARCO SMARTPHONE IPHONE 15 PRO: MUESTRA EXCLUSIVAMENTE LA PANTALLA DE WHATSAPP REALISTA -->
     <div class="desktop-device-frame">
+        <!-- DYNAMIC ISLAND (Notch iPhone 15 Pro) -->
+        <div class="iphone-dynamic-island">
+            <div class="iphone-camera-dot"></div>
+        </div>
+
+        <!-- STATUS BAR iOS -->
+        <div class="iphone-status-bar">
+            <span class="iphone-time">09:41</span>
+            <div class="iphone-status-icons">
+                <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor"><path d="M0 12h3.2V9.6H0V12zm4.267 0h3.2V7.2h-3.2V12zm4.266 0h3.2V4.8h-3.2V12zm4.267 0H16V2.4h-3.2V12z"/></svg>
+                <svg width="15" height="11" viewBox="0 0 16 12" fill="currentColor"><path d="M8 2.4A9.6 9.6 0 0 1 14.784 5.1L16 3.84A11.96 11.96 0 0 0 8 0 11.96 11.96 0 0 0 0 3.84L1.216 5.1A9.6 9.6 0 0 1 8 2.4zm0 3.6a6 6 0 0 1 4.24 1.76L13.44 6.5A7.96 7.96 0 0 0 8 4.2 7.96 7.96 0 0 0 2.56 6.5L3.76 7.76A6 6 0 0 1 8 6zm0 3.6a2.4 2.4 0 0 1 1.696.704L10.9 9.1A3.96 3.96 0 0 0 8 8a3.96 3.96 0 0 0-2.9 1.1l1.204 1.204A2.4 2.4 0 0 1 8 9.6zm0 2.4a1.2 1.2 0 1 0 0-2.4 1.2 1.2 0 0 0 0 2.4z"/></svg>
+                <div class="iphone-battery"><div class="iphone-battery-fill"></div></div>
+            </div>
+        </div>
+
+        <!-- CLIENTE WHATSAPP ULTRA REALISTA -->
         <div class="wa-full-screen">
+            <!-- HEADER DE CHAT WHATSAPP -->
             <div class="wa-full-header">
-                <div class="wa-avatar-lg">💬</div>
-                <div style="flex:1;">
-                    <div class="wa-full-name">MediClock Bot <span class="wa-badge">✓ VERIFICADO</span></div>
-                    <div class="wa-full-sub">Despachado por Dr. Francisco Pérez • WhatsApp API</div>
+                <div class="wa-header-left">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00a884" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    <div class="wa-avatar-box">
+                        <div class="wa-avatar-circle">💊</div>
+                        <div class="wa-badge-check">✓</div>
+                    </div>
+                    <div class="wa-user-details">
+                        <div class="wa-full-name">
+                            <span>MediClock Bot</span>
+                            <span class="wa-official-tag">OFICIAL</span>
+                        </div>
+                        <div class="wa-full-sub">en línea • Despacho Dr. F. Pérez</div>
+                    </div>
+                </div>
+                <div class="wa-header-right">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aebac1" stroke-width="2"><path d="M23 7l-7 5 7 5V7z"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#aebac1" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#aebac1" stroke-width="2.5"><circle cx="12" cy="5" r="1"/><circle cx="12" cy="12" r="1"/><circle cx="12" cy="19" r="1"/></svg>
                 </div>
             </div>
+
+            <!-- CUERPO DE CHAT WHATSAPP -->
             <div class="wa-full-chat-body">
                 <div class="wa-date-divider">HOY</div>
-                <div class="wa-full-msg">
-                    <div class="wa-msg-title">🩺 <strong>RECETA & PLAN DE TRATAMIENTO</strong></div>
-                    <div class="wa-msg-content">
-                        Estimado(a) <strong>Juan Pérez</strong> 👋,<br><br>
-                        El <strong>Dr. Francisco Pérez</strong> le ha emitido su receta médica desde <strong>MediClock Pro</strong>:<br><br>
-                        • 💊 <strong>Aspirina 100mg</strong> - 1 comp. cada 24h (08:00 AM)<br>
-                        • 💊 <strong>Losartán 50mg</strong> - 1 comp. cada 12h (08:00 AM y 20:00 PM)<br><br>
-                        📋 <strong>Receta Digital N°:</strong> #MC-84920<br>
-                        💡 <em>No requiere instalar ninguna aplicación. Recibirá sus recordatorios por este chat de WhatsApp.</em>
-                    </div>
-                    <div class="wa-msg-time">08:00 AM</div>
-                    <div class="wa-action-buttons">
-                        <button class="wa-btn wa-btn-confirm">✅ Responder "SI" para confirmar toma</button>
+
+                <!-- BURBUJA DE MENSAJE CON COLA DE WHATSAPP -->
+                <div class="wa-bubble-wrapper">
+                    <div class="wa-full-msg">
+                        <div class="wa-msg-header-bar">
+                            <span class="wa-msg-badge-med">🩺 RECETA MÉDICA DIGITAL</span>
+                            <span class="wa-msg-doc-name">Dr. Francisco Pérez</span>
+                        </div>
+
+                        <div class="wa-msg-greeting">
+                            Estimado(a) <strong>Juan Pérez</strong> 👋
+                        </div>
+
+                        <div class="wa-msg-intro">
+                            Le informamos que el <strong>Dr. Francisco Pérez</strong> ha emitido su receta médica desde el <strong>Portal MediClock Pro</strong>:
+                        </div>
+
+                        <!-- CARDS DE MEDICAMENTOS -->
+                        <div class="wa-med-card">
+                            <div class="wa-med-head">
+                                <span class="wa-med-name">💊 Aspirina 100mg</span>
+                                <span class="wa-med-time">08:00 AM</span>
+                            </div>
+                            <div class="wa-med-detail">1 comprimido cada 24 horas (Diario)</div>
+                        </div>
+
+                        <div class="wa-med-card">
+                            <div class="wa-med-head">
+                                <span class="wa-med-name">💊 Losartán 50mg</span>
+                                <span class="wa-med-time">08:00 AM / 20:00 PM</span>
+                            </div>
+                            <div class="wa-med-detail">1 comprimido cada 12 horas</div>
+                        </div>
+
+                        <div class="wa-recipe-footer">
+                            <div>📋 <strong>Receta Digital:</strong> #MC-84920</div>
+                            <div style="margin-top:2px;">💡 <em>No requiere instalar ninguna app. Recibirá sus alertas en este chat.</em></div>
+                        </div>
+
+                        <div class="wa-msg-footer-info">
+                            <span class="wa-time-stamp">08:00 AM</span>
+                            <span class="wa-blue-ticks">✓✓</span>
+                        </div>
+
+                        <!-- BOTÓN INTERACTIVO WHATSAPP -->
+                        <div class="wa-reply-box">
+                            <button class="wa-reply-btn">
+                                <span>✅ Responder "SI" para confirmar toma</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- iOS HOME INDICATOR -->
+        <div class="iphone-home-indicator"></div>
 
         <!-- PANTALLA LOGIN CON GOOGLE (Diseño Grafito Minimalista) -->
         <div id="login-screen" class="pin-screen">
