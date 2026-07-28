@@ -41,102 +41,94 @@
 <!-- TOAST NOTIFICACIONES -->
 <div id="toast" class="toast hidden"></div>
 
-<!-- DESKTOP SHELL WRAPPER (>= 768px Layout Pro) -->
+<!-- DESKTOP SHELL WRAPPER (>= 768px Layout Pro B2B) -->
 <div id="desktop-shell" class="desktop-shell-wrapper">
-    <!-- PANEL LATERAL DESKTOP (Salud Familiar Multimódulo) -->
+    <!-- PANEL LATERAL DESKTOP (100% MediClock Pro) -->
     <aside class="desktop-sidebar">
         <div class="desktop-brand-box">
-            <div class="desktop-logo-icon">
+            <div class="desktop-logo-icon" style="background:rgba(99,102,241,0.15); border-color:rgba(99,102,241,0.4);">
                 <svg width="34" height="34" viewBox="0 0 48 48" fill="none">
                     <g transform="rotate(-45 24 24)">
-                        <rect x="12" y="19" width="24" height="10" rx="5" stroke="#E07A5F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <line x1="24" y1="19" x2="24" y2="29" stroke="#E07A5F" stroke-width="3"/>
+                        <rect x="12" y="19" width="24" height="10" rx="5" stroke="#6366F1" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="24" y1="19" x2="24" y2="29" stroke="#6366F1" stroke-width="3"/>
                     </g>
-                    <circle cx="31" cy="31" r="7.5" fill="var(--c-surface)" stroke="#E07A5F" stroke-width="2.5"/>
-                    <polyline points="31 26.5 31 31 33.5 33.5" stroke="#E07A5F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="31" cy="31" r="7.5" fill="var(--c-surface)" stroke="#6366F1" stroke-width="2.5"/>
+                    <polyline points="31 26.5 31 31 33.5 33.5" stroke="#6366F1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
             <div>
-                <h1 class="desktop-brand-name">MediClock</h1>
-                <span class="desktop-version-badge">Salud & Cuidado Familiar</span>
+                <h1 class="desktop-brand-name">MediClock Pro</h1>
+                <span class="desktop-version-badge" style="color:#A855F7;">Portal Médico & Clínico B2B</span>
             </div>
         </div>
 
         <p class="desktop-hero-sub">
-            Ecosistema colaborativo de cuidado familiar: organiza tratamientos con avisos por WhatsApp, registra mediciones vitales y coordina cuidadores.
+            Prescripción Inteligente asistida por IA (Visión Gemini), lectura OCR de recetas impresas y despacho automático directo al WhatsApp de sus pacientes.
         </p>
 
-        <!-- TARJETA DESTACADA ENTORNO FAMILIAR -->
-        <div class="desktop-pro-card" style="background:linear-gradient(135deg, rgba(224,122,95,0.15), rgba(48,209,88,0.12)); border-color:rgba(224,122,95,0.4);">
-            <div class="desktop-pro-title" style="color:var(--c-salmon);">👨‍👩‍👧‍👦 Cuidado Colaborativo Multimódulo</div>
+        <!-- TARJETA DESTACADA MEDICLOCK PRO -->
+        <div class="desktop-pro-card" style="background:linear-gradient(135deg, rgba(99,102,241,0.18), rgba(168,85,247,0.18)); border-color:rgba(99,102,241,0.4);">
+            <div class="desktop-pro-title" style="color:#A855F7;">🩺 Portal para Médicos y Clínicas</div>
             <div class="desktop-pro-desc">
-                Organiza la salud de tu familia. Los adultos mayores reciben alertas por <strong>WhatsApp</strong> sin necesidad de descargar apps complejas.
+                Emita pautas médicas en segundos. El paciente recibe su tratamiento directamente en WhatsApp <strong>sin necesidad de descargar aplicaciones complejas</strong>.
             </div>
-            <div class="desktop-btn-group">
-                <a href="/pro.html" class="desktop-btn-pro" style="background:linear-gradient(135deg, #6366F1, #4F46E5); box-shadow:0 4px 16px rgba(99,102,241,0.4);">
-                    <span>🩺 Portal Médico (MediClock Pro)</span>
-                </a>
-                <a href="/brochure.html" target="_blank" class="desktop-btn-secondary">
-                    <span>📊 Dossier e Inversores</span>
+            <div class="desktop-btn-group" style="margin-top:12px;">
+                <a href="/pro.html" class="desktop-btn-pro" style="background:linear-gradient(135deg, #6366F1, #4F46E5); box-shadow:0 4px 18px rgba(99,102,241,0.45); font-size:15px; padding:14px 24px; width:100%; justify-content:center;">
+                    <span>👨‍⚕️ Entrar a MediClock Pro</span>
                 </a>
             </div>
         </div>
 
-        <!-- GRID DE 4 MÓDULOS DE SALUD FAMILIAR -->
+        <!-- GRID DE 4 VENTAJAS PRO -->
         <div class="desktop-features-grid">
             <div class="desktop-feature-item">
-                <div class="desktop-feature-icon">💊</div>
-                <div class="desktop-feature-name">Medicamentos & Stock</div>
-                <div class="desktop-feature-text">Recordatorios automáticos y aviso de pastillas restantes.</div>
+                <div class="desktop-feature-icon">🤖</div>
+                <div class="desktop-feature-name">OCR & IA Gemini</div>
+                <div class="desktop-feature-text">Lectura automática de fotos de recetas manuscritas.</div>
             </div>
             <div class="desktop-feature-item">
-                <div class="desktop-feature-icon">⚖️</div>
-                <div class="desktop-feature-name">Mediciones Vitales</div>
-                <div class="desktop-feature-text">Registro diario de presión arterial, glucosa y peso.</div>
+                <div class="desktop-feature-icon">💬</div>
+                <div class="desktop-feature-name">Despacho WhatsApp</div>
+                <div class="desktop-feature-text">El paciente recibe su tratamiento sin instalar apps.</div>
             </div>
             <div class="desktop-feature-item">
-                <div class="desktop-feature-icon">😃</div>
-                <div class="desktop-feature-name">Diario de Síntomas</div>
-                <div class="desktop-feature-text">Monitoreo de estado de ánimo y eventos de dolor.</div>
+                <div class="desktop-feature-icon">📋</div>
+                <div class="desktop-feature-name">Recetas Digitales</div>
+                <div class="desktop-feature-text">Emisión acelerada con dosis y frecuencias.</div>
             </div>
             <div class="desktop-feature-item">
-                <div class="desktop-feature-icon">📞</div>
-                <div class="desktop-feature-name">Red & Urgencias</div>
-                <div class="desktop-feature-text">Contacto directo con el médico tratante y cuidadores.</div>
+                <div class="desktop-feature-icon">📊</div>
+                <div class="desktop-feature-name">Adherencia en Nube</div>
+                <div class="desktop-feature-text">Seguimiento en tiempo real almacenado en Firestore.</div>
             </div>
-        </div>
-
-        <div style="margin-top:12px; display:flex; gap:10px;">
-            <button class="desktop-toggle-btn" id="btn-desktop-fullscreen" onclick="toggleDesktopFullscreen()">
-                <span>🖥️ Ver PWA a Pantalla Completa</span>
-            </button>
         </div>
     </aside>
 
-    <!-- MARCO SMARTPHONE SIMULADOR EN DESKTOP / CONTENEDOR DE APP -->
+    <!-- MARCO SMARTPHONE: MUESTRA EXCLUSIVAMENTE LA PANTALLA DE WHATSAPP QUE RECIBE EL PACIENTE -->
     <div class="desktop-device-frame">
-        <!-- SIMULACIÓN NOTIFICACIÓN WHATSAPP EN CABECERA DESKTOP -->
-        <div class="wa-mockup-card">
-            <div class="wa-chat-header">
-                <div class="wa-avatar">💬</div>
-                <div class="wa-chat-info">
-                    <div class="wa-chat-name">MediClock WhatsApp <span class="wa-badge">✓ VERIFICADO</span></div>
-                    <div class="wa-chat-sub">+56 9 5783 8682 • Alerta de Salud en Tiempo Real</div>
+        <div class="wa-full-screen">
+            <div class="wa-full-header">
+                <div class="wa-avatar-lg">💬</div>
+                <div style="flex:1;">
+                    <div class="wa-full-name">MediClock Bot <span class="wa-badge">✓ VERIFICADO</span></div>
+                    <div class="wa-full-sub">Despachado por Dr. Francisco Pérez • WhatsApp API</div>
                 </div>
             </div>
-            <div class="wa-chat-body">
-                <div class="wa-message-bubble">
-                    <div class="wa-msg-title">💊 <strong>RECORDATORIO DE MEDICACIÓN</strong></div>
-                    <div style="font-size:12px; color:#e9edef; line-height:1.4;">
-                        Hola <strong>Abuelo Juan</strong> 👋, es hora de tomar tu medicamento:<br>
-                        • 💊 <strong>Aspirina 100mg</strong> (1 comprimido)<br>
-                        • ⏰ <strong>Hora:</strong> 08:00 AM<br>
-                        • 👨‍⚕️ <strong>Prescrito por:</strong> Dr. Francisco Pérez<br>
-                        • 📋 <strong>Receta:</strong> #MC-84920 (Centro MediClock)
+            <div class="wa-full-chat-body">
+                <div class="wa-date-divider">HOY</div>
+                <div class="wa-full-msg">
+                    <div class="wa-msg-title">🩺 <strong>RECETA & PLAN DE TRATAMIENTO</strong></div>
+                    <div class="wa-msg-content">
+                        Estimado(a) <strong>Juan Pérez</strong> 👋,<br><br>
+                        El <strong>Dr. Francisco Pérez</strong> le ha emitido su receta médica desde <strong>MediClock Pro</strong>:<br><br>
+                        • 💊 <strong>Aspirina 100mg</strong> - 1 comp. cada 24h (08:00 AM)<br>
+                        • 💊 <strong>Losartán 50mg</strong> - 1 comp. cada 12h (08:00 AM y 20:00 PM)<br><br>
+                        📋 <strong>Receta Digital N°:</strong> #MC-84920<br>
+                        💡 <em>No requiere instalar ninguna aplicación. Recibirá sus recordatorios por este chat de WhatsApp.</em>
                     </div>
-                    <div class="wa-msg-time">08:00 AM • WhatsApp Bot</div>
+                    <div class="wa-msg-time">08:00 AM</div>
                     <div class="wa-action-buttons">
-                        <button class="wa-btn wa-btn-confirm">✅ Confirmar Toma (Responder "SI")</button>
+                        <button class="wa-btn wa-btn-confirm">✅ Responder "SI" para confirmar toma</button>
                     </div>
                 </div>
             </div>
@@ -171,10 +163,6 @@
 
                 <a href="/pro.html" class="login-btn-install" style="text-decoration:none; margin-top:10px; background:linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.25)); border:1px solid #6366F1; color:#A855F7; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px;">
                     <span>🩺 MediClock Pro (Portal Médico)</span>
-                </a>
-
-                <a href="/brochure.html" target="_blank" class="login-btn-install" style="text-decoration:none; margin-top:8px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--c-green); font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:12px; font-size:13px;">
-                    <span>📊 Dossier e Información Inversores</span>
                 </a>
             </div>
 
