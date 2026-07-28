@@ -1,43 +1,55 @@
 /* ========================================
-   VIEJOALARM - DESIGN SYSTEM COMPLETO
+   MEDICLOCK - DESIGN SYSTEM (OPCIÓN 1: SAAS B2B CLÍNICO)
    ======================================== */
 
-/* --- Variables --- */
 :root {
-    /* MODO OSCURO — Grafito Profundo */
-    --c-bg: #111113;
-    --c-surface: rgba(255, 255, 255, 0.04);
-    --c-surface2: rgba(255, 255, 255, 0.07);
-    --c-surface3: rgba(255, 255, 255, 0.10);
-    --c-border: rgba(255,255,255,0.08);
-    --c-border-inner: inset 0 1px 1px rgba(255, 255, 255, 0.08);
-    --c-green: #30d158;
-    --c-green-dim: rgba(48, 209, 88, 0.12);
-    --c-green-glow: rgba(48, 209, 88, 0.12);
-    --c-yellow: #ffd60a;
-    --c-yellow-dim: rgba(255, 214, 10, 0.12);
-    --c-red: #ff453a;
-    --c-red-dim: rgba(255, 69, 58, 0.12);
-    --c-blue: #0a84ff;
-    --c-blue-dim: rgba(10, 132, 255, 0.12);
-    --c-text: #f0f0f2;
-    --c-text-2: rgba(235, 235, 245, 0.55);
-    --c-text-3: rgba(235, 235, 245, 0.28);
-    /* Variables de compatibilidad */
-    --c-navy-light: rgba(255, 255, 255, 0.06);
-    --c-gray: rgba(235, 235, 245, 0.4);
-    --c-primary: #30d158;
-    --radius: 20px;
-    --radius-sm: 12px;
-    --radius-lg: 28px;
-    --shadow: 0 4px 24px rgba(0,0,0,0.35);
-    --shadow-lg: 0 12px 48px rgba(0,0,0,0.5);
-    --nav-h: 72px;
-    --header-h: 64px;
-    --safe-bottom: env(safe-area-inset-bottom, 0px);
-    --safe-top: env(safe-area-inset-top, 0px);
-    --font: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
-    --glass-blur: blur(48px) saturate(160%);
+    /* TOKENS DE CANVAS Y SUPERFICIES (LINEAR / VERCEL DARK) */
+    --bg-base: #09090B;
+    --bg-surface: #121215;
+    --bg-surface-hover: #17171C;
+    --border-subtle: rgba(255, 255, 255, 0.08);
+    --border-strong: rgba(255, 255, 255, 0.16);
+
+    /* ACCENT TOKENS (ESMERALDA B2B) */
+    --accent-emerald: #10B981;
+    --accent-emerald-hover: #059669;
+    --accent-emerald-dim: rgba(16, 185, 129, 0.12);
+
+    /* TYPOGRAPHY TOKENS */
+    --text-main: #FAFAFA;
+    --text-muted: #A1A1AA;
+    --text-subtle: #71717A;
+
+    /* REGLAS DE REJILLA Y ESPACIADO (8px Grid) */
+    --space-2xs: 4px;
+    --space-xs: 8px;
+    --space-sm: 16px;
+    --space-md: 24px;
+    --space-lg: 32px;
+    --space-xl: 48px;
+
+    /* COMPATIBILIDAD CON ENGINE ANTERIOR */
+    --c-bg: #09090B;
+    --c-surface: #121215;
+    --c-surface2: #17171C;
+    --c-surface3: rgba(255, 255, 255, 0.08);
+    --c-border: rgba(255, 255, 255, 0.08);
+    --c-border-inner: none;
+    --c-green: #10B981;
+    --c-green-dim: rgba(16, 185, 129, 0.12);
+    --c-green-glow: transparent;
+    --c-text: #FAFAFA;
+    --c-text-2: #A1A1AA;
+    --c-text-3: #71717A;
+    --c-primary: #10B981;
+    
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.4);
+    --shadow-lg: 0 12px 48px rgba(0,0,0,0.6);
+    --font: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 
 [data-theme="light"] {
@@ -1864,7 +1876,7 @@ input:checked + .slider:before {
         justify-content: center;
         flex: 1;
         max-width: 480px;
-        color: var(--c-text);
+        color: var(--text-main);
         z-index: 10;
         text-align: left;
     }
@@ -1873,25 +1885,24 @@ input:checked + .slider:before {
         display: flex;
         align-items: center;
         gap: 14px;
-        margin-bottom: 12px;
+        margin-bottom: 16px;
     }
     .desktop-logo-icon {
-        width: 52px;
-        height: 52px;
-        border-radius: 16px;
-        background: var(--c-surface2);
-        border: 1px solid var(--c-border);
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        background: var(--accent-emerald-dim);
+        border: 1px solid rgba(16, 185, 129, 0.25);
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
     }
 
     .desktop-brand-name {
         font-size: 32px;
-        font-weight: 900;
-        letter-spacing: -0.5px;
-        color: var(--c-text);
+        font-weight: 700;
+        letter-spacing: -0.03em;
+        color: var(--text-main);
         margin: 0;
         line-height: 1.1;
     }
@@ -1899,104 +1910,91 @@ input:checked + .slider:before {
     .desktop-version-badge {
         font-size: 11px;
         font-weight: 700;
-        color: var(--c-salmon);
+        color: var(--accent-emerald);
         text-transform: uppercase;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.05em;
     }
 
     .desktop-hero-sub {
         font-size: 15px;
-        color: var(--c-text-2);
-        line-height: 1.5;
+        color: var(--text-muted);
+        line-height: 1.6;
         margin-bottom: 24px;
     }
 
     .desktop-pro-card {
-        background: linear-gradient(135deg, rgba(224, 122, 95, 0.12), rgba(196, 181, 253, 0.12));
-        border: 1.5px solid rgba(224, 122, 95, 0.35);
-        border-radius: 20px;
-        padding: 20px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-lg);
+        padding: 24px;
         margin-bottom: 24px;
-        backdrop-filter: blur(12px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+        transition: border-color 0.2s ease;
+    }
+    .desktop-pro-card:hover {
+        border-color: var(--border-strong);
     }
 
     .desktop-pro-title {
-        font-size: 17px;
-        font-weight: 800;
-        color: var(--c-salmon);
-        margin-bottom: 6px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+        letter-spacing: -0.01em;
     }
 
     .desktop-pro-desc {
         font-size: 13px;
-        color: var(--c-text-2);
-        line-height: 1.4;
-        margin-bottom: 16px;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 20px;
     }
 
     .desktop-btn-group {
         display: flex;
-        gap: 10px;
+        gap: 12px;
         flex-wrap: wrap;
     }
 
     .desktop-btn-pro {
-        background: linear-gradient(135deg, #E07A5F, #D97757);
-        color: #ffffff;
+        background: var(--accent-emerald);
+        color: #09090B;
         font-weight: 700;
         font-size: 14px;
-        padding: 12px 20px;
-        border-radius: 12px;
+        padding: 14px 24px;
+        border-radius: var(--radius-sm);
         text-decoration: none;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 8px;
-        box-shadow: 0 4px 16px rgba(224, 122, 95, 0.4);
-        transition: transform 0.2s, box-shadow 0.2s;
+        width: 100%;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        transition: background-color 0.2s ease, transform 0.15s ease;
     }
     .desktop-btn-pro:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(224, 122, 95, 0.5);
-    }
-
-    .desktop-btn-secondary {
-        background: var(--c-surface2);
-        border: 1px solid var(--c-border);
-        color: var(--c-text);
-        font-weight: 600;
-        font-size: 13px;
-        padding: 12px 16px;
-        border-radius: 12px;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        transition: background 0.2s;
-    }
-    .desktop-btn-secondary:hover {
-        background: rgba(255,255,255,0.1);
+        background: var(--accent-emerald-hover);
+        transform: translateY(-1px);
     }
 
     .desktop-features-grid {
         display: grid;
         grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        gap: 12px;
         margin-bottom: 20px;
     }
 
     .desktop-feature-item {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid var(--c-border);
-        border-radius: 14px;
-        padding: 12px;
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        transition: border-color 0.2s ease;
     }
-    .desktop-feature-icon { font-size: 20px; margin-bottom: 4px; }
-    .desktop-feature-name { font-size: 13px; font-weight: 700; color: var(--c-text); }
-    .desktop-feature-text { font-size: 11px; color: var(--c-text-2); margin-top: 2px; line-height: 1.3; }
+    .desktop-feature-item:hover {
+        border-color: var(--border-strong);
+    }
+    .desktop-feature-name { font-size: 13px; font-weight: 700; color: var(--text-main); letter-spacing: -0.01em; }
+    .desktop-feature-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
 
     .desktop-toggle-btn {
         background: transparent;
