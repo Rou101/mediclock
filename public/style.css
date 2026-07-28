@@ -2550,5 +2550,230 @@ input:checked + .slider:before {
     line-height: 1.5;
     color: #e9edef;
     margin-top: 8px;
+}
 
+/* ========================================
+   MODAL SEGURIDAD B2B & WHATSAPP LIVE ANIMATION
+   ======================================== */
 
+.security-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(9, 9, 11, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.security-modal-overlay.hidden {
+    display: none !important;
+}
+
+.security-modal-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 30px 90px rgba(0, 0, 0, 0.9);
+    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow: hidden;
+}
+
+@keyframes modalPop {
+    from { opacity: 0; transform: scale(0.96) translateY(8px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.security-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+.security-modal-title {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--text-main);
+    letter-spacing: -0.01em;
+    margin: 0;
+}
+
+.security-modal-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 2px 0 0 0;
+}
+
+.security-modal-close {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-muted);
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s ease;
+}
+.security-modal-close:hover {
+    background: rgba(255, 255, 255, 0.12);
+    color: var(--text-main);
+}
+
+.security-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.security-pillars-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+@media (max-width: 600px) {
+    .security-pillars-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.security-pillar-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-md);
+    padding: 16px;
+    transition: border-color 0.2s ease;
+}
+.security-pillar-card:hover {
+    border-color: var(--border-strong);
+}
+
+.security-pillar-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.security-pillar-title {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.security-pillar-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.6;
+}
+.security-pillar-list li {
+    margin-bottom: 6px;
+}
+.security-pillar-list strong {
+    color: var(--text-main);
+}
+
+.security-modal-footer {
+    padding: 16px 24px;
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    justify-content: flex-end;
+    background: rgba(255, 255, 255, 0.015);
+}
+
+/* ESTILOS ANIMACIÓN WHATSAPP EN VIVO */
+.wa-sent-wrapper {
+    justify-content: flex-end !important;
+}
+
+.wa-sent-msg {
+    position: relative;
+    background: #005c4b;
+    border-radius: 14px 0px 14px 14px;
+    padding: 10px 14px;
+    color: #e9edef;
+    max-width: 80%;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    text-align: right;
+    animation: waMsgFadeIn 0.3s ease-out;
+}
+.wa-sent-msg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: -8px;
+    width: 0;
+    height: 0;
+    border-top: 10px solid #005c4b;
+    border-right: 8px solid transparent;
+}
+
+.wa-sent-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: #e9edef;
+}
+
+.wa-msg-anim {
+    animation: waMsgFadeIn 0.35s ease-out;
+}
+
+@keyframes waMsgFadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.wa-typing-pill {
+    align-self: flex-start;
+    background: #202c33;
+    border-radius: 12px;
+    padding: 8px 14px;
+    color: #00a884;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    animation: waMsgFadeIn 0.2s ease-out;
+}
+
+.wa-typing-dots {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+}
+.wa-typing-dots span {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: #00a884;
+    animation: waDotBlink 1.2s infinite ease-in-out;
+}
+.wa-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.wa-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes waDotBlink {
+    0%, 100% { opacity: 0.3; transform: scale(0.8); }
+    50% { opacity: 1; transform: scale(1.2); }
+}
