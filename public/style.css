@@ -2060,6 +2060,116 @@ input:checked + .slider:before {
     border-radius: 0 !important;
 }
 
+/* ========================================
+   MOCKUP NOTIFICACIÓN WHATSAPP EN DESKTOP
+   ======================================== */
+.wa-mockup-card {
+    background: #0b141a;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+    margin-bottom: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.wa-chat-header {
+    background: #202c33;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.wa-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #00a884;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+
+.wa-chat-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: #e9edef;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.wa-badge {
+    background: #00a884;
+    color: #0b141a;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 10px;
+}
+
+.wa-chat-sub {
+    font-size: 10px;
+    color: #8696a0;
+}
+
+.wa-chat-body {
+    padding: 10px 12px;
+    background-color: #0b141a;
+    background-image: radial-gradient(rgba(255,255,255,0.03) 1px, transparent 0);
+    background-size: 14px 14px;
+}
+
+.wa-message-bubble {
+    background: #202c33;
+    border-radius: 12px 12px 12px 2px;
+    padding: 10px 12px;
+    color: #e9edef;
+    font-size: 11px;
+    line-height: 1.4;
+    border-left: 3px solid #00a884;
+}
+
+.wa-msg-title {
+    color: #00a884;
+    font-size: 12px;
+    margin-bottom: 4px;
+}
+
+.wa-msg-time {
+    font-size: 10px;
+    color: #8696a0;
+    text-align: right;
+    margin-top: 6px;
+}
+
+.wa-action-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    padding-top: 8px;
+}
+
+.wa-btn {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 8px;
+    border: none;
+    font-size: 11px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.wa-btn-confirm {
+    background: #00a884;
+    color: #0b141a;
+}
+
+
 
 
 
