@@ -1996,6 +1996,56 @@ input:checked + .slider:before {
     .desktop-feature-name { font-size: 13px; font-weight: 700; color: var(--text-main); letter-spacing: -0.01em; }
     .desktop-feature-text { font-size: 12px; color: var(--text-muted); margin-top: 4px; line-height: 1.4; }
 
+    /* Bloque de Seguridad, Ley N° 21.719 Chile & Partners */
+    .desktop-security-card {
+        background: var(--bg-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: var(--radius-md);
+        padding: 16px;
+        margin-top: 4px;
+        transition: border-color 0.2s ease;
+    }
+    .desktop-security-card:hover {
+        border-color: var(--border-strong);
+    }
+    .desktop-security-header {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--text-main);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 6px;
+    }
+    .desktop-security-text {
+        font-size: 12px;
+        color: var(--text-muted);
+        line-height: 1.4;
+        margin-bottom: 12px;
+    }
+    .desktop-partners-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    .desktop-partner-pill {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-subtle);
+        border-radius: 8px;
+        padding: 6px 10px;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-main);
+        transition: background-color 0.15s ease;
+    }
+    .desktop-partner-pill:hover {
+        background: rgba(255, 255, 255, 0.07);
+    }
+
     .desktop-toggle-btn {
         background: transparent;
         border: 1px dashed var(--c-border);
