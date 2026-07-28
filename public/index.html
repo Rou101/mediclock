@@ -41,260 +41,336 @@
 <!-- TOAST NOTIFICACIONES -->
 <div id="toast" class="toast hidden"></div>
 
-<!-- PANTALLA LOGIN CON GOOGLE (Diseño Grafito Minimalista) -->
-<div id="login-screen" class="pin-screen">
-    <div class="pin-box">
-        <div style="width:64px; height:64px; margin:0 auto 16px; background:var(--c-surface2); border-radius:18px; border:1px solid var(--c-border); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);">
-            <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
-                <g transform="rotate(-45 24 24)">
-                    <rect x="12" y="19" width="24" height="10" rx="5" stroke="var(--c-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                    <line x1="24" y1="19" x2="24" y2="29" stroke="var(--c-green)" stroke-width="3"/>
-                </g>
-                <circle cx="31" cy="31" r="7.5" fill="var(--c-surface)" stroke="var(--c-green)" stroke-width="2.5"/>
-                <polyline points="31 26.5 31 31 33.5 33.5" stroke="var(--c-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-        </div>
-        
-        <h2>MediClock</h2>
-        <p class="login-subtext">Accede para ver y administrar los medicamentos de tu familia</p>
-
-        <button id="btn-google-login" class="login-btn-google" onclick="loginGoogle()">
-            <svg width="18" height="18" viewBox="0 0 18 18">
-                <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.25h2.91c1.7-1.56 2.69-3.87 2.69-6.61z"/>
-                <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.25c-.8.54-1.84.87-3.05.87-2.34 0-4.33-1.58-5.04-3.71H.92v2.33A8.99 8.99 0 0 0 9 18z"/>
-                <path fill="#FBBC05" d="M3.95 10.74A5.4 5.4 0 0 1 3.6 9c0-.6.1-1.18.27-1.74V4.96H.92A8.99 8.99 0 0 0 0 9c0 1.48.36 2.9 1 4.14l2.95-2.4z"/>
-                <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.47.8 11.43 0 9 0 5.48 0 2.4 1.97.92 4.96l2.97 2.3C4.6 5.16 6.6 3.58 9 3.58z"/>
-            </svg>
-            <span>Google</span>
-        </button>
-
-        <a href="/pro.html" class="login-btn-install" style="text-decoration:none; margin-top:10px; background:linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.25)); border:1px solid #6366F1; color:#A855F7; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px;">
-            <span>🩺 MediClock Pro (Portal Médico)</span>
-        </a>
-
-        <a href="/brochure.html" target="_blank" class="login-btn-install" style="text-decoration:none; margin-top:8px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--c-green); font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:12px; font-size:13px;">
-            <span>📊 Dossier e Información Inversores</span>
-        </a>
-    </div>
-
-    <p id="app-version" class="login-version-tag">v32.5 · BUILD 2026-07-24</p>
-</div>
-
-<!-- APP PRINCIPAL -->
-<div id="app" class="app hidden">
-    <!-- HEADER -->
-    <header class="app-header">
-        <div class="header-brand">
-            <div class="header-logo-box" style="width:30px; height:30px; background:var(--c-surface2); border-radius:9px; border:1px solid var(--c-border); display:flex; align-items:center; justify-content:center;">
-                <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+<!-- DESKTOP SHELL WRAPPER (>= 768px Layout Pro) -->
+<div id="desktop-shell" class="desktop-shell-wrapper">
+    <!-- PANEL LATERAL DESKTOP (Branding, Selección & Pro) -->
+    <aside class="desktop-sidebar">
+        <div class="desktop-brand-box">
+            <div class="desktop-logo-icon">
+                <svg width="34" height="34" viewBox="0 0 48 48" fill="none">
                     <g transform="rotate(-45 24 24)">
-                        <rect x="12" y="19" width="24" height="10" rx="5" stroke="var(--c-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-                        <line x1="24" y1="19" x2="24" y2="29" stroke="var(--c-green)" stroke-width="3"/>
+                        <rect x="12" y="19" width="24" height="10" rx="5" stroke="#E07A5F" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                        <line x1="24" y1="19" x2="24" y2="29" stroke="#E07A5F" stroke-width="3"/>
                     </g>
-                    <circle cx="31" cy="31" r="7.5" fill="var(--c-surface)" stroke="var(--c-green)" stroke-width="2.5"/>
-                    <polyline points="31 26.5 31 31 33.5 33.5" stroke="var(--c-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="31" cy="31" r="7.5" fill="var(--c-surface)" stroke="#E07A5F" stroke-width="2.5"/>
+                    <polyline points="31 26.5 31 31 33.5 33.5" stroke="#E07A5F" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                 </svg>
             </div>
-            <span class="header-title">MediClock</span>
+            <div>
+                <h1 class="desktop-brand-name">MediClock</h1>
+                <span class="desktop-version-badge">v32.6 · MyTherapy Edition</span>
+            </div>
         </div>
-        <div class="header-actions">
-            <button class="btn-icon" id="btn-refresh" title="Sincronizar">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                </svg>
+
+        <p class="desktop-hero-sub">
+            El ecosistema colaborativo de adherencia médica y recordatorios familiares asistido por IA y WhatsApp.
+        </p>
+
+        <!-- SECCIÓN DESTACADA MEDICLOCK PRO -->
+        <div class="desktop-pro-card">
+            <div class="desktop-pro-title">🩺 MediClock Pro (Portal Médico)</div>
+            <div class="desktop-pro-desc">
+                Plataforma para doctores y clínicas. Transcripción OCR inteligente con IA (Visión Gemini), gestión de pacientes y despacho directo por WhatsApp.
+            </div>
+            <div class="desktop-btn-group">
+                <a href="/pro.html" class="desktop-btn-pro">
+                    <span>👨‍⚕️ Acceder a MediClock Pro</span>
+                </a>
+                <a href="/brochure.html" target="_blank" class="desktop-btn-secondary">
+                    <span>📊 Dossier e Inversores</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- GRID DE 4 CARACTERÍSTICAS -->
+        <div class="desktop-features-grid">
+            <div class="desktop-feature-item">
+                <div class="desktop-feature-icon">📲</div>
+                <div class="desktop-feature-name">PWA Familias</div>
+                <div class="desktop-feature-text">4 Pestañas: Hoy, Progreso, Soporte y Terapia.</div>
+            </div>
+            <div class="desktop-feature-item">
+                <div class="desktop-feature-icon">💬</div>
+                <div class="desktop-feature-name">Bot de WhatsApp</div>
+                <div class="desktop-feature-text">Alertas en tiempo real sin descargar apps.</div>
+            </div>
+            <div class="desktop-feature-item">
+                <div class="desktop-feature-icon">🤖</div>
+                <div class="desktop-feature-name">OCR Gemini AI</div>
+                <div class="desktop-feature-text">Lectura instantánea de recetas impresas.</div>
+            </div>
+            <div class="desktop-feature-item">
+                <div class="desktop-feature-icon">📄</div>
+                <div class="desktop-feature-name">Reporte Médico</div>
+                <div class="desktop-feature-text">Exportación consolidada de tomas en PDF.</div>
+            </div>
+        </div>
+
+        <div style="margin-top:16px;">
+            <button class="desktop-toggle-btn" id="btn-desktop-fullscreen" onclick="toggleDesktopFullscreen()">
+                <span>🖥️ Ver PWA a Pantalla Completa</span>
             </button>
         </div>
-    </header>
+    </aside>
 
-    <!-- CONTENIDO PRINCIPAL -->
-    <main class="main-content">
-        <!-- PESTAÑA 1: HOY -->
-        <section id="panel-hoy" class="tab-panel active">
-            <!-- Selector Horizontal de Días -->
-            <div class="date-strip" id="hoy-date-strip">
-                <!-- Se llena con JS -->
-            </div>
-
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-                <div>
-                    <h2 id="hoy-greeting" style="font-size:22px; font-weight:800; color:var(--c-text); margin:0;">¡Bienvenidos! ☀️</h2>
-                    <p id="hoy-resumen" style="font-size:13px; color:var(--c-text-2); margin-top:2px;">Cargando tus tareas de hoy...</p>
+    <!-- MARCO SMARTPHONE SIMULADOR EN DESKTOP / CONTENEDOR DE APP -->
+    <div class="desktop-device-frame">
+        <!-- PANTALLA LOGIN CON GOOGLE (Diseño Grafito Minimalista) -->
+        <div id="login-screen" class="pin-screen">
+            <div class="pin-box">
+                <div style="width:64px; height:64px; margin:0 auto 16px; background:var(--c-surface2); border-radius:18px; border:1px solid var(--c-border); display:flex; align-items:center; justify-content:center; box-shadow:var(--shadow);">
+                    <svg width="40" height="40" viewBox="0 0 48 48" fill="none">
+                        <g transform="rotate(-45 24 24)">
+                            <rect x="12" y="19" width="24" height="10" rx="5" stroke="var(--c-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                            <line x1="24" y1="19" x2="24" y2="29" stroke="var(--c-green)" stroke-width="3"/>
+                        </g>
+                        <circle cx="31" cy="31" r="7.5" fill="var(--c-surface)" stroke="var(--c-green)" stroke-width="2.5"/>
+                        <polyline points="31 26.5 31 31 33.5 33.5" stroke="var(--c-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                 </div>
-            </div>
+                
+                <h2>MediClock</h2>
+                <p class="login-subtext">Accede para ver y administrar los medicamentos de tu familia</p>
 
-            <div id="banner-receta-vigente" class="hidden"></div>
+                <button id="btn-google-login" class="login-btn-google" onclick="loginGoogle()">
+                    <svg width="18" height="18" viewBox="0 0 18 18">
+                        <path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84a4.14 4.14 0 0 1-1.8 2.71v2.25h2.91c1.7-1.56 2.69-3.87 2.69-6.61z"/>
+                        <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.91-2.25c-.8.54-1.84.87-3.05.87-2.34 0-4.33-1.58-5.04-3.71H.92v2.33A8.99 8.99 0 0 0 9 18z"/>
+                        <path fill="#FBBC05" d="M3.95 10.74A5.4 5.4 0 0 1 3.6 9c0-.6.1-1.18.27-1.74V4.96H.92A8.99 8.99 0 0 0 0 9c0 1.48.36 2.9 1 4.14l2.95-2.4z"/>
+                        <path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.59C13.47.8 11.43 0 9 0 5.48 0 2.4 1.97.92 4.96l2.97 2.3C4.6 5.16 6.6 3.58 9 3.58z"/>
+                    </svg>
+                    <span>Google</span>
+                </button>
 
-            <div class="med-list" id="hoy-lista">
-                <!-- Se llena dinámicamente -->
-            </div>
-        </section>
+                <a href="/pro.html" class="login-btn-install" style="text-decoration:none; margin-top:10px; background:linear-gradient(135deg, rgba(99,102,241,0.25), rgba(168,85,247,0.25)); border:1px solid #6366F1; color:#A855F7; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; padding:12px; border-radius:12px;">
+                    <span>🩺 MediClock Pro (Portal Médico)</span>
+                </a>
 
-        <!-- PESTAÑA 2: PROGRESO -->
-        <section id="panel-progreso" class="tab-panel">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
-                <h2 style="font-size:22px; font-weight:800; color:var(--c-text); margin:0;">Progreso</h2>
-                <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;" onclick="abrirModalExportarPDF()">📄 Exportar PDF</button>
-            </div>
-
-            <div class="segmented-switch">
-                <button class="segmented-btn active" id="btn-sw-graficos" onclick="switchProgresoSubtab('graficos')">GRÁFICOS</button>
-                <button class="segmented-btn" id="btn-sw-lista" onclick="switchProgresoSubtab('lista')">LISTA</button>
-            </div>
-
-            <div class="lavender-banner">
-                <div class="lavender-banner-title">💡 Tu progreso en vivo</div>
-                <div class="lavender-banner-desc">Completa tus dosis y tareas diarias para visualizar tu cumplimiento y reporte médico.</div>
-            </div>
-
-            <!-- Gráfico / Medidor de Cumplimiento -->
-            <div style="background:var(--c-surface); border:1px solid var(--c-border); border-radius:16px; padding:16px; margin-bottom:16px; text-align:center;">
-                <div style="font-size:13px; color:var(--c-text-2); margin-bottom:8px;">Cumplimiento Semanal de Medicación</div>
-                <div style="font-size:36px; font-weight:800; color:var(--c-salmon);" id="progreso-pct-val">100%</div>
-                <div style="font-size:12px; color:var(--c-green); margin-top:4px;">💪 ¡Excelente constancia esta semana!</div>
-            </div>
-
-            <!-- Estado de Ánimo (Últimos 7 Días) -->
-            <div style="font-size:14px; font-weight:700; color:var(--c-text); margin-bottom:8px;">Humor y Estado Físico</div>
-            <div class="mood-strip" id="mood-strip-container">
-                <div class="mood-day-col"><span class="mood-day-label">vie</span><span class="mood-emoji">😊</span></div>
-                <div class="mood-day-col"><span class="mood-day-label">sáb</span><span class="mood-emoji">😊</span></div>
-                <div class="mood-day-col"><span class="mood-day-label">dom</span><span class="mood-emoji">🙂</span></div>
-                <div class="mood-day-col"><span class="mood-day-label">lun</span><span class="mood-emoji">😊</span></div>
-                <div class="mood-day-col"><span class="mood-day-label">mar</span><span class="mood-emoji">😐</span></div>
-                <div class="mood-day-col"><span class="mood-day-label">mié</span><span class="mood-emoji">😊</span></div>
-                <div class="mood-day-col"><span class="mood-day-label">jue</span><span class="mood-emoji">🌟</span></div>
-            </div>
-
-            <!-- Historial de Actividades / Salud -->
-            <div class="timeline" id="historial-lista">
-                <!-- Se llena dinámicamente -->
-            </div>
-        </section>
-
-        <!-- PESTAÑA 3: SOPORTE (RED & CUIDADO) -->
-        <section id="panel-soporte" class="tab-panel">
-            <div style="margin-bottom:16px;">
-                <h2 style="font-size:22px; font-weight:800; color:var(--c-text); margin:0;">Red & Soporte</h2>
-                <p style="font-size:13px; color:var(--c-text-2); margin-top:2px;">Contactos médicos de urgencia y cuidadores asignados</p>
-            </div>
-
-            <!-- Ficha de Médico Tratante (si aplica) -->
-            <div id="soporte-doctor-card" style="background:linear-gradient(135deg, rgba(99,102,241,0.15), rgba(56,189,248,0.15)); border:1px solid rgba(99,102,241,0.3); border-radius:16px; padding:18px; margin-bottom:16px;">
-                <div style="font-size:16px; font-weight:800; color:#38BDF8;">👨‍⚕️ Médico Tratante Asignado</div>
-                <div style="font-size:13px; color:var(--c-text); margin-top:4px;" id="soporte-doc-nombre">Dr. Francisco Pérez</div>
-                <div style="font-size:12px; color:var(--c-text-2); margin-top:2px;" id="soporte-doc-nota">Centro Médico MediClock - Urgencias 24/7</div>
-                <a href="tel:+56957838682" class="btn-emergency-doc" style="margin-top:12px;">
-                    📞 Llamar al Médico de Urgencia (+569 5783 8682)
+                <a href="/brochure.html" target="_blank" class="login-btn-install" style="text-decoration:none; margin-top:8px; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--c-green); font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; padding:10px; border-radius:12px; font-size:13px;">
+                    <span>📊 Dossier e Información Inversores</span>
                 </a>
             </div>
 
-            <div style="font-size:14px; font-weight:700; color:var(--c-text); margin-bottom:8px;">Grupo Familiar Activo</div>
-            <div class="pacientes-lista" id="pacientes-lista">
-                <!-- Pacientes y familiares -->
-            </div>
+            <p id="app-version" class="login-version-tag">v32.6 · BUILD 2026-07-28</p>
+        </div>
 
-            <div style="margin-top:16px;">
-                <button class="btn-salmon" style="width:100%;" onclick="mostrarSelectorGrupos()">
-                    👨‍👩‍👧‍👦 Gestionar Entornos Familiares
+        <!-- APP PRINCIPAL -->
+        <div id="app" class="app hidden">
+            <!-- HEADER -->
+            <header class="app-header">
+                <div class="header-brand">
+                    <div class="header-logo-box" style="width:30px; height:30px; background:var(--c-surface2); border-radius:9px; border:1px solid var(--c-border); display:flex; align-items:center; justify-content:center;">
+                        <svg width="20" height="20" viewBox="0 0 48 48" fill="none">
+                            <g transform="rotate(-45 24 24)">
+                                <rect x="12" y="19" width="24" height="10" rx="5" stroke="var(--c-green)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="24" y1="19" x2="24" y2="29" stroke="var(--c-green)" stroke-width="3"/>
+                            </g>
+                            <circle cx="31" cy="31" r="7.5" fill="var(--c-surface)" stroke="var(--c-green)" stroke-width="2.5"/>
+                            <polyline points="31 26.5 31 31 33.5 33.5" stroke="var(--c-green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </div>
+                    <span class="header-title">MediClock</span>
+                </div>
+                <div class="header-actions">
+                    <button class="btn-icon" id="btn-refresh" title="Sincronizar">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <!-- CONTENIDO PRINCIPAL -->
+            <main class="main-content">
+                <!-- PESTAÑA 1: HOY -->
+                <section id="panel-hoy" class="tab-panel active">
+                    <!-- Selector Horizontal de Días -->
+                    <div class="date-strip" id="hoy-date-strip">
+                        <!-- Se llena con JS -->
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <div>
+                            <h2 id="hoy-greeting" style="font-size:22px; font-weight:800; color:var(--c-text); margin:0;">¡Bienvenidos! ☀️</h2>
+                            <p id="hoy-resumen" style="font-size:13px; color:var(--c-text-2); margin-top:2px;">Cargando tus tareas de hoy...</p>
+                        </div>
+                    </div>
+
+                    <div id="banner-receta-vigente" class="hidden"></div>
+
+                    <div class="med-list" id="hoy-lista">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </section>
+
+                <!-- PESTAÑA 2: PROGRESO -->
+                <section id="panel-progreso" class="tab-panel">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                        <h2 style="font-size:22px; font-weight:800; color:var(--c-text); margin:0;">Progreso</h2>
+                        <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;" onclick="abrirModalExportarPDF()">📄 Exportar PDF</button>
+                    </div>
+
+                    <div class="segmented-switch">
+                        <button class="segmented-btn active" id="btn-sw-graficos" onclick="switchProgresoSubtab('graficos')">GRÁFICOS</button>
+                        <button class="segmented-btn" id="btn-sw-lista" onclick="switchProgresoSubtab('lista')">LISTA</button>
+                    </div>
+
+                    <div class="lavender-banner">
+                        <div class="lavender-banner-title">💡 Tu progreso en vivo</div>
+                        <div class="lavender-banner-desc">Completa tus dosis y tareas diarias para visualizar tu cumplimiento y reporte médico.</div>
+                    </div>
+
+                    <!-- Gráfico / Medidor de Cumplimiento -->
+                    <div style="background:var(--c-surface); border:1px solid var(--c-border); border-radius:16px; padding:16px; margin-bottom:16px; text-align:center;">
+                        <div style="font-size:13px; color:var(--c-text-2); margin-bottom:8px;">Cumplimiento Semanal de Medicación</div>
+                        <div style="font-size:36px; font-weight:800; color:var(--c-salmon);" id="progreso-pct-val">100%</div>
+                        <div style="font-size:12px; color:var(--c-green); margin-top:4px;">💪 ¡Excelente constancia esta semana!</div>
+                    </div>
+
+                    <!-- Estado de Ánimo (Últimos 7 Días) -->
+                    <div style="font-size:14px; font-weight:700; color:var(--c-text); margin-bottom:8px;">Humor y Estado Físico</div>
+                    <div class="mood-strip" id="mood-strip-container">
+                        <div class="mood-day-col"><span class="mood-day-label">vie</span><span class="mood-emoji">😊</span></div>
+                        <div class="mood-day-col"><span class="mood-day-label">sáb</span><span class="mood-emoji">😊</span></div>
+                        <div class="mood-day-col"><span class="mood-day-label">dom</span><span class="mood-emoji">🙂</span></div>
+                        <div class="mood-day-col"><span class="mood-day-label">lun</span><span class="mood-emoji">😊</span></div>
+                        <div class="mood-day-col"><span class="mood-day-label">mar</span><span class="mood-emoji">😐</span></div>
+                        <div class="mood-day-col"><span class="mood-day-label">mié</span><span class="mood-emoji">😊</span></div>
+                        <div class="mood-day-col"><span class="mood-day-label">jue</span><span class="mood-emoji">🌟</span></div>
+                    </div>
+
+                    <!-- Historial de Actividades / Salud -->
+                    <div class="timeline" id="historial-lista">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </section>
+
+                <!-- PESTAÑA 3: SOPORTE (RED & CUIDADO) -->
+                <section id="panel-soporte" class="tab-panel">
+                    <div style="margin-bottom:16px;">
+                        <h2 style="font-size:22px; font-weight:800; color:var(--c-text); margin:0;">Red & Soporte</h2>
+                        <p style="font-size:13px; color:var(--c-text-2); margin-top:2px;">Contactos médicos de urgencia y cuidadores asignados</p>
+                    </div>
+
+                    <!-- Ficha de Médico Tratante (si aplica) -->
+                    <div id="soporte-doctor-card" style="background:linear-gradient(135deg, rgba(99,102,241,0.15), rgba(56,189,248,0.15)); border:1px solid rgba(99,102,241,0.3); border-radius:16px; padding:18px; margin-bottom:16px;">
+                        <div style="font-size:16px; font-weight:800; color:#38BDF8;">👨‍⚕️ Médico Tratante Asignado</div>
+                        <div style="font-size:13px; color:var(--c-text); margin-top:4px;" id="soporte-doc-nombre">Dr. Francisco Pérez</div>
+                        <div style="font-size:12px; color:var(--c-text-2); margin-top:2px;" id="soporte-doc-nota">Centro Médico MediClock - Urgencias 24/7</div>
+                        <a href="tel:+56957838682" class="btn-emergency-doc" style="margin-top:12px;">
+                            📞 Llamar al Médico de Urgencia (+569 5783 8682)
+                        </a>
+                    </div>
+
+                    <div style="font-size:14px; font-weight:700; color:var(--c-text); margin-bottom:8px;">Grupo Familiar Activo</div>
+                    <div class="pacientes-lista" id="pacientes-lista">
+                        <!-- Pacientes y familiares -->
+                    </div>
+
+                    <div style="margin-top:16px;">
+                        <button class="btn-salmon" style="width:100%;" onclick="mostrarSelectorGrupos()">
+                            👨‍👩‍👧‍👦 Gestionar Entornos Familiares
+                        </button>
+                    </div>
+                </section>
+
+                <!-- PESTAÑA 4: TERAPIA (PLAN DE TRATAMIENTO) -->
+                <section id="panel-terapia" class="tab-panel">
+                    <div style="margin-bottom:16px;">
+                        <h2 style="font-size:22px; font-weight:800; color:var(--c-text); margin:0;">Plan de Tratamiento</h2>
+                        <p style="font-size:13px; color:var(--c-text-2); margin-top:2px;">Organiza medicamentos, mediciones y hábitos</p>
+                    </div>
+
+                    <div class="lavender-banner">
+                        <div class="lavender-banner-title">💡 Plan Personalizado</div>
+                        <div class="lavender-banner-desc">Configura tus medicamentos y recordatorios en cada categoría a continuación.</div>
+                    </div>
+
+                    <!-- Categoría 1: Medicamentos -->
+                    <div class="dashed-card" onclick="abrirModalNuevo()">
+                        <div style="display:flex; align-items:center;">
+                            <div class="dashed-card-icon">💊</div>
+                            <div class="dashed-card-info">
+                                <div class="dashed-card-title">Medicamentos</div>
+                                <div class="dashed-card-subtitle" id="terapia-meds-sub">Pastillas, inyectables y suplementos</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;">+</button>
+                    </div>
+
+                    <!-- Categoría 2: Mediciones -->
+                    <div class="dashed-card" onclick="abrirModalRegistrarMedicion()">
+                        <div style="display:flex; align-items:center;">
+                            <div class="dashed-card-icon">⚖️</div>
+                            <div class="dashed-card-info">
+                                <div class="dashed-card-title">Mediciones de Salud</div>
+                                <div class="dashed-card-subtitle">Presión arterial, glucosa, peso</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;">+</button>
+                    </div>
+
+                    <!-- Categoría 3: Actividades -->
+                    <div class="dashed-card" onclick="abrirModalRegistrarActividad()">
+                        <div style="display:flex; align-items:center;">
+                            <div class="dashed-card-icon">🏃</div>
+                            <div class="dashed-card-info">
+                                <div class="dashed-card-title">Actividades & Hábitos</div>
+                                <div class="dashed-card-subtitle">Caminar, beber agua, ejercicio</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;">+</button>
+                    </div>
+
+                    <!-- Categoría 4: Humor y Síntomas -->
+                    <div class="dashed-card" onclick="abrirModalRegistrarSintoma()">
+                        <div style="display:flex; align-items:center;">
+                            <div class="dashed-card-icon">😃</div>
+                            <div class="dashed-card-info">
+                                <div class="dashed-card-title">Humor y Síntomas</div>
+                                <div class="dashed-card-subtitle">Diario de dolor y bienestar</div>
+                            </div>
+                        </div>
+                        <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;">+</button>
+                    </div>
+                </section>
+            </main>
+
+            <!-- FAB BOTÓN FLOTANTE (+ AÑADIR) -->
+            <button class="fab-add-btn" onclick="abrirModalSelectorRapido()">
+                <span style="font-size:18px; line-height:1;">+</span>
+                <span>Añadir</span>
+            </button>
+
+            <!-- BARRA NAVEGACION INFERIOR DE 4 PESTAÑAS (MYTHERAPY) -->
+            <nav class="bottom-nav">
+                <button class="nav-btn active" data-tab="hoy">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                    </span>
+                    <span class="nav-label">Hoy</span>
                 </button>
-            </div>
-        </section>
-
-        <!-- PESTAÑA 4: TERAPIA (PLAN DE TRATAMIENTO) -->
-        <section id="panel-terapia" class="tab-panel">
-            <div style="margin-bottom:16px;">
-                <h2 style="font-size:22px; font-weight:800; color:var(--c-text); margin:0;">Plan de Tratamiento</h2>
-                <p style="font-size:13px; color:var(--c-text-2); margin-top:2px;">Organiza medicamentos, mediciones y hábitos</p>
-            </div>
-
-            <div class="lavender-banner">
-                <div class="lavender-banner-title">💡 Plan Personalizado</div>
-                <div class="lavender-banner-desc">Configura tus medicamentos y recordatorios en cada categoría a continuación.</div>
-            </div>
-
-            <!-- Categoría 1: Medicamentos -->
-            <div class="dashed-card" onclick="abrirModalNuevo()">
-                <div style="display:flex; align-items:center;">
-                    <div class="dashed-card-icon">💊</div>
-                    <div class="dashed-card-info">
-                        <div class="dashed-card-title">Medicamentos</div>
-                        <div class="dashed-card-subtitle" id="terapia-meds-sub">Pastillas, inyectables y suplementos</div>
-                    </div>
-                </div>
-                <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;">+</button>
-            </div>
-
-            <!-- Categoría 2: Mediciones -->
-            <div class="dashed-card" onclick="abrirModalRegistrarMedicion()">
-                <div style="display:flex; align-items:center;">
-                    <div class="dashed-card-icon">⚖️</div>
-                    <div class="dashed-card-info">
-                        <div class="dashed-card-title">Mediciones de Salud</div>
-                        <div class="dashed-card-subtitle">Presión arterial, glucosa, peso</div>
-                    </div>
-                </div>
-                <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;">+</button>
-            </div>
-
-            <!-- Categoría 3: Actividades -->
-            <div class="dashed-card" onclick="abrirModalRegistrarActividad()">
-                <div style="display:flex; align-items:center;">
-                    <div class="dashed-card-icon">🏃</div>
-                    <div class="dashed-card-info">
-                        <div class="dashed-card-title">Actividades & Hábitos</div>
-                        <div class="dashed-card-subtitle">Caminar, beber agua, ejercicio</div>
-                    </div>
-                </div>
-                <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;">+</button>
-            </div>
-
-            <!-- Categoría 4: Humor y Síntomas -->
-            <div class="dashed-card" onclick="abrirModalRegistrarSintoma()">
-                <div style="display:flex; align-items:center;">
-                    <div class="dashed-card-icon">😃</div>
-                    <div class="dashed-card-info">
-                        <div class="dashed-card-title">Humor y Síntomas</div>
-                        <div class="dashed-card-subtitle">Diario de dolor y bienestar</div>
-                    </div>
-                </div>
-                <button class="btn-primary btn-sm" style="background:var(--c-salmon); border:none;">+</button>
-            </div>
-        </section>
-    </main>
-
-    <!-- FAB BOTÓN FLOTANTE (+ AÑADIR) -->
-    <button class="fab-add-btn" onclick="abrirModalSelectorRapido()">
-        <span style="font-size:18px; line-height:1;">+</span>
-        <span>Añadir</span>
-    </button>
-
-    <!-- BARRA NAVEGACION INFERIOR DE 4 PESTAÑAS (MYTHERAPY) -->
-    <nav class="bottom-nav">
-        <button class="nav-btn active" data-tab="hoy">
-            <span class="nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
-            </span>
-            <span class="nav-label">Hoy</span>
-        </button>
-        <button class="nav-btn" data-tab="progreso">
-            <span class="nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
-            </span>
-            <span class="nav-label">Progreso</span>
-        </button>
-        <button class="nav-btn" data-tab="soporte">
-            <span class="nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-            </span>
-            <span class="nav-label">Soporte</span>
-        </button>
-        <button class="nav-btn" data-tab="terapia">
-            <span class="nav-icon">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4.5" y1="19.5" x2="19.5" y2="4.5"></line><path d="M16 3a4.24 4.24 0 0 0-6 0L3 10a4.24 4.24 0 0 0 0 6l3 3a4.24 4.24 0 0 0 6 0l7-7a4.24 4.24 0 0 0 0-6Z"></path></svg>
-            </span>
-            <span class="nav-label">Terapia</span>
-        </button>
-    </nav>
+                <button class="nav-btn" data-tab="progreso">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"></line><line x1="12" y1="20" x2="12" y2="4"></line><line x1="6" y1="20" x2="6" y2="14"></line></svg>
+                    </span>
+                    <span class="nav-label">Progreso</span>
+                </button>
+                <button class="nav-btn" data-tab="soporte">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
+                    </span>
+                    <span class="nav-label">Soporte</span>
+                </button>
+                <button class="nav-btn" data-tab="terapia">
+                    <span class="nav-icon">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4.5" y1="19.5" x2="19.5" y2="4.5"></line><path d="M16 3a4.24 4.24 0 0 0-6 0L3 10a4.24 4.24 0 0 0 0 6l3 3a4.24 4.24 0 0 0 6 0l7-7a4.24 4.24 0 0 0 0-6Z"></path></svg>
+                    </span>
+                    <span class="nav-label">Terapia</span>
+                </button>
+            </nav>
+        </div>
+    </div>
 </div>
 
 <!-- MODO PACIENTE SCREEN -->

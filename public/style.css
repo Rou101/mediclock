@@ -1828,5 +1828,238 @@ input:checked + .slider:before {
 .mood-day-label { font-size: 11px; color: var(--c-text-2); }
 .mood-emoji { font-size: 20px; opacity: 0.8; }
 
+/* ========================================
+   DESKTOP LANDING SHELL STYLES (>= 768px)
+   ======================================== */
+.desktop-shell-wrapper {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+}
+
+.desktop-sidebar {
+    display: none;
+}
+
+@media (min-width: 860px) {
+    .desktop-shell-wrapper {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+        gap: 56px;
+        padding: 40px 32px;
+        max-width: 1240px;
+        margin: 0 auto;
+        min-height: 100vh;
+    }
+
+    .desktop-sidebar {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        flex: 1;
+        max-width: 480px;
+        color: var(--c-text);
+        z-index: 10;
+        text-align: left;
+    }
+
+    .desktop-brand-box {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        margin-bottom: 12px;
+    }
+    .desktop-logo-icon {
+        width: 52px;
+        height: 52px;
+        border-radius: 16px;
+        background: var(--c-surface2);
+        border: 1px solid var(--c-border);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .desktop-brand-name {
+        font-size: 32px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+        color: var(--c-text);
+        margin: 0;
+        line-height: 1.1;
+    }
+
+    .desktop-version-badge {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--c-salmon);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .desktop-hero-sub {
+        font-size: 15px;
+        color: var(--c-text-2);
+        line-height: 1.5;
+        margin-bottom: 24px;
+    }
+
+    .desktop-pro-card {
+        background: linear-gradient(135deg, rgba(224, 122, 95, 0.12), rgba(196, 181, 253, 0.12));
+        border: 1.5px solid rgba(224, 122, 95, 0.35);
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 24px;
+        backdrop-filter: blur(12px);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
+    }
+
+    .desktop-pro-title {
+        font-size: 17px;
+        font-weight: 800;
+        color: var(--c-salmon);
+        margin-bottom: 6px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .desktop-pro-desc {
+        font-size: 13px;
+        color: var(--c-text-2);
+        line-height: 1.4;
+        margin-bottom: 16px;
+    }
+
+    .desktop-btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    .desktop-btn-pro {
+        background: linear-gradient(135deg, #E07A5F, #D97757);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 14px;
+        padding: 12px 20px;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        box-shadow: 0 4px 16px rgba(224, 122, 95, 0.4);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .desktop-btn-pro:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(224, 122, 95, 0.5);
+    }
+
+    .desktop-btn-secondary {
+        background: var(--c-surface2);
+        border: 1px solid var(--c-border);
+        color: var(--c-text);
+        font-weight: 600;
+        font-size: 13px;
+        padding: 12px 16px;
+        border-radius: 12px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        transition: background 0.2s;
+    }
+    .desktop-btn-secondary:hover {
+        background: rgba(255,255,255,0.1);
+    }
+
+    .desktop-features-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .desktop-feature-item {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--c-border);
+        border-radius: 14px;
+        padding: 12px;
+    }
+    .desktop-feature-icon { font-size: 20px; margin-bottom: 4px; }
+    .desktop-feature-name { font-size: 13px; font-weight: 700; color: var(--c-text); }
+    .desktop-feature-text { font-size: 11px; color: var(--c-text-2); margin-top: 2px; line-height: 1.3; }
+
+    .desktop-toggle-btn {
+        background: transparent;
+        border: 1px dashed var(--c-border);
+        color: var(--c-text-2);
+        font-size: 12px;
+        font-weight: 600;
+        padding: 8px 14px;
+        border-radius: 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .desktop-toggle-btn:hover {
+        border-color: var(--c-salmon);
+        color: var(--c-text);
+    }
+
+    /* Simulador Marco de Teléfono */
+    .desktop-device-frame {
+        width: 414px;
+        height: 840px;
+        max-height: 90vh;
+        background: #09090b;
+        border-radius: 44px;
+        padding: 10px;
+        border: 6px solid rgba(255, 255, 255, 0.12);
+        box-shadow: 0 24px 80px rgba(0, 0, 0, 0.7), inset 0 0 2px rgba(255,255,255,0.2);
+        position: relative;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+
+    .app, #login-screen {
+        border-radius: 34px !important;
+        overflow: hidden !important;
+        height: 100% !important;
+        max-height: 100% !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        border: none !important;
+        margin: 0 !important;
+        box-shadow: none !important;
+    }
+}
+
+/* Modo Pantalla Completa en Desktop */
+.desktop-shell-wrapper.fullscreen-mode .desktop-sidebar {
+    display: none !important;
+}
+.desktop-shell-wrapper.fullscreen-mode .desktop-device-frame {
+    width: 100vw !important;
+    max-width: 600px !important;
+    height: 100vh !important;
+    max-height: 100vh !important;
+    border-radius: 0 !important;
+    border: none !important;
+    padding: 0 !important;
+}
+.desktop-shell-wrapper.fullscreen-mode .app,
+.desktop-shell-wrapper.fullscreen-mode #login-screen {
+    border-radius: 0 !important;
+}
+
+
 
 

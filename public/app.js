@@ -2493,3 +2493,15 @@ window.confirmarTomaPaciente = async function(id, hora) {
     }
 };
 
+window.toggleDesktopFullscreen = function() {
+    const shell = document.getElementById('desktop-shell');
+    const btn = document.getElementById('btn-desktop-fullscreen');
+    if (!shell) return;
+    shell.classList.toggle('fullscreen-mode');
+    const isFS = shell.classList.contains('fullscreen-mode');
+    if (btn) {
+        btn.innerHTML = isFS ? '<span>📱 Ver en Marco de Smartphone</span>' : '<span>🖥️ Ver PWA a Pantalla Completa</span>';
+    }
+};
+
+
